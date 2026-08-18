@@ -1,0 +1,1563 @@
+[
+  {
+    "style_code": "CHRON_STYLE_01",
+    "name": "1 Editorial Investigation",
+    "best_for": "SECRET-REVEAL ESSAYS \u00b7 \"HERE'S THE PLAYBOOK\"",
+    "palette": [
+      "#F4EFE3",
+      "#141414",
+      "#C8102E",
+      "#8A8275",
+      "#C9A656"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_01",
+    "preview_image": "/sampler_previews/CHRON_STYLE_01.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_02",
+    "name": "2 Mission Control \u2014 The Stakes Room",
+    "best_for": "TENSION, PRESSURE, \"WHAT HAPPENS NEXT\" BEATS",
+    "palette": [
+      "#0A0E1A",
+      "#FFB300",
+      "#22D3EE",
+      "#FF3B30",
+      "#1F2937"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_02",
+    "preview_image": "/sampler_previews/CHRON_STYLE_02.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_03",
+    "name": "3 For You \u2014 Algorithmic  Capture",
+    "best_for": "ATTENTION, VIRALITY & SOCIAL-MEDIA BEATS",
+    "palette": [
+      "#0E0E10",
+      "#FF2E93",
+      "#8B5CF6",
+      "#06B6D4",
+      "#A3E635"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_03",
+    "preview_image": "/sampler_previews/CHRON_STYLE_03.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_04",
+    "name": "4 Architectural Manifesto",
+    "best_for": "VERDICTS, CONCLUSIONS & MONUMENTAL CLOSERS",
+    "palette": [
+      "#EDE7DC",
+      "#1A1815",
+      "#C9A656",
+      "#A39E93"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_04",
+    "preview_image": "/sampler_previews/CHRON_STYLE_04.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_05",
+    "name": "5 Sketchbook \u2014 A Closer's Notebook",
+    "best_for": "HUMAN, BEHIND-THE-SCENES & \"HOW IT BEGAN\"",
+    "palette": [
+      "#F3EDDE",
+      "#1B1F2B",
+      "#DC4A3D",
+      "#FFDA47",
+      "#A8C4D9"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_05",
+    "preview_image": "/sampler_previews/CHRON_STYLE_05.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_07",
+    "name": "7 Front Page \u2014 Breaking Broadsheet",
+    "best_for": "BIG ANNOUNCEMENTS \u00b7 \"THIS CHANGES EVERYTHING\"",
+    "palette": [
+      "#EFEAE0",
+      "#1A1A1A",
+      "#B3261E",
+      "#5C6670",
+      "#D9D2C4"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_07",
+    "preview_image": "/sampler_previews/CHRON_STYLE_07.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_08",
+    "name": "8 Cover Story \u2014 Glossy Issue",
+    "best_for": "PERSONA, IDENTITY & \"THE MAKING OF\" BEATS",
+    "palette": [
+      "#FAFAF8",
+      "#111111",
+      "#D2042D",
+      "#C9A14A",
+      "#B8B2A8"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_08",
+    "preview_image": "/sampler_previews/CHRON_STYLE_08.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_09",
+    "name": "9 Xerox Zine \u2014 Staple & Riot",
+    "best_for": "CONTRARIAN TAKES \u00b7 RULE-BREAKING SEGMENTS",
+    "palette": [
+      "#F2F0EB",
+      "#0D0D0D",
+      "#E63B2E",
+      "#D8C9A3",
+      "#6E6E6E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_09",
+    "preview_image": "/sampler_previews/CHRON_STYLE_09.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_10",
+    "name": "10 Field Notes \u2014 Expedition Log",
+    "best_for": "JOURNEY, PROCESS & DISCOVERY NARRATIVES",
+    "palette": [
+      "#D9C7A0",
+      "#4A3826",
+      "#5B7553",
+      "#B3422E",
+      "#8A8275"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_10",
+    "preview_image": "/sampler_previews/CHRON_STYLE_10.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_11",
+    "name": "11 Receipt Roll \u2014 The Paper Trail",
+    "best_for": "COST BREAKDOWNS \u00b7 ITEMIZED LISTS \u00b7 TOTALS",
+    "palette": [
+      "#F7F5F0",
+      "#3A3A3A",
+      "#D7263D",
+      "#FFE066",
+      "#B9B4A8"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_11",
+    "preview_image": "/sampler_previews/CHRON_STYLE_11.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_12",
+    "name": "12 Card Catalog \u2014 The Archive",
+    "best_for": "HISTORY, RECEIPTS-FROM-THE-PAST & LORE BEATS",
+    "palette": [
+      "#E8DCC0",
+      "#2B2B33",
+      "#C0392B",
+      "#34558B",
+      "#9C9480"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_12",
+    "preview_image": "/sampler_previews/CHRON_STYLE_12.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_13",
+    "name": "13 Airma il \u2014 Par Avion",
+    "best_for": "GLOBAL SCALE \u00b7 SENT/RECEIVED METAPHORS",
+    "palette": [
+      "#F3EDE2",
+      "#C8102E",
+      "#1F4690",
+      "#5C5C5C",
+      "#C9A227"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_13",
+    "preview_image": "/sampler_previews/CHRON_STYLE_13.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_14",
+    "name": "14 Pulp Paperback \u2014 Dime S tore Thriller",
+    "best_for": "DRAMA, DANGER & CLIFFHANGER BEATS",
+    "palette": [
+      "#E8C547",
+      "#A4161A",
+      "#14213D",
+      "#EAE0C8",
+      "#3E3A33"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_14",
+    "preview_image": "/sampler_previews/CHRON_STYLE_14.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_15",
+    "name": "15 Sunday Funnies \u2014 Halftone Strip",
+    "best_for": "DIALOGUE BEATS \u00b7 PLAYFUL EXPLAINERS",
+    "palette": [
+      "#F6EFD9",
+      "#1B1B1B",
+      "#E03A3E",
+      "#2364AA",
+      "#FDCA40"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_15",
+    "preview_image": "/sampler_previews/CHRON_STYLE_15.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_16",
+    "name": "16 The Fine Print \u2014 Legal Redline",
+    "best_for": "TERMS, RULES & \"HERE'S THE CATCH\" BEATS",
+    "palette": [
+      "#F8F6F1",
+      "#232323",
+      "#D32F2F",
+      "#FFF176",
+      "#1E63D0"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_16",
+    "preview_image": "/sampler_previews/CHRON_STYLE_16.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_17",
+    "name": "17 Termin al Zero \u2014 Phosphor CLI",
+    "best_for": "RAW TECHNICAL TRUTH \u00b7 NO-FRILLS AUTHORITY",
+    "palette": [
+      "#050505",
+      "#33FF33",
+      "#1E7A1E",
+      "#F2FFF2"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_17",
+    "preview_image": "/sampler_previews/CHRON_STYLE_17.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_18",
+    "name": "18 The Termin al \u2014 Market Open",
+    "best_for": "NUMBERS, GROWTH, WINS & LOSSES",
+    "palette": [
+      "#0B0E11",
+      "#FFB300",
+      "#00C805",
+      "#FF3B30",
+      "#2A2E33"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_18",
+    "preview_image": "/sampler_previews/CHRON_STYLE_18.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_19",
+    "name": "19 Desktop 95 \u2014 OS Nostalgia",
+    "best_for": "STEP-BY-STEP PROCESSES \u00b7 IRONIC ERROR MOMENTS",
+    "palette": [
+      "#008080",
+      "#C0C0C0",
+      "#000080",
+      "#FFFFFF",
+      "#1B1B1B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_19",
+    "preview_image": "/sampler_previews/CHRON_STYLE_19.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_20",
+    "name": "20 Dark Dashboard \u2014 Ops Analytics",
+    "best_for": "DATA-HEAVY SEGMENTS \u00b7 PERFORMANCE RECAPS",
+    "palette": [
+      "#0F1115",
+      "#171A21",
+      "#3B82F6",
+      "#34D399",
+      "#F59E0B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_20",
+    "preview_image": "/sampler_previews/CHRON_STYLE_20.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_21",
+    "name": "21 Wireframe G host \u2014 UX Skeleton",
+    "best_for": "CONCEPTS IN PROGRESS \u00b7 STRIPPED-DOWN LOGIC",
+    "palette": [
+      "#FBFBF9",
+      "#9AA0A6",
+      "#3C4043",
+      "#EA4335",
+      "#4285F4"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_21",
+    "preview_image": "/sampler_previews/CHRON_STYLE_21.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_22",
+    "name": "22 Night Drive \u2014 HUD Windshield",
+    "best_for": "MOMENTUM, DIRECTION & \"WHERE THIS IS GOING\"",
+    "palette": [
+      "#0A0F1E",
+      "#7DD3FC",
+      "#FBBF24",
+      "#F43F5E",
+      "#E5E7EB"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_22",
+    "preview_image": "/sampler_previews/CHRON_STYLE_22.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_23",
+    "name": "23 Flight Deck \u2014 Avionics Check",
+    "best_for": "CHECKLISTS \u00b7 PREPARATION \u00b7 GO/NO-GO DECISIONS",
+    "palette": [
+      "#1C1E22",
+      "#2D9CDB",
+      "#8B5E3C",
+      "#27AE60",
+      "#F2C14E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_23",
+    "preview_image": "/sampler_previews/CHRON_STYLE_23.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_24",
+    "name": "24 CCTV Grid \u2014 Watchtower",
+    "best_for": "SURVEILLANCE, PATTERNS & \"CAUGHT IN THE ACT\"",
+    "palette": [
+      "#23262B",
+      "#9FA6AD",
+      "#FF1F1F",
+      "#7CFF6B",
+      "#E8E8E8"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_24",
+    "preview_image": "/sampler_previews/CHRON_STYLE_24.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_25",
+    "name": "25 Pull Request \u2014 The Diff",
+    "best_for": "BEFORE/AFTER COMPARISONS \u00b7 WHAT CHANGED",
+    "palette": [
+      "#0D1117",
+      "#2EA043",
+      "#F85149",
+      "#79C0FF",
+      "#8B949E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_25",
+    "preview_image": "/sampler_previews/CHRON_STYLE_25.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_26",
+    "name": "26 Patchbay \u2014 Signal Path",
+    "best_for": "HOW THINGS CONNECT \u00b7 CAUSE AND EFFECT CHAINS",
+    "palette": [
+      "#15151A",
+      "#C7CCD1",
+      "#FF7A00",
+      "#14B8A6",
+      "#FFC53D"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_26",
+    "preview_image": "/sampler_previews/CHRON_STYLE_26.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_27",
+    "name": "27 The Group Chat \u2014 Leaked Screenshots",
+    "best_for": "DIALOGUE, DRAMA & RECEIPTS CULTURE",
+    "palette": [
+      "#111418",
+      "#0A84FF",
+      "#3A3A3C",
+      "#FF375F",
+      "#F2F2F7"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_27",
+    "preview_image": "/sampler_previews/CHRON_STYLE_27.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_28",
+    "name": "28 Going Live \u2014 Stream Overlay",
+    "best_for": "HYPE MOMENTS \u00b7 LIVE-REACTION ENERGY",
+    "palette": [
+      "#0E0E10",
+      "#9146FF",
+      "#1FD68A",
+      "#FFB626",
+      "#EFEFF1"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_28",
+    "preview_image": "/sampler_previews/CHRON_STYLE_28.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_29",
+    "name": "29 Thread Anatomy  \u2014 Post Mortem",
+    "best_for": "VIRAL MECHANICS \u00b7 PUBLIC-OPINION BEATS",
+    "palette": [
+      "#15202B",
+      "#1D9BF0",
+      "#F91880",
+      "#00BA7C",
+      "#E7E9EA"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_29",
+    "preview_image": "/sampler_previews/CHRON_STYLE_29.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_30",
+    "name": "30 Rabbit Hole \u2014 Wiki Descent",
+    "best_for": "CONTEXT DUMPS \u00b7 \"IT GOES DEEPER\" BEATS",
+    "palette": [
+      "#F8F9FA",
+      "#202122",
+      "#3366CC",
+      "#795CB2",
+      "#BA0000"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_30",
+    "preview_image": "/sampler_previews/CHRON_STYLE_30.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_31",
+    "name": "31 Inbox Zero \u2014 The Ema il Chain",
+    "best_for": "CORPORATE DRAMA \u00b7 ESCALATION BEATS",
+    "palette": [
+      "#F6F8FC",
+      "#202124",
+      "#EA4335",
+      "#34A853",
+      "#FBBC04"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_31",
+    "preview_image": "/sampler_previews/CHRON_STYLE_31.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_32",
+    "name": "32 Five Stars \u2014 The Listing",
+    "best_for": "JUDGING, RATING & SOCIAL-PROOF BEATS",
+    "palette": [
+      "#FFFFFF",
+      "#0F1111",
+      "#FFA41C",
+      "#CC0C39",
+      "#007185"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_32",
+    "preview_image": "/sampler_previews/CHRON_STYLE_32.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_33",
+    "name": "33 Swipe Logic \u2014 The Match",
+    "best_for": "CHOICES, COMPARISONS & COMPATIBILITY BEATS",
+    "palette": [
+      "#111419",
+      "#FD297B",
+      "#FF655B",
+      "#4CD964",
+      "#F44336"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_33",
+    "preview_image": "/sampler_previews/CHRON_STYLE_33.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_34",
+    "name": "34 Notification Hell \u2014 Buzzkill",
+    "best_for": "OVERWHELM, DISTRACTION & ATTENTION-COST BEATS",
+    "palette": [
+      "#0B0B0F",
+      "#1C1C22",
+      "#FF3B30",
+      "#0A84FF",
+      "#F5F5F7"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_34",
+    "preview_image": "/sampler_previews/CHRON_STYLE_34.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_35",
+    "name": "35 Message Board \u2014 Y2K Forum",
+    "best_for": "COMMUNITY LORE \u00b7 OLD-INTERNET WISDOM",
+    "palette": [
+      "#2C3E70",
+      "#D6D9DE",
+      "#0000EE",
+      "#E25822",
+      "#F4F2EC"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_35",
+    "preview_image": "/sampler_previews/CHRON_STYLE_35.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_36",
+    "name": "36 The Algorithm \u2014 Backend View",
+    "best_for": "HOW RECOMMENDATION SYSTEMS REALLY WORK",
+    "palette": [
+      "#08090D",
+      "#22D3EE",
+      "#8B5CF6",
+      "#FBBF24",
+      "#E2E8F0"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_36",
+    "preview_image": "/sampler_previews/CHRON_STYLE_36.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_37",
+    "name": "37 Title Sequence \u2014 The Bass Cut",
+    "best_for": "OPENERS \u00b7 CHAPTERING \u00b7 STYLISH SETUPS",
+    "palette": [
+      "#141414",
+      "#E94F1D",
+      "#F2E8DC",
+      "#E3B505",
+      "#2D2D2D"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_37",
+    "preview_image": "/sampler_previews/CHRON_STYLE_37.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_38",
+    "name": "38 Neon Procedural \u2014 Noir District",
+    "best_for": "MYSTERY SETUPS \u00b7 SEEDY-UNDERBELLY BEATS",
+    "palette": [
+      "#0A0C12",
+      "#00E5FF",
+      "#FF3CAC",
+      "#FFA62B",
+      "#5A6378"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_38",
+    "preview_image": "/sampler_previews/CHRON_STYLE_38.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_39",
+    "name": "39 Still Frame \u2014 A 24 Quiet",
+    "best_for": "EMOTIONAL PIVOTS \u00b7 LETTING A LINE BREATHE",
+    "palette": [
+      "#E8E2D6",
+      "#7E9B95",
+      "#C99A8E",
+      "#2E2C29",
+      "#B9B3A6"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_39",
+    "preview_image": "/sampler_previews/CHRON_STYLE_39.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_40",
+    "name": "40 Tracking Error \u2014 VHS Memo ry",
+    "best_for": "NOSTALGIA \u00b7 MEMORY \u00b7 \"BACK THEN\" BEATS",
+    "palette": [
+      "#101010",
+      "#F2F2F2",
+      "#FF4FD8",
+      "#41E3FF",
+      "#FFB36B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_40",
+    "preview_image": "/sampler_previews/CHRON_STYLE_40.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_41",
+    "name": "41 Imp act Frames  \u2014 Anime Cu t",
+    "best_for": "POWER MOMENTS \u00b7 TRANSFORMATIONS \u00b7 REVEALS",
+    "palette": [
+      "#111111",
+      "#FFFFFF",
+      "#D7263D",
+      "#3A86FF",
+      "#B8B8B8"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_41",
+    "preview_image": "/sampler_previews/CHRON_STYLE_41.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_42",
+    "name": "42 Director's Pass \u2014 Storyboard",
+    "best_for": "PLANNING BEATS \u00b7 \"HERE'S THE VISION\" MOMENTS",
+    "palette": [
+      "#F1ECE0",
+      "#595550",
+      "#4C6EF5",
+      "#E03131",
+      "#C9B48C"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_42",
+    "preview_image": "/sampler_previews/CHRON_STYLE_42.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_43",
+    "name": "43 Subtitled \u2014 Foreign Feature",
+    "best_for": "PROFOUND LINES \u00b7 PRESTIGE TONE SHIFTS",
+    "palette": [
+      "#0C0C0C",
+      "#F5F5F1",
+      "#D9C58B",
+      "#44464B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_43",
+    "preview_image": "/sampler_previews/CHRON_STYLE_43.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_44",
+    "name": "44 Evidence Tape \u2014 Found Footage",
+    "best_for": "EXPOS\u00c9S \u00b7 \"THE FOOTAGE EXISTS\" BEATS",
+    "palette": [
+      "#1E2B1E",
+      "#7CFF6B",
+      "#E5383B",
+      "#D8D8D8",
+      "#0E0E0E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_44",
+    "preview_image": "/sampler_previews/CHRON_STYLE_44.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_45",
+    "name": "45 The Crawl \u2014 End Credits",
+    "best_for": "THANK-YOUS \u00b7 RECAPS \u00b7 HONOR ROLLS",
+    "palette": [
+      "#000000",
+      "#EDEDED",
+      "#C9A656",
+      "#6B6B6B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_45",
+    "preview_image": "/sampler_previews/CHRON_STYLE_45.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_46",
+    "name": "46 In A World \u2014 Trailer Cards",
+    "best_for": "HYPE ESCALATION \u00b7 THREE-ACT TEASES",
+    "palette": [
+      "#050505",
+      "#F2F2F2",
+      "#FF6B1A",
+      "#0FA3B1"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_46",
+    "preview_image": "/sampler_previews/CHRON_STYLE_46.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_47",
+    "name": "47 Ransom Note \u2014 Cut & Paste",
+    "best_for": "DEMANDS, ULTIMATUMS & UNHINGED ENERGY",
+    "palette": [
+      "#F4F1E8",
+      "#D7263D",
+      "#1B6CA8",
+      "#F4B400",
+      "#3B3B3B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_47",
+    "preview_image": "/sampler_previews/CHRON_STYLE_47.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_48",
+    "name": "48 Red String \u2014 The Cork Board",
+    "best_for": "CONNECTING DOTS \u00b7 CONSPIRACY-ENERGY",
+    "palette": [
+      "#B08D57",
+      "#F5F2EA",
+      "#C1121F",
+      "#FFD966",
+      "#2B2B2B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_48",
+    "preview_image": "/sampler_previews/CHRON_STYLE_48.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_49",
+    "name": "49 Samp ler Stitch \u2014 Emb roidery Hoop",
+    "best_for": "TIMELESS TRUTHS \u00b7 WISDOM WITH A WINK",
+    "palette": [
+      "#EFE6D5",
+      "#B23A48",
+      "#7B9E6B",
+      "#34495E",
+      "#C9A227"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_49",
+    "preview_image": "/sampler_previews/CHRON_STYLE_49.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_50",
+    "name": "50 Night School \u2014 Chalk Theorem",
+    "best_for": "FIRST-PRINCIPLES TEACHING \u00b7 EARNED CONCLUSIONS",
+    "palette": [
+      "#2A3B33",
+      "#F2F2E9",
+      "#F4E04D",
+      "#E8A0BF",
+      "#1A2620"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_50",
+    "preview_image": "/sampler_previews/CHRON_STYLE_50.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_51",
+    "name": "51 Riso Misprint \u2014 Two-Ink Press",
+    "best_for": "INDIE WARMTH \u00b7 CREATIVE-COMMUNITY BEATS",
+    "palette": [
+      "#F5F0E6",
+      "#FF48B0",
+      "#0078BF",
+      "#7A4BC8",
+      "#FFE800"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_51",
+    "preview_image": "/sampler_previews/CHRON_STYLE_51.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_52",
+    "name": "52 Clay Desk \u2014 Stop Motion",
+    "best_for": "CHARM, FRIENDLINESS & DISARMING EXPLAINERS",
+    "palette": [
+      "#E8743B",
+      "#5B9BD5",
+      "#F2E9DC",
+      "#8B6F4E",
+      "#3F3A35"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_52",
+    "preview_image": "/sampler_previews/CHRON_STYLE_52.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_53",
+    "name": "53 Scrapbook \u2014 Washi Spread",
+    "best_for": "MEMORIES, MILESTONES & GRATITUDE BEATS",
+    "palette": [
+      "#D7C4A3",
+      "#9FD8CB",
+      "#F49390",
+      "#F7F2E6",
+      "#4F4337"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_53",
+    "preview_image": "/sampler_previews/CHRON_STYLE_53.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_54",
+    "name": "54 Letterpress \u2014 Deep Imp ression",
+    "best_for": "DECLARATIONS \u00b7 VALUES \u00b7 WORDS THAT SHOULD LAST",
+    "palette": [
+      "#F2EDE3",
+      "#1C1A17",
+      "#D34E24",
+      "#243B53"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_54",
+    "preview_image": "/sampler_previews/CHRON_STYLE_54.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_55",
+    "name": "55 Fold Logic \u2014 Origami",
+    "best_for": "TRANSFORMATION \u00b7 ELEGANT SIMPLICITY BEATS",
+    "palette": [
+      "#FAF7F0",
+      "#C4BEB2",
+      "#D64545",
+      "#3D5A80"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_55",
+    "preview_image": "/sampler_previews/CHRON_STYLE_55.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_56",
+    "name": "56 War Room Glass \u2014 Marker on Window",
+    "best_for": "STRATEGY HUDDLES \u00b7 WORKING-THE-PROBLEM BEATS",
+    "palette": [
+      "#1A2026",
+      "#F4F4F4",
+      "#FF8A3D",
+      "#4DD0E1",
+      "#39414B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_56",
+    "preview_image": "/sampler_previews/CHRON_STYLE_56.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_57",
+    "name": "57 Concrete Poster \u2014 Brutalist Type",
+    "best_for": "HARD TRUTHS \u00b7 UNCOMFORTABLE STATEMENTS",
+    "palette": [
+      "#8E8A82",
+      "#E8E5DF",
+      "#1A1A1A",
+      "#E85D04"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_57",
+    "preview_image": "/sampler_previews/CHRON_STYLE_57.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_58",
+    "name": "58 Swiss Grid \u2014 Helvetica Discipline",
+    "best_for": "CLEAN FRAMEWORKS \u00b7 ORDERED ARGUMENTS",
+    "palette": [
+      "#FFFFFF",
+      "#111111",
+      "#E30613",
+      "#D9D9D9"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_58",
+    "preview_image": "/sampler_previews/CHRON_STYLE_58.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_59",
+    "name": "59 Gallery Wall \u2014 Museum Label",
+    "best_for": "ELEVATING IDEAS \u00b7 TREATING POINTS AS ARTIFACTS",
+    "palette": [
+      "#F7F6F3",
+      "#6E6A64",
+      "#5C4633",
+      "#76323F"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_59",
+    "preview_image": "/sampler_previews/CHRON_STYLE_59.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_60",
+    "name": "60 Drafting Table \u2014 Blueprint",
+    "best_for": "PLANS, SYSTEMS & HOW-IT'S-BUILT BEATS",
+    "palette": [
+      "#1B4F8A",
+      "#EAF2FA",
+      "#9FB3C8",
+      "#D64550"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_60",
+    "preview_image": "/sampler_previews/CHRON_STYLE_60.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_61",
+    "name": "61 Flat-Pack \u2014 Assemb ly Manual",
+    "best_for": "SIMPLE STEPS \u00b7 \"ANYONE CAN DO THIS\" BEATS",
+    "palette": [
+      "#FAFAF7",
+      "#2B2B2B",
+      "#0058A3",
+      "#FFDB00"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_61",
+    "preview_image": "/sampler_previews/CHRON_STYLE_61.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_62",
+    "name": "62 Transit Map \u2014 The Diagram",
+    "best_for": "JOURNEYS WITH STOPS \u00b7 BRANCHING PATHS",
+    "palette": [
+      "#F8F8F5",
+      "#1C1C1C",
+      "#E32017",
+      "#003688",
+      "#00782A"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_62",
+    "preview_image": "/sampler_previews/CHRON_STYLE_62.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_63",
+    "name": "63 Wayfinding \u2014 Termin al Signs",
+    "best_for": "ORIENTATION \u00b7 \"YOU ARE HERE\" \u00b7 NEXT STEPS",
+    "palette": [
+      "#212121",
+      "#FFD500",
+      "#FFFFFF",
+      "#00A36C"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_63",
+    "preview_image": "/sampler_previews/CHRON_STYLE_63.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_64",
+    "name": "64 Blocking Notes \u2014 Stage Plot",
+    "best_for": "ORCHESTRATING PARTS \u00b7 WHO-DOES-WHAT BEATS",
+    "palette": [
+      "#15131A",
+      "#F1EADB",
+      "#FFD23F",
+      "#3FA7D6",
+      "#FFE8B0"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_64",
+    "preview_image": "/sampler_previews/CHRON_STYLE_64.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_65",
+    "name": "65 Contour Lines \u2014 Topographic",
+    "best_for": "DIFFICULTY, TERRAIN & LONG-CLIMB BEATS",
+    "palette": [
+      "#EFEAD8",
+      "#8C6239",
+      "#5B8DB8",
+      "#708A58",
+      "#C0452A"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_65",
+    "preview_image": "/sampler_previews/CHRON_STYLE_65.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_66",
+    "name": "66 Diorama  Grid \u2014 Isomet ric City",
+    "best_for": "ECOSYSTEMS \u00b7 BIG PICTURES BUILT FROM PARTS",
+    "palette": [
+      "#E5E1DA",
+      "#E76F51",
+      "#2A9D8F",
+      "#E9C46A",
+      "#264653"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_66",
+    "preview_image": "/sampler_previews/CHRON_STYLE_66.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_67",
+    "name": "67 Millennium Chrome \u2014 Y 2K Gloss",
+    "best_for": "BOLD PREDICTIONS \u00b7 FUTURES THAT FEEL FUN",
+    "palette": [
+      "#D8DEE6",
+      "#3D5AFE",
+      "#FF6EC7",
+      "#C6FF00",
+      "#0B0B12"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_67",
+    "preview_image": "/sampler_previews/CHRON_STYLE_67.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_68",
+    "name": "68 Insert Coin \u2014 Arcade Attract",
+    "best_for": "CHALLENGES \u00b7 COMPETITION \u00b7 SCORE-KEEPING",
+    "palette": [
+      "#0A0A14",
+      "#FF2079",
+      "#00F0FF",
+      "#FFD300",
+      "#F2F2F2"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_68",
+    "preview_image": "/sampler_previews/CHRON_STYLE_68.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_69",
+    "name": "69 Page 100 \u2014 Teletext",
+    "best_for": "HEADLINES AS DATA \u00b7 DEADPAN BROADCAST HUMOR",
+    "palette": [
+      "#000000",
+      "#FFFF00",
+      "#00FFFF",
+      "#00FF00",
+      "#FF0000"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_69",
+    "preview_image": "/sampler_previews/CHRON_STYLE_69.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_70",
+    "name": "70 Atomic  Age \u2014 Tomo rrow's World",
+    "best_for": "OPTIMISTIC PROMISES \u00b7 RETRO-BRIGHT ENERGY",
+    "palette": [
+      "#5BC8AC",
+      "#F76C5E",
+      "#F4D35E",
+      "#FBF5E6",
+      "#5D4037"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_70",
+    "preview_image": "/sampler_previews/CHRON_STYLE_70.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_71",
+    "name": "71 Grid Horizon \u2014 Synthwave",
+    "best_for": "MOMENTUM MONTAGES \u00b7 DRIVING TOWARD A GOAL",
+    "palette": [
+      "#261447",
+      "#FF6C11",
+      "#FF3864",
+      "#2DE2E6",
+      "#0D0221"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_71",
+    "preview_image": "/sampler_previews/CHRON_STYLE_71.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_72",
+    "name": "72 Pixel Quest \u2014 8-Bit RPG",
+    "best_for": "PROGRESS, LEVELING UP & SKILL-TREE BEATS",
+    "palette": [
+      "#1B1D36",
+      "#3450A1",
+      "#F9C22E",
+      "#58C322",
+      "#D7263D"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_72",
+    "preview_image": "/sampler_previews/CHRON_STYLE_72.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_73",
+    "name": "73 But Wait \u2014 Infomer cial",
+    "best_for": "VALUE STACKING \u00b7 IRRESISTIBLE-OFFER BEATS",
+    "palette": [
+      "#1E5AA8",
+      "#FFE135",
+      "#ED1C24",
+      "#FFFFFF",
+      "#0E2E5C"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_73",
+    "preview_image": "/sampler_previews/CHRON_STYLE_73.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_74",
+    "name": "74 Cassette Futurism \u2014 Beige Tech",
+    "best_for": "LO-FI SCI-FI \u00b7 SERIOUS TECH WITH RETRO SOUL",
+    "palette": [
+      "#D9CDB8",
+      "#7A6A55",
+      "#FFB000",
+      "#E86A33",
+      "#2B2620"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_74",
+    "preview_image": "/sampler_previews/CHRON_STYLE_74.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_75",
+    "name": "75 Pavilion \u2014 World's Fair",
+    "best_for": "GRAND TOURS \u00b7 \"WELCOME TO THE FUTURE\" BEATS",
+    "palette": [
+      "#D9A441",
+      "#5FA8D3",
+      "#DD6031",
+      "#30343F",
+      "#F2EBDD"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_75",
+    "preview_image": "/sampler_previews/CHRON_STYLE_75.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_76",
+    "name": "76 Disc Menu \u2014 Multimed ia ROM",
+    "best_for": "MENUS OF OPTIONS \u00b7 EXPLORE-AT-YOUR-PACE BEATS",
+    "palette": [
+      "#4A5568",
+      "#CBD2DC",
+      "#2A52BE",
+      "#2C7873",
+      "#D9B310"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_76",
+    "preview_image": "/sampler_previews/CHRON_STYLE_76.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_77",
+    "name": "77 Peer Review \u2014 Lab Report",
+    "best_for": "CLAIMS THAT NEED CREDIBILITY ARMOR",
+    "palette": [
+      "#FCFBF8",
+      "#1F2933",
+      "#3066BE",
+      "#C44536",
+      "#119DA4"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_77",
+    "preview_image": "/sampler_previews/CHRON_STYLE_77.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_78",
+    "name": "78 Specimen  Drawer \u2014 Natural History",
+    "best_for": "CATEGORIZING EXAMPLES \u00b7 COLLECTED CASE STUDIES",
+    "palette": [
+      "#5B4636",
+      "#F3EDDD",
+      "#C9A227",
+      "#3F3225",
+      "#5C7E9E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_78",
+    "preview_image": "/sampler_previews/CHRON_STYLE_78.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_79",
+    "name": "79 Observatory \u2014 Star Chart",
+    "best_for": "VISION, SCALE & LONG-HORIZON BEATS",
+    "palette": [
+      "#0B132B",
+      "#F8F9FF",
+      "#E0B84C",
+      "#4FB3D9",
+      "#6B5CA5"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_79",
+    "preview_image": "/sampler_previews/CHRON_STYLE_79.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_80",
+    "name": "80 The Proof \u2014 Equation Wall",
+    "best_for": "IRREFUTABLE LOGIC \u00b7 STEP-BY-STEP ARGUMENTS",
+    "palette": [
+      "#FDFDFB",
+      "#111111",
+      "#A4243B",
+      "#2E5090",
+      "#C9A227"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_80",
+    "preview_image": "/sampler_previews/CHRON_STYLE_80.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_81",
+    "name": "81 Diagnostic \u2014 Ima ging Suite",
+    "best_for": "LOOKING INSIDE THINGS \u00b7 ROOT-CAUSE BEATS",
+    "palette": [
+      "#0E1014",
+      "#AEB8C4",
+      "#53C8F0",
+      "#2EE6A8",
+      "#FFC857"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_81",
+    "preview_image": "/sampler_previews/CHRON_STYLE_81.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_82",
+    "name": "82 Severe Alert \u2014 Weather Desk",
+    "best_for": "WARNINGS \u00b7 INCOMING CHANGE \u00b7 URGENCY BEATS",
+    "palette": [
+      "#1C2733",
+      "#58D68D",
+      "#F4D03F",
+      "#E74C3C",
+      "#B3001B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_82",
+    "preview_image": "/sampler_previews/CHRON_STYLE_82.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_83",
+    "name": "83 Elemen tal \u2014 Periodic Breakdown",
+    "best_for": "BREAKING TOPICS INTO COMPONENTS",
+    "palette": [
+      "#2B2D42",
+      "#EE6C4D",
+      "#7768AE",
+      "#2F9C95",
+      "#8D99AE"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_83",
+    "preview_image": "/sampler_previews/CHRON_STYLE_83.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_84",
+    "name": "84 Dig Grid \u2014 Excavation Site",
+    "best_for": "UNCOVERING LAYERS \u00b7 HISTORY-OF-A-THING BEATS",
+    "palette": [
+      "#75573C",
+      "#D9BF94",
+      "#F1EEE5",
+      "#EAC435",
+      "#57867D"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_84",
+    "preview_image": "/sampler_previews/CHRON_STYLE_84.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_85",
+    "name": "85 Patent Pending \u2014 Invention File",
+    "best_for": "ORIGINAL IDEAS \u00b7 \"WE BUILT SOMETHING NEW\"",
+    "palette": [
+      "#F2EAD3",
+      "#2D2A26",
+      "#2C497F",
+      "#BD9433",
+      "#8A8275"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_85",
+    "preview_image": "/sampler_previews/CHRON_STYLE_85.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_86",
+    "name": "86 Waveform \u2014 Sound Lab",
+    "best_for": "VOICE, MUSIC & ANYTHING YOU CAN HEAR",
+    "palette": [
+      "#12141A",
+      "#BCE784",
+      "#5E2BFF",
+      "#FF7B9C",
+      "#FFC53D"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_86",
+    "preview_image": "/sampler_previews/CHRON_STYLE_86.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_87",
+    "name": "87 Old Money \u2014 Quiet Luxury",
+    "best_for": "PREMIUM POSITIONING \u00b7 TASTE-SIGNALING BEATS",
+    "palette": [
+      "#F6F1E7",
+      "#2E2B26",
+      "#1F3D2B",
+      "#5E2129",
+      "#B49A5E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_87",
+    "preview_image": "/sampler_previews/CHRON_STYLE_87.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_88",
+    "name": "88 The Drop \u2014 Streetwear Release",
+    "best_for": "SCARCITY, LAUNCHES & COUNTDOWN HYPE",
+    "palette": [
+      "#0E0E0E",
+      "#CCFF00",
+      "#F21B3F",
+      "#FFFFFF",
+      "#9E9E9E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_88",
+    "preview_image": "/sampler_previews/CHRON_STYLE_88.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_89",
+    "name": "89 Lot 47 \u2014 Auction House",
+    "best_for": "WORTH, VALUATION & BIDDING-WAR BEATS",
+    "palette": [
+      "#F7F3EA",
+      "#232020",
+      "#9E2B25",
+      "#7C766C",
+      "#C29B40"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_89",
+    "preview_image": "/sampler_previews/CHRON_STYLE_89.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_90",
+    "name": "90 Caliber \u2014 Watch Macro",
+    "best_for": "CRAFT, PRECISION & DETAIL-OBSESSION BEATS",
+    "palette": [
+      "#14151A",
+      "#BFC5CE",
+      "#B76E79",
+      "#9B111E",
+      "#B8F2C9"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_90",
+    "preview_image": "/sampler_previews/CHRON_STYLE_90.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_91",
+    "name": "91 Shareholder Letter \u2014 Annual Report",
+    "best_for": "CANDID RECAPS \u00b7 NUMBERS WITH NARRATIVE",
+    "palette": [
+      "#FBFAF7",
+      "#1F3A5F",
+      "#B87333",
+      "#5C6B73",
+      "#23211D"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_91",
+    "preview_image": "/sampler_previews/CHRON_STYLE_91.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_92",
+    "name": "92 Camp aign Noir \u2014 Fragrance Ad",
+    "best_for": "DESIRE, ALLURE & ASPIRATIONAL BEATS",
+    "palette": [
+      "#08080A",
+      "#EDEAE4",
+      "#D4B26A",
+      "#6B6B73",
+      "#4A1E2B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_92",
+    "preview_image": "/sampler_previews/CHRON_STYLE_92.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_93",
+    "name": "93 Tasting Menu \u2014 Course by Course",
+    "best_for": "SEQUENCED DELIVERY \u00b7 SAVORING EACH POINT",
+    "palette": [
+      "#F8F5EF",
+      "#2A2722",
+      "#647D58",
+      "#7C2E41",
+      "#D6C18A"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_93",
+    "preview_image": "/sampler_previews/CHRON_STYLE_93.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_94",
+    "name": "94 The Vault \u2014 Ledger & Brass",
+    "best_for": "SECURITY, TRUST & COMPOUNDING-VALUE BEATS",
+    "palette": [
+      "#1D4D3B",
+      "#F1EAD8",
+      "#AD8F3F",
+      "#59332E",
+      "#23211C"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_94",
+    "preview_image": "/sampler_previews/CHRON_STYLE_94.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_95",
+    "name": "95 House Odds \u2014 Casino Floor",
+    "best_for": "RISK, PROBABILITY & WHO-REALLY-WINS BEATS",
+    "palette": [
+      "#176A4E",
+      "#DA2C43",
+      "#E0B040",
+      "#101010",
+      "#F5F2EA"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_95",
+    "preview_image": "/sampler_previews/CHRON_STYLE_95.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_96",
+    "name": "96 Dieline \u2014 The Unboxing",
+    "best_for": "REVEALS, LAYERS & WHAT'S-INSIDE BEATS",
+    "palette": [
+      "#C7A87F",
+      "#EFD3D2",
+      "#2C6E6A",
+      "#F5F0E4",
+      "#33302B"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_96",
+    "preview_image": "/sampler_previews/CHRON_STYLE_96.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_97",
+    "name": "97 Acid Chrome \u2014 Liq uid Trip",
+    "best_for": "MIND-BENDING CLAIMS \u00b7 \"THIS BROKE MY BRAIN\"",
+    "palette": [
+      "#E1E6EE",
+      "#9DFF00",
+      "#6C2BD9",
+      "#FF5C00",
+      "#0C0C10"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_97",
+    "preview_image": "/sampler_previews/CHRON_STYLE_97.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_98",
+    "name": "98 Corrupted Feed \u2014 Glitch Protocol",
+    "best_for": "SOMETHING IS WRONG \u00b7 SYSTEM-FAILURE BEATS",
+    "palette": [
+      "#0B0B0E",
+      "#FF1E56",
+      "#00E08F",
+      "#3E6BFF",
+      "#EDEDED"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_98",
+    "preview_image": "/sampler_previews/CHRON_STYLE_98.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_99",
+    "name": "99 Mall Plaza \u2014 Vaporwave",
+    "best_for": "IRONY, NOSTALGIA & INTERNET-CULTURE BEATS",
+    "palette": [
+      "#FF93C9",
+      "#3FD2C7",
+      "#F4F4F8",
+      "#8C7AE6",
+      "#101018"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_99",
+    "preview_image": "/sampler_previews/CHRON_STYLE_99.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_100",
+    "name": "100 Neubrutal \u2014 Brutal Pop",
+    "best_for": "BLUNT OPINIONS \u00b7 PERSONALITY-FORWARD BEATS",
+    "palette": [
+      "#FFF8E7",
+      "#000000",
+      "#FF90E8",
+      "#F1F333",
+      "#23A094"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_100",
+    "preview_image": "/sampler_previews/CHRON_STYLE_100.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_101",
+    "name": "101 Dada Overload \u2014 Collage Maximal",
+    "best_for": "CHAOS WITH A THESIS \u00b7 CULTURE-JAMMING BEATS",
+    "palette": [
+      "#E9DFC9",
+      "#C3423F",
+      "#274690",
+      "#D9A31B",
+      "#191714"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_101",
+    "preview_image": "/sampler_previews/CHRON_STYLE_101.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_102",
+    "name": "102 Inflatable \u2014 Balloon Type",
+    "best_for": "FUN ANNOUNCEMENTS \u00b7 LIGHTNESS & PLAY",
+    "palette": [
+      "#FF6FB5",
+      "#5FB9FF",
+      "#FFD43B",
+      "#B197FC",
+      "#FFFFFF"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_102",
+    "preview_image": "/sampler_previews/CHRON_STYLE_102.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_103",
+    "name": "103 Heat Signature \u2014 Therma l Vision",
+    "best_for": "HIDDEN ACTIVITY \u00b7 WHAT THE EYE CAN'T SEE",
+    "palette": [
+      "#1B1464",
+      "#5B21B6",
+      "#D4145A",
+      "#FB8B24",
+      "#FFF3B0"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_103",
+    "preview_image": "/sampler_previews/CHRON_STYLE_103.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_104",
+    "name": "104 Blacklight \u2014 UV Rave",
+    "best_for": "PEAK-ENERGY MOMENTS \u00b7 CELEBRATION BEATS",
+    "palette": [
+      "#150A2E",
+      "#39FF14",
+      "#FF4FCB",
+      "#FCEE09",
+      "#7DF9FF"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_104",
+    "preview_image": "/sampler_previews/CHRON_STYLE_104.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_105",
+    "name": "105 Shadowbox \u2014 Layered Papercraft",
+    "best_for": "DEPTH, LAYERS & STORY-WITHIN-STORY BEATS",
+    "palette": [
+      "#F6F0E2",
+      "#CBBBA0",
+      "#2A3550",
+      "#FFC97E"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_105",
+    "preview_image": "/sampler_previews/CHRON_STYLE_105.png",
+    "success": true
+  },
+  {
+    "style_code": "CHRON_STYLE_106",
+    "name": "106 Beautiful Ugly \u2014 Anti-Design",
+    "best_for": "PATTERN INTERRUPTS \u00b7 IRONIC AUTHORITY",
+    "palette": [
+      "#FFFFFF",
+      "#000000",
+      "#0000EE",
+      "#551A8B",
+      "#FF0000"
+    ],
+    "component_name": "Sampler_CHRON_STYLE_106",
+    "preview_image": "/sampler_previews/CHRON_STYLE_106.png",
+    "success": true
+  }
+]

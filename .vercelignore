@@ -1,0 +1,30 @@
+# Dependencies & Environment
+node_modules
+.env*.local
+.env
+.git
+.github
+.next
+
+# Heavy Media & Assets
+*.mp4
+*.mov
+*.wav
+*.m4a
+*.part
+*.zip
+*.tar.gz
+
+# Local Render Directories
+public/static/
+public/out/
+public/*.mp4
+public/*.wav
+
+# Python & Backend folders (handled on Oracle VPS)
+venv/
+backend/
+remotion-project/
+"100+ Styles Vault (Assets)"/
+tmp/
+*.log

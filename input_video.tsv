@@ -1,0 +1,30 @@
+start	end	text
+0	3120	AI agents aren't meant to replace workflows.
+3120	6080	They're meant to sit on top of them or in them.
+6080	9040	And what I mean by that is AI agents
+9040	11520	should really only be the thing that you use
+11520	13680	when you have ambiguity around a process
+13680	16160	and you can't make it deterministic.
+16160	18960	What I mean by that is anything that you do
+18960	21080	that you know that you can put an input in
+21080	23320	10 times and get the same output out,
+23320	25280	that is always going to be the preference.
+25280	27640	You wanna make sure that you can have as much consistency
+27640	29640	as possible and anything that you're building
+29640	30720	and automating.
+30720	33200	It's only when there's judgment calls in play
+33200	35800	then an AI agent actually makes sense to use.
+35800	39880	Judgment is where ambiguity as well as interpretation
+39880	40920	meet each other.
+40920	42480	And so with something like that,
+42480	45280	you typically wanna dial back the amount of ambiguity
+45280	47960	that you introduce into any sort of business process.
+47960	50000	And so use AI agents sparingly.
+50000	51560	There's definitely a time in a place
+51560	53360	but make sure not to overuse them
+53360	54600	and to only use them again
+54600	56440	when your use case actually necessitates it
+56440	59320	and you really don't have a good way to fundamentally
+59320	62440	get the right output for the inputs you're putting in
+62440	65440	or if there's an ambiguity that kind of makes the most sense for it.
+65440	67720	Keep that in mind when designing work flows in good luck.

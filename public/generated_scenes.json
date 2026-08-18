@@ -1,0 +1,60 @@
+{
+  "scenes": [
+    {
+      "id": "s1",
+      "number": 1,
+      "version": 1,
+      "timecode": "0:00 - 0:03",
+      "visualConcept": "Visual Metaphor (CHRON_STYLE_05): Translating key narrative 'ISN'T' into high-stakes graphics layout.",
+      "verbatimLine": "If your agency isn't growing as fast as you hope, or if you're thinking about starting",
+      "styleCode": "CHRON_STYLE_05"
+    },
+    {
+      "id": "s2",
+      "number": 2,
+      "version": 1,
+      "timecode": "0:03 - 0:07",
+      "visualConcept": "Visual Metaphor (CHRON_STYLE_05): Translating key narrative 'OVERWHELMED,' into high-stakes graphics layout.",
+      "verbatimLine": "one but feel overwhelmed, chances are the problem isn't you.",
+      "styleCode": "CHRON_STYLE_05"
+    },
+    {
+      "id": "s3",
+      "number": 3,
+      "version": 1,
+      "timecode": "0:07 - 0:09",
+      "visualConcept": "Visual Metaphor (CHRON_STYLE_05): Translating key narrative 'MODEL.' into high-stakes graphics layout.",
+      "verbatimLine": "It's your agency model. I see this all the time.",
+      "styleCode": "CHRON_STYLE_05"
+    },
+    {
+      "id": "s4",
+      "number": 4,
+      "version": 1,
+      "timecode": "0:09 - 0:14",
+      "visualConcept": "Visual Metaphor (CHRON_STYLE_05): Translating key narrative 'EXPERIENCED' into high-stakes graphics layout.",
+      "verbatimLine": "New and even experienced agency owners chasing hyped up business models that sound really good",
+      "styleCode": "CHRON_STYLE_05"
+    },
+    {
+      "id": "s5",
+      "number": 5,
+      "version": 1,
+      "timecode": "0:14 - 0:18",
+      "visualConcept": "Visual Metaphor (CHRON_STYLE_05): Translating key narrative 'LEAVE' into high-stakes graphics layout.",
+      "verbatimLine": "on paper but leave you stuck with too many clients and too little profit or no time to breathe.",
+      "styleCode": "CHRON_STYLE_05"
+    },
+    {
+      "id": "s6",
+      "number": 6,
+      "version": 1,
+      "timecode": "0:18 - 0:22",
+      "visualConcept": "Visual Metaphor (CHRON_STYLE_05): Translating key narrative 'NOT' into high-stakes graphics layout.",
+      "verbatimLine": "The truth is not all marketing agency models are created equal.",
+      "styleCode": "CHRON_STYLE_05"
+    }
+  ],
+  "styleCode": "CHRON_STYLE_05",
+  "transcript": "If your agency isn't growing as fast as you hope, or if you're thinking about starting one but feel overwhelmed, chances are the problem isn't you. It's your agency model. I see this all the time. New and even experienced agency owners chasing hyped up business models that sound really good on paper but leave you stuck with too many clients and too little profit or no time to breathe. The truth is not all marketing agency models are created equal. But there is one in particular, proven in 2025. They can get you to sex, multi-sex, even seven figures while keeping your workload."
+}
