@@ -57,7 +57,10 @@ function StudioContent() {
   useEffect(() => {
     async function loadActiveScenes() {
       try {
-        const res = await fetch('/api/scenetable/active');
+        const res = await fetch(`/api/scenetable/active?t=${Date.now()}`, { 
+          cache: 'no-store',
+          headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+        });
         const data = await res.json();
         if (data && data.scenes && data.scenes.length > 0) {
           const dynamicOptions = [
@@ -83,7 +86,7 @@ function StudioContent() {
       }
     }
     loadActiveScenes();
-  }, []);
+  }, [searchParams]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 

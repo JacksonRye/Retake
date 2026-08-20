@@ -652,8 +652,8 @@ export default function WizardPage() {
                 <span>Back</span>
               </button>
               <button
-                onClick={() => router.push('/studio')}
-                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
+                onClick={() => router.push(`/studio?t=${Date.now()}&style=${styleCode}`)}
+                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-lg"
               >
                 <span>Launch in Studio</span>
                 <ArrowRight className="w-3.5 h-3.5" />

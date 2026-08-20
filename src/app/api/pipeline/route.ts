@@ -8,7 +8,7 @@ const execPromise = util.promisify(exec);
 const PROJECT_ROOT = '/Users/gameboy/Documents/Dev Apps/Saas Video';
 const REMOTION_PUBLIC = path.join(PROJECT_ROOT, 'remotion-project', 'public');
 const WEB_PUBLIC = path.join(PROJECT_ROOT, 'studio-web', 'public');
-const SCENE_TABLE_PATH = path.join(PROJECT_ROOT, 'backend', 'scene_table.json');
+const SCENE_TABLE_PATH = path.join(PROJECT_ROOT, 'backend', 'output_scene_table.json');
 
 export async function POST(request: Request) {
   try {
