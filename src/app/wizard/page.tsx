@@ -42,6 +42,37 @@ const PACINGS = [
   { id: 'balanced', name: 'Balanced Rhythm (3.0s - 5.0s)', desc: 'Smooth pacing for storytelling & product walkthroughs', icon: Clock },
 ];
 
+const MOTION_STYLES = [
+  { 
+    id: 'CHRON_STYLE_100', 
+    name: 'Neubrutalism Pop', 
+    badge: '🔥 Most Popular', 
+    desc: 'Thick borders, pastel pop cards, kinetic 3-beat bounce physics.',
+    accent: 'border-orange-500 text-orange-400'
+  },
+  { 
+    id: 'CHRON_STYLE_98', 
+    name: 'Cyberpunk Terminal', 
+    badge: '⚡ Tech & AI', 
+    desc: 'HUD telemetry grids, glowing matrix counters, monospace overlays.',
+    accent: 'border-cyan-500 text-cyan-400'
+  },
+  { 
+    id: 'CHRON_STYLE_72', 
+    name: 'Obsidian Minimal', 
+    badge: '💎 Clean / Luxury', 
+    desc: 'Deep jet black canvas, electric orange highlights, ultra-clean type.',
+    accent: 'border-amber-500 text-amber-400'
+  },
+  { 
+    id: 'CHRON_STYLE_55', 
+    name: 'Modern SaaS Flow', 
+    badge: '🚀 B2B & Product', 
+    desc: 'Frosted glass cards, smooth metric meters, subtle glow cards.',
+    accent: 'border-blue-500 text-blue-400'
+  },
+];
+
 interface TranscriptSegment {
   id: number;
   start: number;
@@ -273,6 +304,43 @@ export default function WizardPage() {
                         <span className="text-xs font-bold text-white">{res.label}</span>
                       </div>
                       <p className="text-[11px] text-slate-500">{res.desc}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Motion Graphics Style Selector */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Motion Graphics Style</label>
+                <Link href="/sampler" className="text-[11px] text-orange-400 hover:text-orange-300 transition-colors">
+                  Explore all 60 styles →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {MOTION_STYLES.map((st) => {
+                  const isSelected = styleCode === st.id;
+                  return (
+                    <div
+                      key={st.id}
+                      onClick={() => setStyleCode(st.id)}
+                      className={`p-4 rounded-2xl border cursor-pointer transition-all space-y-1.5 ${
+                        isSelected
+                          ? 'bg-[#181B26] border-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.15)] ring-1 ring-orange-500/50'
+                          : 'bg-[#0E1017] border-white/5 text-slate-400 hover:border-white/20'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white">{st.name}</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300">
+                          {st.badge}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">{st.desc}</p>
+                      <div className="text-[10px] font-mono text-slate-500 pt-1">
+                        Code: <strong className="text-slate-300">{st.id}</strong>
+                      </div>
                     </div>
                   );
                 })}
