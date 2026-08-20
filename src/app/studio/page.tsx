@@ -194,39 +194,39 @@ function StudioContent() {
 
   return (
     <div className="flex flex-col min-h-screen md:h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased overflow-x-hidden md:overflow-hidden selection:bg-orange-500/30">
-      {/* 1. Header with Responsive Navigation */}
-      <header className="h-16 border-b border-white/5 bg-[#0D0F15]/90 px-4 sm:px-6 flex items-center justify-between backdrop-blur-xl z-20 flex-shrink-0">
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs">
-              R
-            </div>
-            <span className="font-extrabold text-xs sm:text-sm tracking-tight text-white">RETAKE</span>
+      {/* 1. Header with Complete Retake Navigation */}
+      <header className="h-16 border-b border-white/5 bg-[#0D0F15]/95 px-4 sm:px-6 flex items-center justify-between backdrop-blur-xl z-20 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2.5">
+            <img 
+              src="/retake_logo.svg" 
+              alt="Retake" 
+              className="w-7 h-7 object-contain drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]" 
+            />
+            <span className="font-extrabold text-sm tracking-tight text-white font-mono">RETAKE</span>
           </Link>
-          <span className="text-slate-600">/</span>
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+          <span className="text-slate-600 hidden sm:inline">/</span>
+          <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-300">
             <Film className="w-3.5 h-3.5 text-orange-400" />
-            <span className="hidden sm:inline">Studio Editor</span>
+            <span>Studio Editor</span>
           </div>
         </div>
 
-        {/* Video File & Active Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleVideoFileSelect}
-            accept="video/mp4,video/mov,video/m4v"
-            className="hidden"
-          />
-          
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-[11px] sm:text-xs font-medium text-slate-200 transition-all shadow-sm"
+        {/* Video File & Action Controls */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {/* + Create Video Button */}
+          <Link
+            href="/wizard"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(249,115,22,0.35)]"
           >
-            <UploadCloud className="w-3.5 h-3.5 text-orange-400" />
-            <span className="truncate max-w-[90px] sm:max-w-[140px]">{selectedVideoName ? selectedVideoName : 'Select Video'}</span>
-          </button>
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>+ Create Video</span>
+          </Link>
+
+          {/* Credit Badge */}
+          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-950/50 border border-orange-700/40 text-xs font-semibold text-orange-300">
+            <span>⚡ 1 Credit</span>
+          </div>
 
           <Link
             href="/sampler"
@@ -238,10 +238,17 @@ function StudioContent() {
 
           <Link
             href="/console"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-[11px] sm:text-xs font-medium text-slate-300 transition-all"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-xs font-medium text-slate-300 transition-all"
           >
             <Activity className="w-3.5 h-3.5 text-emerald-400" />
             <span>Console</span>
+          </Link>
+
+          <Link
+            href="/"
+            className="text-xs font-medium text-slate-400 hover:text-white px-2 py-1 transition-colors"
+          >
+            Exit
           </Link>
         </div>
       </header>
