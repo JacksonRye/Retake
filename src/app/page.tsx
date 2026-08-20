@@ -13,46 +13,15 @@ import {
   Flame
 } from 'lucide-react';
 
+import Navbar from '@/components/Navbar';
+
 export default function CleanDarkMinimalLandingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased selection:bg-orange-500/30">
-      {/* 1. Floating Pill Navigation */}
-      <div className="fixed top-5 left-0 right-0 z-50 flex justify-center px-4">
-        <nav className="w-full max-w-4xl bg-[#131620]/80 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.5)] flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <img 
-              src="/retake_logo.svg" 
-              alt="Retake" 
-              className="w-7 h-7 object-contain drop-shadow-[0_0_10px_rgba(249,115,22,0.4)]" 
-            />
-            <span className="font-extrabold text-sm tracking-tight text-white">RETAKE</span>
-          </Link>
-
-          <div className="hidden sm:flex items-center gap-7 text-xs font-medium text-slate-400">
-            <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
-            <a href="#examples" className="hover:text-white transition-colors">Examples</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Link
-              href="/console"
-              className="text-xs font-medium text-slate-400 hover:text-white transition-colors px-2 py-1"
-            >
-              Console
-            </Link>
-            <a
-              href="#pricing"
-              className="bg-white hover:bg-slate-200 text-black text-xs font-semibold px-4 py-2 rounded-full transition-all shadow-sm flex items-center gap-1.5"
-            >
-              <span>Get 20 Videos ($49)</span>
-              <ArrowRight className="w-3 h-3" />
-            </a>
-          </div>
-        </nav>
-      </div>
+      {/* 1. Dynamic Floating Pill Navigation */}
+      <Navbar />
 
       {/* 2. Hero Section */}
       <section className="pt-36 sm:pt-44 pb-20 px-6 max-w-4xl mx-auto text-center">
