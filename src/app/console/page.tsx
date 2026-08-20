@@ -260,6 +260,11 @@ export default function ConsolePage() {
             </Link>
             <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
             <div className="flex items-center gap-2">
+              <img 
+                src="/retake_logo.svg" 
+                alt="Retake" 
+                className="w-5 h-5 object-contain drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]" 
+              />
               <span className="font-extrabold tracking-tight text-white font-mono text-sm">RETAKE</span>
               <span className="text-slate-600 font-mono">/</span>
               <span className="text-xs font-semibold text-orange-400 flex items-center gap-1">

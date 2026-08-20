@@ -22,9 +22,11 @@ export default function CleanDarkMinimalLandingPage() {
       <div className="fixed top-5 left-0 right-0 z-50 flex justify-center px-4">
         <nav className="w-full max-w-4xl bg-[#131620]/80 backdrop-blur-xl border border-white/10 rounded-full px-5 py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.5)] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center font-bold text-xs">
-              R
-            </div>
+            <img 
+              src="/retake_logo.svg" 
+              alt="Retake" 
+              className="w-7 h-7 object-contain drop-shadow-[0_0_10px_rgba(249,115,22,0.4)]" 
+            />
             <span className="font-extrabold text-sm tracking-tight text-white">RETAKE</span>
           </Link>
 
