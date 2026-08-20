@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -20,8 +20,13 @@ import {
   Clock, 
   Code2, 
   RefreshCw, 
-  Video,
-  Check
+  Video, 
+  Check, 
+  Search, 
+  Star, 
+  Heart, 
+  X,
+  Filter
 } from 'lucide-react';
 
 const WIZARD_STEPS = [
@@ -42,36 +47,15 @@ const PACINGS = [
   { id: 'balanced', name: 'Balanced Rhythm (3.0s - 5.0s)', desc: 'Smooth pacing for storytelling & product walkthroughs', icon: Clock },
 ];
 
-const MOTION_STYLES = [
-  { 
-    id: 'CHRON_STYLE_100', 
-    name: 'Neubrutalism Pop', 
-    badge: '🔥 Most Popular', 
-    desc: 'Thick borders, pastel pop cards, kinetic 3-beat bounce physics.',
-    accent: 'border-orange-500 text-orange-400'
-  },
-  { 
-    id: 'CHRON_STYLE_98', 
-    name: 'Cyberpunk Terminal', 
-    badge: '⚡ Tech & AI', 
-    desc: 'HUD telemetry grids, glowing matrix counters, monospace overlays.',
-    accent: 'border-cyan-500 text-cyan-400'
-  },
-  { 
-    id: 'CHRON_STYLE_72', 
-    name: 'Obsidian Minimal', 
-    badge: '💎 Clean / Luxury', 
-    desc: 'Deep jet black canvas, electric orange highlights, ultra-clean type.',
-    accent: 'border-amber-500 text-amber-400'
-  },
-  { 
-    id: 'CHRON_STYLE_55', 
-    name: 'Modern SaaS Flow', 
-    badge: '🚀 B2B & Product', 
-    desc: 'Frosted glass cards, smooth metric meters, subtle glow cards.',
-    accent: 'border-blue-500 text-blue-400'
-  },
-];
+interface StyleManifestItem {
+  style_code: string;
+  name: string;
+  best_for: string;
+  palette: string[];
+  component_name: string;
+  preview_image: string;
+  success: boolean;
+}
 
 interface TranscriptSegment {
   id: number;
@@ -94,7 +78,7 @@ export default function WizardPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [resolution, setResolution] = useState('9:16');
-  const [styleCode, setStyleCode] = useState('CHRON_STYLE_72');
+  const [styleCode, setStyleCode] = useState('CHRON_STYLE_100');
   const [pacing, setPacing] = useState('fast');
   const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState('');
@@ -104,6 +88,19 @@ export default function WizardPage() {
   const [dlPercent, setDlPercent] = useState(0);
   const [dlDetails, setDlDetails] = useState('');
 
+  // Styles & Favorites State
+  const [allStyles, setAllStyles] = useState<StyleManifestItem[]>([]);
+  const [styleSearch, setStyleSearch] = useState('');
+  const [activeStyleTab, setActiveStyleTab] = useState<'favorites' | 'all'>('favorites');
+  const [favorites, setFavorites] = useState<string[]>([
+    'CHRON_STYLE_100', // Neubrutalism
+    'CHRON_STYLE_98',  // Cyberpunk Terminal
+    'CHRON_STYLE_72',  // Obsidian Minimal
+    'CHRON_STYLE_55',  // Modern SaaS
+    'CHRON_STYLE_01',  // Editorial
+    'CHRON_STYLE_02',  // Mission Control
+  ]);
+
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [transcriptionStatus, setTranscriptionStatus] = useState<string | null>(null);
   const [transcriptData, setTranscriptData] = useState<TranscriptSegment[]>([]);
@@ -111,6 +108,61 @@ export default function WizardPage() {
   const [isBuildingPipeline, setIsBuildingPipeline] = useState(false);
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
   const [scenesData, setScenesData] = useState<SceneItem[]>([]);
+
+  useEffect(() => {
+    fetch('/sampler_manifest.json')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: StyleManifestItem[]) => {
+        setAllStyles(data);
+      })
+      .catch(() => {});
+
+    try {
+      const savedFavs = localStorage.getItem('saas_video_fav_styles');
+      if (savedFavs) {
+        setFavorites(JSON.parse(savedFavs));
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  const toggleFavorite = (code: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    let updated: string[];
+    if (favorites.includes(code)) {
+      updated = favorites.filter((c) => c !== code);
+    } else {
+      updated = [...favorites, code];
+    }
+    setFavorites(updated);
+    try {
+      localStorage.setItem('saas_video_fav_styles', JSON.stringify(updated));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Filter styles based on search query and active tab
+  const displayedStyles = allStyles.filter((st) => {
+    const matchesSearch = 
+      styleSearch.trim() === '' ||
+      st.name.toLowerCase().includes(styleSearch.toLowerCase()) ||
+      st.best_for.toLowerCase().includes(styleSearch.toLowerCase()) ||
+      st.style_code.toLowerCase().includes(styleSearch.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (styleSearch.trim() !== '') {
+      return true; // Search matches across all 60 styles automatically
+    }
+
+    if (activeStyleTab === 'favorites') {
+      return favorites.includes(st.style_code);
+    }
+
+    return true;
+  });
 
   const handleDownloadUrl = async () => {
     if (!videoUrl.trim() || isDownloadingUrl) return;
@@ -244,7 +296,7 @@ export default function WizardPage() {
       </div>
 
       {/* 2. Main Wizard Container */}
-      <main className="max-w-4xl mx-auto px-6 pt-32 pb-24 space-y-8">
+      <main className="max-w-5xl mx-auto px-6 pt-32 pb-24 space-y-8">
         {/* Step Progression Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {WIZARD_STEPS.map((step) => {
@@ -279,7 +331,7 @@ export default function WizardPage() {
           <div className="p-8 rounded-3xl bg-[#12141C] border border-white/10 space-y-8 shadow-sm">
             <div>
               <h2 className="text-xl font-bold text-white mb-1">Step 1: Configuration & Video Source</h2>
-              <p className="text-xs text-slate-400">Choose aspect ratio, pacing, and supply a raw video URL or file.</p>
+              <p className="text-xs text-slate-400">Choose aspect ratio, visual motion graphics style, and paste your video.</p>
             </div>
 
             {/* Resolution Selector */}
@@ -310,41 +362,131 @@ export default function WizardPage() {
               </div>
             </div>
 
-            {/* Motion Graphics Style Selector */}
+            {/* Visual Searchable Style Picker with Thumbnails & Favorites */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Motion Graphics Style</label>
-                <Link href="/sampler" className="text-[11px] text-orange-400 hover:text-orange-300 transition-colors">
-                  Explore all 60 styles →
-                </Link>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+                  <span>Motion Graphics Style</span>
+                </label>
+
+                {/* Filter Tabs */}
+                <div className="flex items-center gap-1.5 bg-[#0E1017] border border-white/5 p-1 rounded-xl">
+                  <button
+                    type="button"
+                    onClick={() => { setActiveStyleTab('favorites'); setStyleSearch(''); }}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      activeStyleTab === 'favorites' && styleSearch === ''
+                        ? 'bg-orange-500 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Star className="w-3 h-3 fill-current" />
+                    <span>Favorites ({favorites.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setActiveStyleTab('all'); setStyleSearch(''); }}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                      activeStyleTab === 'all' && styleSearch === ''
+                        ? 'bg-orange-500 text-white shadow-sm'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <span>All 60 Styles</span>
+                  </button>
+                </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {MOTION_STYLES.map((st) => {
-                  const isSelected = styleCode === st.id;
+
+              {/* On-Screen Search Bar */}
+              <div className="relative">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={styleSearch}
+                  onChange={(e) => setStyleSearch(e.target.value)}
+                  placeholder="Search styles instantly (e.g. brutal, cyber, minimal, 3D, neon, SaaS)..."
+                  className="w-full bg-[#0E1017] border border-white/10 rounded-2xl pl-10 pr-10 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/80 transition-all"
+                />
+                {styleSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setStyleSearch('')}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Visual Thumbnail Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-[360px] overflow-y-auto pr-1">
+                {displayedStyles.map((st) => {
+                  const isSelected = styleCode === st.style_code;
+                  const isFav = favorites.includes(st.style_code);
                   return (
                     <div
-                      key={st.id}
-                      onClick={() => setStyleCode(st.id)}
-                      className={`p-4 rounded-2xl border cursor-pointer transition-all space-y-1.5 ${
+                      key={st.style_code}
+                      onClick={() => setStyleCode(st.style_code)}
+                      className={`group relative rounded-2xl border cursor-pointer overflow-hidden transition-all flex flex-col bg-[#0E1017] ${
                         isSelected
-                          ? 'bg-[#181B26] border-orange-500 text-white shadow-[0_0_20px_rgba(249,115,22,0.15)] ring-1 ring-orange-500/50'
-                          : 'bg-[#0E1017] border-white/5 text-slate-400 hover:border-white/20'
+                          ? 'border-orange-500 ring-2 ring-orange-500/60 shadow-[0_0_25px_rgba(249,115,22,0.3)]'
+                          : 'border-white/5 hover:border-white/20'
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-white">{st.name}</span>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-300">
-                          {st.badge}
-                        </span>
+                      {/* Visual Thumbnail Preview */}
+                      <div className="w-full aspect-[9/10] bg-[#151822] relative overflow-hidden">
+                        <img
+                          src={st.preview_image}
+                          alt={st.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+
+                        {/* Top Gradient Overlay & Star Favorite Button */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/40 flex justify-between p-2">
+                          {isSelected ? (
+                            <span className="px-2 py-0.5 rounded-full bg-orange-500 text-white font-bold text-[10px] shadow-sm">
+                              Active
+                            </span>
+                          ) : <span />}
+
+                          <button
+                            type="button"
+                            onClick={(e) => toggleFavorite(st.style_code, e)}
+                            className="w-6 h-6 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md flex items-center justify-center transition-colors cursor-pointer"
+                          >
+                            <Star
+                              className={`w-3.5 h-3.5 ${
+                                isFav ? 'text-amber-400 fill-amber-400' : 'text-slate-400 hover:text-white'
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">{st.desc}</p>
-                      <div className="text-[10px] font-mono text-slate-500 pt-1">
-                        Code: <strong className="text-slate-300">{st.id}</strong>
+
+                      {/* Card Label */}
+                      <div className="p-2.5 space-y-0.5 bg-[#0E1017]">
+                        <h4 className="text-xs font-bold text-white truncate">{st.name}</h4>
+                        <p className="text-[10px] text-slate-400 truncate">{st.best_for}</p>
                       </div>
                     </div>
                   );
                 })}
               </div>
+
+              {displayedStyles.length === 0 && (
+                <div className="p-8 text-center bg-[#0E1017] border border-white/5 rounded-2xl space-y-2">
+                  <p className="text-xs text-slate-400">No styles found matching "{styleSearch}".</p>
+                  <button
+                    type="button"
+                    onClick={() => { setStyleSearch(''); setActiveStyleTab('all'); }}
+                    className="text-xs text-orange-400 hover:underline font-semibold"
+                  >
+                    View All 60 Styles
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Video Input Options */}
@@ -361,7 +503,7 @@ export default function WizardPage() {
                 <button
                   onClick={handleDownloadUrl}
                   disabled={isDownloadingUrl || !videoUrl.trim()}
-                  className="px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-xs font-bold text-white transition-all flex items-center gap-1.5"
+                  className="px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-xs font-bold text-white transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   {isDownloadingUrl ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <UploadCloud className="w-3.5 h-3.5" />}
                   <span>Ingest</span>
@@ -379,7 +521,7 @@ export default function WizardPage() {
             <div className="flex justify-end pt-4 border-t border-white/5">
               <button
                 onClick={() => setCurrentStep(2)}
-                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 transition-all"
+                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
               >
                 <span>Continue to Transcription</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -388,34 +530,45 @@ export default function WizardPage() {
           </div>
         )}
 
-        {/* Step 2: Speech Transcription */}
+        {/* Step 2: Whisper Speech */}
         {currentStep === 2 && (
           <div className="p-8 rounded-3xl bg-[#12141C] border border-white/10 space-y-6 shadow-sm">
             <div>
-              <h2 className="text-xl font-bold text-white mb-1">Step 2: Timestamped Speech Recognition</h2>
-              <p className="text-xs text-slate-400">Whisper AI will extract exact word timestamps to synchronize animations.</p>
+              <h2 className="text-xl font-bold text-white mb-1">Step 2: Whisper Speech-to-Text Ingestion</h2>
+              <p className="text-xs text-slate-400">Extracts frame-accurate word timestamps for sync.</p>
             </div>
 
-            <button
-              onClick={handleRunTranscription}
-              disabled={isTranscribing}
-              className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-xs font-bold text-white flex items-center gap-2 transition-all"
-            >
-              {isTranscribing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
-              <span>{isTranscribing ? 'Transcribing...' : 'Run Whisper AI Transcription'}</span>
-            </button>
+            <div className="p-4 rounded-2xl bg-[#0E1017] border border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">Transcribe Ingested Video</h4>
+                  <p className="text-[11px] text-slate-500">Extracts audio and aligns timestamps automatically.</p>
+                </div>
+              </div>
+              <button
+                onClick={handleRunTranscription}
+                disabled={isTranscribing}
+                className="px-5 py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-xs font-bold text-white transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                {isTranscribing ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                <span>Run Whisper</span>
+              </button>
+            </div>
 
             {transcriptionStatus && (
-              <div className="text-xs font-mono text-orange-300 bg-orange-950/30 border border-orange-800/40 p-3 rounded-xl">
+              <div className="text-[11px] font-mono text-slate-300 bg-[#0E1017] border border-white/10 p-3 rounded-xl">
                 {transcriptionStatus}
               </div>
             )}
 
             {transcriptData.length > 0 && (
-              <div className="space-y-2 max-h-60 overflow-y-auto p-4 rounded-2xl bg-[#0E1017] border border-white/5 text-xs font-mono">
+              <div className="space-y-2 max-h-60 overflow-y-auto pr-2 border border-white/5 p-4 rounded-2xl bg-[#0E1017]">
                 {transcriptData.map((seg) => (
-                  <div key={seg.id} className="flex gap-3 text-slate-300">
-                    <span className="text-orange-400">{seg.start.toFixed(1)}s - {seg.end.toFixed(1)}s:</span>
+                  <div key={seg.id} className="text-xs flex gap-3 text-slate-300 font-mono py-1 border-b border-white/5 last:border-0">
+                    <span className="text-orange-400 font-semibold shrink-0">[{seg.start.toFixed(1)}s - {seg.end.toFixed(1)}s]</span>
                     <span>{seg.text}</span>
                   </div>
                 ))}
@@ -425,14 +578,14 @@ export default function WizardPage() {
             <div className="flex justify-between pt-4 border-t border-white/5">
               <button
                 onClick={() => setCurrentStep(1)}
-                className="px-5 py-2.5 rounded-full bg-[#181B26] hover:bg-[#222736] text-slate-300 text-xs font-semibold flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-full bg-[#181B26] hover:bg-[#202534] text-xs font-semibold text-slate-300 flex items-center gap-2 transition-all cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back</span>
               </button>
               <button
                 onClick={() => setCurrentStep(3)}
-                className="px-6 py-2.5 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2"
+                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
               >
                 <span>Continue to Scene Table</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -441,7 +594,7 @@ export default function WizardPage() {
           </div>
         )}
 
-        {/* Step 3: Scene Table Generation */}
+        {/* Step 3: Scene Table */}
         {currentStep === 3 && (
           <div className="p-8 rounded-3xl bg-[#12141C] border border-white/10 space-y-6 shadow-sm">
             <div>
@@ -449,30 +602,42 @@ export default function WizardPage() {
               <p className="text-xs text-slate-400">Generate frame-accurate scene cuts and visual animations with style {styleCode}.</p>
             </div>
 
-            <button
-              onClick={handleBuildPipeline}
-              disabled={isBuildingPipeline}
-              className="px-6 py-3.5 rounded-2xl bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-xs font-bold text-white flex items-center gap-2 transition-all"
-            >
-              {isBuildingPipeline ? <RefreshCw className="w-4 h-4 animate-spin" /> : <LayoutGrid className="w-4 h-4" />}
-              <span>{isBuildingPipeline ? 'Architecting Scenes...' : 'Generate Scene Breakdown'}</span>
-            </button>
+            <div className="p-4 rounded-2xl bg-[#0E1017] border border-white/5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
+                  <LayoutGrid className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-white">Synthesize Scene Metaphors</h4>
+                  <p className="text-[11px] text-slate-500">Autonomous LLM parses transcript and builds Remotion TSX code.</p>
+                </div>
+              </div>
+              <button
+                onClick={handleBuildPipeline}
+                disabled={isBuildingPipeline}
+                className="px-5 py-2.5 rounded-full bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-xs font-bold text-white transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                {isBuildingPipeline ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                <span>Generate Scene Breakdown</span>
+              </button>
+            </div>
 
             {pipelineStatus && (
-              <div className="text-xs font-mono text-orange-300 bg-orange-950/30 border border-orange-800/40 p-3 rounded-xl">
+              <div className="text-[11px] font-mono text-slate-300 bg-[#0E1017] border border-white/10 p-3 rounded-xl">
                 {pipelineStatus}
               </div>
             )}
 
             {scenesData.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-3 max-h-80 overflow-y-auto pr-2 border border-white/5 p-4 rounded-2xl bg-[#0E1017]">
                 {scenesData.map((sc) => (
-                  <div key={sc.scene_number} className="p-4 rounded-2xl bg-[#0E1017] border border-white/5 space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-white">Scene {sc.scene_number}</span>
-                      <span className="font-mono text-orange-400 text-[11px]">{sc.start_time} - {sc.end_time}</span>
+                  <div key={sc.scene_number} className="p-3.5 rounded-xl bg-[#141722] border border-white/5 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-white">Scene #{sc.scene_number}: {sc.component_name}</span>
+                      <span className="font-mono text-orange-400 text-[11px]">[{sc.start_time} - {sc.end_time}]</span>
                     </div>
-                    <p className="text-slate-400 text-[11px]">{sc.visual_metaphor}</p>
+                    <p className="text-xs text-slate-300">{sc.visual_metaphor}</p>
+                    <div className="text-[11px] text-slate-500 font-mono">Unlock: {sc.creative_unlock_reason}</div>
                   </div>
                 ))}
               </div>
@@ -481,44 +646,18 @@ export default function WizardPage() {
             <div className="flex justify-between pt-4 border-t border-white/5">
               <button
                 onClick={() => setCurrentStep(2)}
-                className="px-5 py-2.5 rounded-full bg-[#181B26] hover:bg-[#222736] text-slate-300 text-xs font-semibold flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-full bg-[#181B26] hover:bg-[#202534] text-xs font-semibold text-slate-300 flex items-center gap-2 transition-all cursor-pointer"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back</span>
               </button>
               <button
-                onClick={() => setCurrentStep(4)}
-                className="px-6 py-2.5 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2"
+                onClick={() => router.push('/studio')}
+                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
               >
                 <span>Launch in Studio</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Ready to Render & Edit */}
-        {currentStep === 4 && (
-          <div className="p-8 rounded-3xl bg-[#12141C] border border-white/10 space-y-6 text-center shadow-sm">
-            <div className="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-400 flex items-center justify-center mx-auto">
-              <MonitorPlay className="w-6 h-6" />
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Video Pipeline Ready!</h2>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
-                Your video scenes and dynamic animations have been staged. Launch the Studio Editor to preview and export.
-              </p>
-            </div>
-
-            <div className="flex justify-center gap-3 pt-4">
-              <Link
-                href="/studio"
-                className="px-8 py-3.5 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 shadow-lg shadow-white/5 transition-all"
-              >
-                <span>Open Studio Editor</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
             </div>
           </div>
         )}
