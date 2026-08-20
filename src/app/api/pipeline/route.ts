@@ -49,13 +49,19 @@ export async function POST(request: Request) {
     const resScene = await execPromise(cmdScene, { cwd: PROJECT_ROOT, shell: '/bin/zsh' });
     console.log('[API Pipeline Scene Output]:', resScene.stdout);
 
-    // 2. Run Remotion Builder (remotion_builder.py using Gemini 3.7 Flash)
-    console.log('[API Pipeline] Step 2: Running Remotion Component Builder...');
+    // 2. Run Component Generator (component_generator.py using Gemini 3.7 Flash to write TSX files)
+    console.log('[API Pipeline] Step 2: Running AI Component Generator...');
+    const cmdComponent = `source "${PROJECT_ROOT}/venv/bin/activate" && python "${PROJECT_ROOT}/backend/component_generator.py"`;
+    const resComponent = await execPromise(cmdComponent, { cwd: PROJECT_ROOT, shell: '/bin/zsh' });
+    console.log('[API Pipeline Component Output]:', resComponent.stdout);
+
+    // 3. Run Remotion Builder (remotion_builder.py to assemble FullEditPixel and Root.tsx)
+    console.log('[API Pipeline] Step 3: Running Remotion Component Builder...');
     const cmdBuilder = `source "${PROJECT_ROOT}/venv/bin/activate" && python "${PROJECT_ROOT}/backend/remotion_builder.py" --style "${style}"`;
     const resBuilder = await execPromise(cmdBuilder, { cwd: PROJECT_ROOT, shell: '/bin/zsh' });
     console.log('[API Pipeline Builder Output]:', resBuilder.stdout);
 
-    // 3. Sync generated components to studio-web
+    // 4. Sync generated components to studio-web
     const copyCmd = `cp -r "${PROJECT_ROOT}/remotion-project/src/"* "${PROJECT_ROOT}/studio-web/src/remotion_components/"`;
     await execPromise(copyCmd, { shell: '/bin/zsh' });
 
