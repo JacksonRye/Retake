@@ -57,7 +57,7 @@ export default function SignUpPage() {
       if (data?.user) {
         setSuccessMessage('✓ Account created! 1 Free Test Video Credit added.');
         setTimeout(() => {
-          router.push('/studio');
+          router.push('/wizard');
         }, 1000);
       }
     } catch (err: any) {
