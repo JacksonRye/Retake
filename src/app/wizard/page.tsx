@@ -194,8 +194,14 @@ export default function WizardPage() {
       const data = await res.json();
       if (data.success) {
         setDlPercent(100);
-        setDownloadStatus(`✅ Success! Video downloaded and trimmed to 30s clip.`);
+        setDownloadStatus(`✅ Video ingested! Auto-advancing to Whisper Speech...`);
         setSelectedVideo(null);
+        
+        // Auto-advance to Step 2 & trigger Whisper
+        setTimeout(() => {
+          setCurrentStep(2);
+          executeTranscription();
+        }, 800);
       } else {
         setDownloadStatus(`⚠️ Download Error: ${data.error}`);
       }
@@ -207,9 +213,9 @@ export default function WizardPage() {
     }
   };
 
-  const handleRunTranscription = async () => {
+  const executeTranscription = async () => {
     setIsTranscribing(true);
-    setTranscriptionStatus('Whisper AI transcribing timestamps...');
+    setTranscriptionStatus('🎙️ Whisper AI transcribing timestamped words...');
     try {
       const res = await fetch('/api/transcribe', {
         method: 'POST',
@@ -219,7 +225,13 @@ export default function WizardPage() {
       const data = await res.json();
       if (data.success && data.segments) {
         setTranscriptData(data.segments);
-        setTranscriptionStatus(`✅ Whisper transcribed ${data.segments.length} timestamped sentences.`);
+        setTranscriptionStatus(`✅ Whisper transcribed ${data.segments.length} sentences! Auto-generating Remotion scenes...`);
+        
+        // Auto-advance to Step 3 & trigger Scene Architecture
+        setTimeout(() => {
+          setCurrentStep(3);
+          executeBuildPipeline();
+        }, 1000);
       } else {
         setTranscriptionStatus(`⚠️ Error: ${data.error || 'Transcription failed'}`);
       }
@@ -230,9 +242,9 @@ export default function WizardPage() {
     }
   };
 
-  const handleBuildPipeline = async () => {
+  const executeBuildPipeline = async () => {
     setIsBuildingPipeline(true);
-    setPipelineStatus('Planner AI constructing scene breakdown and Remotion code...');
+    setPipelineStatus('⚡ Gemini 3.7 Flash constructing scene metaphors & Remotion TSX code...');
     try {
       const res = await fetch('/api/pipeline', {
         method: 'POST',
@@ -242,7 +254,12 @@ export default function WizardPage() {
       const data = await res.json();
       if (data.success && data.scenes) {
         setScenesData(data.scenes);
-        setPipelineStatus(`✅ Generated ${data.scenes.length} dynamic Remotion scenes!`);
+        setPipelineStatus(`✅ Generated ${data.scenes.length} dynamic Remotion scenes! Launching Studio...`);
+        
+        // Auto-launch in Studio
+        setTimeout(() => {
+          router.push(`/studio?t=${Date.now()}&style=${styleCode}`);
+        }, 1200);
       } else {
         setPipelineStatus(`⚠️ Error: ${data.error || 'Pipeline generation failed'}`);
       }
@@ -252,6 +269,9 @@ export default function WizardPage() {
       setIsBuildingPipeline(false);
     }
   };
+
+  const handleRunTranscription = () => executeTranscription();
+  const handleBuildPipeline = () => executeBuildPipeline();
 
   return (
     <div className="min-h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased selection:bg-orange-500/30">
