@@ -84,10 +84,15 @@ export async function DELETE() {
       }
     }
 
-    const rootDir = path.join(process.cwd(), '..');
-    const logPath = path.join(rootDir, 'backend', 'events_log.json');
-
-    fs.writeFileSync(logPath, JSON.stringify({ jobs: [], webhooks: [] }, null, 2), 'utf-8');
+    try {
+      const rootDir = path.join(process.cwd(), '..');
+      const logPath = path.join(rootDir, 'backend', 'events_log.json');
+      if (fs.existsSync(path.dirname(logPath))) {
+        fs.writeFileSync(logPath, JSON.stringify({ jobs: [], webhooks: [] }, null, 2), 'utf-8');
+      }
+    } catch (fsErr) {
+      // Ignore on read-only serverless filesystem
+    }
 
     return NextResponse.json({
       success: true,
