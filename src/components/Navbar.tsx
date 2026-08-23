@@ -14,6 +14,7 @@ import {
   Sliders
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import WaitlistModal from '@/components/WaitlistModal';
 
 export default function Navbar() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function Navbar() {
   const [user, setUser] = useState<any>(null);
   const [credits, setCredits] = useState<number>(1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
 
   useEffect(() => {
     async function checkAuth() {
@@ -128,14 +130,18 @@ export default function Navbar() {
             /* Logged In State */
             <div className="flex items-center gap-2.5">
               {/* Credit Badge */}
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-950/50 border border-orange-700/40 text-xs font-semibold text-orange-300">
+              <button
+                onClick={() => setIsWaitlistOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-950/50 hover:bg-orange-900/60 border border-orange-700/40 text-xs font-semibold text-orange-300 transition-all cursor-pointer"
+                title="Click to get more video credits"
+              >
                 <Sparkles className="w-3.5 h-3.5 text-orange-400" />
                 <span>
                   {user.email?.toLowerCase() === 'chijiokejackson35@gmail.com' 
                     ? '♾️ Unlimited (Admin)' 
-                    : `${credits} ${credits === 1 ? 'Credit' : 'Credits'}`}
+                    : `${credits} ${credits === 1 ? 'Credit' : 'Credits'} • Upgrade`}
                 </span>
-              </div>
+              </button>
 
               {/* + Create Video Primary Action */}
               <Link
@@ -160,12 +166,22 @@ export default function Navbar() {
                     <div className="px-3.5 py-2 border-b border-white/5 text-[11px] text-slate-500 truncate">
                       {user.email}
                     </div>
+                    <button
+                      onClick={() => {
+                        setIsDropdownOpen(false);
+                        setIsWaitlistOpen(true);
+                      }}
+                      className="w-full flex items-center gap-2 px-3.5 py-2 text-orange-400 hover:bg-white/5 transition-colors font-semibold text-left cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+                      <span>Buy Video Credits</span>
+                    </button>
                     <Link
                       href="/wizard"
                       onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2 px-3.5 py-2 text-orange-300 hover:bg-white/5 transition-colors font-semibold"
+                      className="flex items-center gap-2 px-3.5 py-2 text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
                     >
-                      <PlusCircle className="w-3.5 h-3.5 text-orange-400" />
+                      <PlusCircle className="w-3.5 h-3.5 text-slate-400" />
                       <span>+ Create Video</span>
                     </Link>
                     <Link
@@ -215,6 +231,13 @@ export default function Navbar() {
           )}
         </div>
       </nav>
+
+      {/* Priority Commercial Waitlist Modal */}
+      <WaitlistModal
+        isOpen={isWaitlistOpen}
+        onClose={() => setIsWaitlistOpen(false)}
+        userEmail={user?.email || ''}
+      />
     </div>
   );
 }

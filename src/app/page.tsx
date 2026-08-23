@@ -14,9 +14,17 @@ import {
 } from 'lucide-react';
 
 import Navbar from '@/components/Navbar';
+import WaitlistModal from '@/components/WaitlistModal';
 
 export default function CleanDarkMinimalLandingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
+  const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState('Pro: 60 Videos / mo ($97)');
+
+  const handleOpenWaitlist = (plan: string) => {
+    setSelectedPlan(plan);
+    setIsWaitlistOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased selection:bg-orange-500/30">
@@ -213,7 +221,10 @@ export default function CleanDarkMinimalLandingPage() {
               </div>
             </div>
 
-            <button className="w-full py-3 rounded-full bg-[#1E2230] hover:bg-[#282D40] text-xs font-bold text-white transition-all">
+            <button 
+              onClick={() => handleOpenWaitlist('Starter: 20 Videos ($49)')}
+              className="w-full py-3 rounded-full bg-[#1E2230] hover:bg-[#282D40] text-xs font-bold text-white transition-all cursor-pointer"
+            >
               Get Started ($49)
             </button>
           </div>
@@ -256,7 +267,10 @@ export default function CleanDarkMinimalLandingPage() {
               </div>
             </div>
 
-            <button className="w-full py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-xs font-bold text-white transition-all shadow-md">
+            <button 
+              onClick={() => handleOpenWaitlist('Pro: 60 Videos / mo ($97)')}
+              className="w-full py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-xs font-bold text-white transition-all shadow-md cursor-pointer"
+            >
               Start Pro ($97)
             </button>
           </div>
@@ -295,7 +309,10 @@ export default function CleanDarkMinimalLandingPage() {
               </div>
             </div>
 
-            <button className="w-full py-3 rounded-full bg-[#1E2230] hover:bg-[#282D40] text-xs font-bold text-white transition-all">
+            <button 
+              onClick={() => handleOpenWaitlist('Agency: 200 Videos / mo ($297)')}
+              className="w-full py-3 rounded-full bg-[#1E2230] hover:bg-[#282D40] text-xs font-bold text-white transition-all cursor-pointer"
+            >
               Choose Agency ($297)
             </button>
           </div>
@@ -321,6 +338,13 @@ export default function CleanDarkMinimalLandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Priority Commercial Waitlist Modal */}
+      <WaitlistModal
+        isOpen={isWaitlistOpen}
+        onClose={() => setIsWaitlistOpen(false)}
+        defaultPlan={selectedPlan}
+      />
     </div>
   );
 }
