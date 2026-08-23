@@ -52,6 +52,7 @@ function StudioContent() {
   const [totalFrames, setTotalFrames] = useState(2056);
   const [timeRemaining, setTimeRemaining] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [activeScenes, setActiveScenes] = useState<any[]>([]);
 
   const [sceneButtons, setSceneButtons] = useState<{ label: string; compId: string }[]>([
     { label: 'Full Edit', compId: 'FullEditPixel' }
@@ -77,6 +78,7 @@ function StudioContent() {
         });
         const data = await res.json();
         if (data && data.scenes && data.scenes.length > 0) {
+          setActiveScenes(data.scenes);
           const dynamicOptions = [
             { label: 'Full Edit', compId: 'FullEditPixel' }
           ];
@@ -297,7 +299,13 @@ function StudioContent() {
         {/* Left Column: Pure Native Video Viewport */}
         <main className="flex-1 bg-[#07080B] flex flex-col items-center justify-center p-4 sm:p-6 relative min-h-[460px] sm:min-h-[580px]">
           <div className="w-[280px] xs:w-[320px] sm:w-[360px] h-[480px] xs:h-[540px] sm:h-[620px] bg-black rounded-[28px] sm:rounded-[32px] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden relative">
-            <CleanPlayer activeComp={activeComp} totalFrames={totalFrames} />
+            <CleanPlayer
+              activeComp={activeComp}
+              totalFrames={totalFrames}
+              scenes={activeScenes}
+              styleCode={currentStyleCode}
+              videoUrl={selectedVideoName || 'video.mp4'}
+            />
           </div>
           
           <div className="mt-3 text-[11px] sm:text-xs text-slate-400 flex items-center gap-2 font-mono">
