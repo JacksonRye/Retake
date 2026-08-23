@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import { 
   Sparkles, 
   Video, 
@@ -31,10 +32,12 @@ const CleanPlayer = dynamic(() => import('../../components/CleanPlayer'), {
 });
 
 function StudioContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const initialComp = searchParams?.get('compId') || 'FullEditPixel';
   const initialStyle = searchParams?.get('style') || 'CHRON_STYLE_98';
 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [activeComp, setActiveComp] = useState(initialComp);
   const [activeLabel, setActiveLabel] = useState(initialComp === 'FullEditPixel' ? 'Full Edit' : 'Scene');
   const [activeVersion, setActiveVersion] = useState('V1');
@@ -53,6 +56,17 @@ function StudioContent() {
   const [sceneButtons, setSceneButtons] = useState<{ label: string; compId: string }[]>([
     { label: 'Full Edit', compId: 'FullEditPixel' }
   ]);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.replace('/login?next=/studio');
+      } else {
+        setIsAuthenticated(true);
+      }
+    });
+  }, [router]);
 
   useEffect(() => {
     async function loadActiveScenes() {
@@ -208,6 +222,14 @@ function StudioContent() {
       setIsExporting(false);
     };
   };
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen bg-[#0A0B0E] flex items-center justify-center text-xs font-mono text-slate-500">
+        Authenticating Studio Session...
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen md:h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased overflow-x-hidden md:overflow-hidden selection:bg-orange-500/30">

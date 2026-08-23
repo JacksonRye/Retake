@@ -186,7 +186,12 @@ function parseRemotionProgress(logText?: string): { frameCurrent: number; frameT
   };
 }
 
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+
 export default function ConsolePage() {
+  const router = useRouter();
+  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [webhooks, setWebhooks] = useState<WebhookLog[]>([]);
   const [stats, setStats] = useState<ConsoleStats>({
@@ -203,6 +208,19 @@ export default function ConsolePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.replace('/login?next=/console');
+      } else if (user.email?.toLowerCase() !== 'chijiokejackson35@gmail.com') {
+        router.replace('/studio');
+      } else {
+        setIsAdminAuthorized(true);
+      }
+    });
+  }, [router]);
 
   const fetchEvents = async () => {
     try {
@@ -239,11 +257,20 @@ export default function ConsolePage() {
   };
 
   useEffect(() => {
+    if (!isAdminAuthorized) return;
     fetchEvents();
     if (!autoRefresh) return;
     const interval = setInterval(fetchEvents, 2000);
     return () => clearInterval(interval);
-  }, [autoRefresh]);
+  }, [autoRefresh, isAdminAuthorized]);
+
+  if (isAdminAuthorized === null) {
+    return (
+      <div className="min-h-screen bg-[#07080B] flex items-center justify-center text-xs font-mono text-slate-500">
+        Verifying Master Admin Authorization...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#07080B] text-slate-100 font-sans selection:bg-orange-500 selection:text-white">

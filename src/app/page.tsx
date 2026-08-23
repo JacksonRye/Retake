@@ -1,6 +1,5 @@
 'use client';
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Check, 
@@ -15,11 +14,20 @@ import {
 
 import Navbar from '@/components/Navbar';
 import WaitlistModal from '@/components/WaitlistModal';
+import { createClient } from '@/lib/supabase/client';
 
 export default function CleanDarkMinimalLandingPage() {
   const [isAnnual, setIsAnnual] = useState(false);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('Pro: 60 Videos / mo ($97)');
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+  }, []);
 
   const handleOpenWaitlist = (plan: string) => {
     setSelectedPlan(plan);
@@ -328,9 +336,13 @@ export default function CleanDarkMinimalLandingPage() {
           </div>
 
           <div className="flex items-center gap-6">
-            <Link href="/studio" className="hover:text-white transition-colors">Studio</Link>
-            <Link href="/console" className="hover:text-white transition-colors">Console</Link>
             <Link href="/sampler" className="hover:text-white transition-colors">Styles</Link>
+            {user && (
+              <Link href="/studio" className="hover:text-white transition-colors">Studio</Link>
+            )}
+            {user?.email?.toLowerCase() === 'chijiokejackson35@gmail.com' && (
+              <Link href="/console" className="hover:text-white transition-colors">Console</Link>
+            )}
           </div>
 
           <div>

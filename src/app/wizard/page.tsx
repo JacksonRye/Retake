@@ -314,17 +314,25 @@ export default function WizardPage() {
               </span>
             </div>
             <Link
+              href="/sampler"
+              className="text-xs font-medium text-slate-400 hover:text-white transition-colors px-2 py-1"
+            >
+              Styles
+            </Link>
+            <Link
               href="/studio"
               className="text-xs font-medium text-slate-400 hover:text-white transition-colors px-2 py-1"
             >
               Studio
             </Link>
-            <Link
-              href="/console"
-              className="text-xs font-medium text-slate-400 hover:text-white transition-colors px-2 py-1"
-            >
-              Console
-            </Link>
+            {user?.email?.toLowerCase() === 'chijiokejackson35@gmail.com' && (
+              <Link
+                href="/console"
+                className="text-xs font-medium text-slate-400 hover:text-white transition-colors px-2 py-1"
+              >
+                Console
+              </Link>
+            )}
           </div>
         </nav>
       </div>
