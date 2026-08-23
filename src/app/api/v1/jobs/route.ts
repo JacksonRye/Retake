@@ -89,3 +89,31 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function GET() {
+  try {
+    const res = await fetch(`${PIPELINE_WORKER_URL}/health`, { cache: 'no-store' });
+    const health = res.ok ? await res.json() : { status: 'offline' };
+    return NextResponse.json({
+      status: 'active',
+      service: 'Retake Video Processing API',
+      version: '1.2.0',
+      workerUrl: PIPELINE_WORKER_URL,
+      workerHealth: health,
+      dashboard: '/console',
+      docs: {
+        method: 'POST',
+        endpoint: '/api/v1/jobs',
+        headers: { 'Content-Type': 'application/json' },
+        examplePayload: {
+          videoUrl: 'https://www.youtube.com/shorts/EIj0WRm7zQo',
+          styleCode: 'CHRON_STYLE_100',
+          leadId: 'resell_lead_123',
+          webhookUrl: 'https://resell-orpin.vercel.app/api/webhooks/video-studio'
+        }
+      }
+    });
+  } catch (err: any) {
+    return NextResponse.json({ status: 'active', message: 'API ready for POST jobs.', error: err.message });
+  }
+}
