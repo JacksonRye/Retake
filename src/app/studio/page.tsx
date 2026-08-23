@@ -161,7 +161,7 @@ function StudioContent() {
     setTimeRemaining('initializing encoder...');
     setStatusMessage(`🎬 Rendering 4K Master Video (${activeComp})...`);
 
-    const eventSource = new EventSource('/api/export');
+    const eventSource = new EventSource(`/api/export?comp=${encodeURIComponent(activeComp)}`);
 
     eventSource.onmessage = (event) => {
       try {
@@ -175,9 +175,23 @@ function StudioContent() {
           }
         } else if (data.status === 'complete') {
           setExportProgress(100);
-          setStatusMessage('🎉 4K Video Render Complete! Output stored on Cloudflare R2.');
+          setStatusMessage('🎉 4K Video Render Complete! Downloading to your system...');
           eventSource.close();
-          setTimeout(() => setIsExporting(false), 1500);
+
+          // Automatically trigger direct file download to user's computer
+          try {
+            const downloadUrl = data.downloadUrl || '/api/export/download';
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', `Retake_4K_${activeComp}_${Date.now()}.mp4`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } catch (dlErr) {
+            console.error('Failed to trigger automatic download:', dlErr);
+          }
+
+          setTimeout(() => setIsExporting(false), 2000);
         } else if (data.status === 'error') {
           setStatusMessage(`⚠️ Render Error: ${data.message}`);
           eventSource.close();

@@ -4,16 +4,19 @@ import path from 'path';
 const PROJECT_ROOT = '/Users/gameboy/Documents/Dev Apps/Saas Video';
 const REMOTION_DIR = path.join(PROJECT_ROOT, 'remotion-project');
 
-export async function GET() {
+export async function GET(request: Request) {
   const encoder = new TextEncoder();
   let isClosed = false;
 
+  const { searchParams } = new URL(request.url);
+  const compId = searchParams.get('comp') || 'FullEditPixel';
+
   const stream = new ReadableStream({
     start(controller) {
-      console.log('[API Export SSE] Spawning 4K Remotion render child process...');
+      console.log(`[API Export SSE] Spawning 4K Remotion render for component: ${compId}...`);
 
       // Spawn npx remotion render
-      const child = spawn('npx', ['remotion', 'render', 'FullEditPixel', 'out/4k_master.mp4', '--scale', '2'], {
+      const child = spawn('npx', ['remotion', 'render', compId, 'out/4k_master.mp4', '--scale', '2'], {
         cwd: REMOTION_DIR,
         shell: '/bin/zsh',
       });
@@ -58,6 +61,7 @@ export async function GET() {
                 status: 'complete',
                 percent: 100,
                 message: '4K Master Video rendered successfully!',
+                downloadUrl: '/api/export/download',
               });
               controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
             } else {
