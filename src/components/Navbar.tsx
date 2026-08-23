@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { 
@@ -11,7 +11,8 @@ import {
   LogOut, 
   User, 
   PlusCircle,
-  Sliders
+  Sliders,
+  ChevronDown
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import WaitlistModal from '@/components/WaitlistModal';
@@ -25,6 +26,17 @@ export default function Navbar() {
   const [credits, setCredits] = useState<number>(1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
