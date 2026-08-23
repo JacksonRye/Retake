@@ -106,6 +106,7 @@ export default function WizardPage() {
   const [isBuildingPipeline, setIsBuildingPipeline] = useState(false);
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
   const [scenesData, setScenesData] = useState<SceneItem[]>([]);
+  const [wizardJobId, setWizardJobId] = useState<string>('');
 
   // Auth & Credit State
   const [user, setUser] = useState<any>(null);
@@ -175,7 +176,11 @@ export default function WizardPage() {
   });
 
   const handleDownloadUrl = async () => {
-    if (!videoUrl.trim() || isDownloadingUrl) return;
+    if (!videoUrl || isDownloadingUrl) return;
+
+    const newJobId = `wizard_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    setWizardJobId(newJobId);
+
     setIsDownloadingUrl(true);
     setDlPercent(0);
     setDlDetails('Connecting to video source...');
@@ -199,7 +204,7 @@ export default function WizardPage() {
       const res = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: videoUrl, isDemoMode, duration: 60 })
+        body: JSON.stringify({ url: videoUrl, isDemoMode, duration: 60, jobId: newJobId, styleCode })
       });
       const data = await res.json();
       if (data.success) {
@@ -210,7 +215,7 @@ export default function WizardPage() {
         // Auto-advance to Step 2 & trigger Whisper
         setTimeout(() => {
           setCurrentStep(2);
-          executeTranscription();
+          executeTranscription(newJobId);
         }, 800);
       } else {
         setDownloadStatus(`⚠️ Download Error: ${data.error}`);
@@ -223,14 +228,15 @@ export default function WizardPage() {
     }
   };
 
-  const executeTranscription = async () => {
+  const executeTranscription = async (overrideJobId?: string) => {
+    const currentJid = overrideJobId || wizardJobId;
     setIsTranscribing(true);
     setTranscriptionStatus('🎙️ Whisper AI transcribing timestamped words...');
     try {
       const res = await fetch('/api/transcribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ style: styleCode, pacing, resolution })
+        body: JSON.stringify({ style: styleCode, pacing, resolution, jobId: currentJid })
       });
       const data = await res.json();
       if (data.success && data.segments) {
@@ -240,7 +246,7 @@ export default function WizardPage() {
         // Auto-advance to Step 3 & trigger Scene Architecture
         setTimeout(() => {
           setCurrentStep(3);
-          executeBuildPipeline();
+          executeBuildPipeline(currentJid);
         }, 1000);
       } else {
         setTranscriptionStatus(`⚠️ Error: ${data.error || 'Transcription failed'}`);
@@ -252,14 +258,15 @@ export default function WizardPage() {
     }
   };
 
-  const executeBuildPipeline = async () => {
+  const executeBuildPipeline = async (overrideJobId?: string) => {
+    const currentJid = overrideJobId || wizardJobId;
     setIsBuildingPipeline(true);
     setPipelineStatus('⚡ Gemini 3.7 Flash constructing scene metaphors & Remotion TSX code...');
     try {
       const res = await fetch('/api/pipeline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ style: styleCode, pacing, resolution })
+        body: JSON.stringify({ style: styleCode, pacing, resolution, jobId: currentJid })
       });
       const data = await res.json();
       if (data.success && data.scenes) {

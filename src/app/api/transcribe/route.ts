@@ -32,13 +32,16 @@ export async function POST(request: Request) {
     const transcriberScript = path.join(PROJECT_ROOT, 'backend', 'transcriber.py');
     const PIPELINE_WORKER_URL = process.env.PIPELINE_WORKER_URL || 'http://132.145.72.176:8000';
 
+    const reqBody = await request.clone().json().catch(() => ({}));
+    const { jobId, style } = reqBody;
+
     if (!fs.existsSync(transcriberScript)) {
       console.log(`☁️ Cloud Serverless Environment detected. Forwarding transcribe to Oracle Worker: ${PIPELINE_WORKER_URL}`);
       try {
         const workerRes = await fetch(`${PIPELINE_WORKER_URL}/api/v1/transcribe`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({})
+          body: JSON.stringify({ jobId, style })
         });
         if (workerRes.ok) {
           const workerData = await workerRes.json();

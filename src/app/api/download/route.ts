@@ -7,7 +7,7 @@ const PIPELINE_WORKER_URL = process.env.PIPELINE_WORKER_URL || 'http://132.145.7
 
 export async function POST(request: Request) {
   try {
-    const { url, isDemoMode = true, duration = 60 } = await request.json();
+    const { url, isDemoMode = true, duration = 60, jobId, styleCode } = await request.json();
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'Valid video URL is required.' }, { status: 400 });
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         const workerRes = await fetch(`${PIPELINE_WORKER_URL}/api/v1/download`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, duration: clipDuration, isDemoMode })
+          body: JSON.stringify({ url, duration: clipDuration, isDemoMode, jobId, styleCode })
         });
         if (workerRes.ok) {
           const workerData = await workerRes.json();

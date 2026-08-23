@@ -36,6 +36,8 @@ export async function POST(request: Request) {
     let pacing = 'fast';
     let resolution = '9:16';
 
+    let jobId: string | undefined = undefined;
+
     if (contentType.includes('multipart/form-data')) {
       const formData = await request.formData();
       const videoFile = formData.get('video') as File | null;
@@ -58,6 +60,7 @@ export async function POST(request: Request) {
       if (body.style) style = body.style;
       if (body.pacing) pacing = body.pacing;
       if (body.resolution) resolution = body.resolution;
+      if (body.jobId) jobId = body.jobId;
     }
 
     const sceneScript = path.join(PROJECT_ROOT, 'backend', 'scene_generator.py');
@@ -69,7 +72,7 @@ export async function POST(request: Request) {
         const workerRes = await fetch(`${PIPELINE_WORKER_URL}/api/v1/pipeline`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ style, pacing, resolution })
+          body: JSON.stringify({ style, pacing, resolution, jobId })
         });
         if (workerRes.ok) {
           const workerData = await workerRes.json();
