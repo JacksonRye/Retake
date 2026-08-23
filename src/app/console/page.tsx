@@ -440,22 +440,22 @@ export default function ConsolePage() {
                             <span>Completed</span>
                           </span>
                         )}
-                        {job.status === 'processing' && (
+                        {(job.status === 'failed' || job.error) && (
+                          <span className="px-2.5 py-0.5 rounded-full bg-red-950/60 border border-red-700/50 text-red-400 text-xs font-semibold flex items-center gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5" />
+                            <span>Failed</span>
+                          </span>
+                        )}
+                        {job.status === 'processing' && !job.error && (
                           <span className="px-2.5 py-0.5 rounded-full bg-orange-950/60 border border-orange-700/50 text-orange-400 text-xs font-semibold flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
                             <span>{job.stage || 'Rendering'} ({job.progress || 50}%)</span>
                           </span>
                         )}
-                        {job.status === 'queued' && (
+                        {job.status === 'queued' && !job.error && (
                           <span className="px-2.5 py-0.5 rounded-full bg-purple-950/60 border border-purple-700/50 text-purple-400 text-xs font-semibold flex items-center gap-1.5">
                             <Clock className="w-3.5 h-3.5" />
                             <span>Queued</span>
-                          </span>
-                        )}
-                        {job.status === 'failed' && (
-                          <span className="px-2.5 py-0.5 rounded-full bg-red-950/60 border border-red-700/50 text-red-400 text-xs font-semibold flex items-center gap-1.5">
-                            <AlertCircle className="w-3.5 h-3.5" />
-                            <span>Failed</span>
                           </span>
                         )}
                       </div>
