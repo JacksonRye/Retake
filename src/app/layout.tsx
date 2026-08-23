@@ -13,15 +13,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Retake | Autonomous AI Video Motion Design Studio",
-  description: "Turn raw talking-head videos into high-retention motion graphics masterpieces in 60 seconds with zero manual editing.",
+  title: "Retake | AI Motion Graphics Video Editor",
+  description: "Turn raw talking-head videos into high-retention motion graphics in seconds with zero manual editing.",
   icons: {
     icon: "/retake_logo.svg",
     apple: "/logo.jpg",
   },
   openGraph: {
-    title: "Retake | Autonomous AI Video Motion Design Studio",
-    description: "Turn raw talking-head videos into high-retention motion graphics masterpieces in 60 seconds.",
+    title: "Retake | AI Motion Graphics Video Editor",
+    description: "Turn raw talking-head videos into high-retention motion graphics in seconds.",
     images: ["/logo.jpg"],
   },
 };

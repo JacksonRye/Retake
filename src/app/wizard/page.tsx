@@ -640,8 +640,8 @@ export default function WizardPage() {
         {currentStep === 3 && (
           <div className="p-8 rounded-3xl bg-[#12141C] border border-white/10 space-y-6 shadow-sm">
             <div>
-              <h2 className="text-xl font-bold text-white mb-1">Step 3: Autonomous Scene Architecture</h2>
-              <p className="text-xs text-slate-400">Generate frame-accurate scene cuts and visual animations with style {styleCode}.</p>
+              <h2 className="text-xl font-bold text-white mb-1">Step 3: Visual Scene Builder</h2>
+              <p className="text-xs text-slate-400">Create animations and graphics with style {styleCode}.</p>
             </div>
 
             <div className="p-4 rounded-2xl bg-[#0E1017] border border-white/5 flex items-center justify-between">
@@ -650,8 +650,8 @@ export default function WizardPage() {
                   <LayoutGrid className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-white">Synthesize Scene Metaphors</h4>
-                  <p className="text-[11px] text-slate-500">Autonomous LLM parses transcript and builds Remotion TSX code.</p>
+                  <h4 className="text-xs font-bold text-white">Create Video Scenes</h4>
+                  <p className="text-[11px] text-slate-500">AI turns your script into visual animation scenes.</p>
                 </div>
               </div>
               <button

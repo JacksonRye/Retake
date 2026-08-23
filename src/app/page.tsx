@@ -91,7 +91,7 @@ export default function CleanDarkMinimalLandingPage() {
           </div>
           <div className="pt-3 pb-1 text-center">
             <span className="text-xs font-semibold text-slate-400">
-              ⚡ Made 100% autonomously in 58 seconds
+              ⚡ Made automatically in 58 seconds
             </span>
           </div>
         </div>
