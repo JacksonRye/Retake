@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       video_url,
       styleCode = 'CHRON_STYLE_100',
       style,
-      clipDuration = 30,
+      clipDuration = 60,
       clip_duration,
       webhookUrl,
       webhook_url,
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const finalJobId = jobId || job_id || leadId || lead_id || `job_${Date.now()}`;
     const finalStyle = styleCode || style || 'CHRON_STYLE_100';
     const finalWebhookUrl = webhookUrl || webhook_url;
-    const finalDuration = Math.min(30, Number(clipDuration || clip_duration) || 30);
+    const finalDuration = Math.min(60, Number(clipDuration || clip_duration) || 60);
 
     if (!finalVideoUrl || typeof finalVideoUrl !== 'string') {
       return NextResponse.json(

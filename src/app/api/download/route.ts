@@ -4,7 +4,7 @@ import path from 'path';
 
 export async function POST(request: Request) {
   try {
-    const { url, isDemoMode = true, duration = 30 } = await request.json();
+    const { url, isDemoMode = true, duration = 60 } = await request.json();
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'Valid video URL is required.' }, { status: 400 });

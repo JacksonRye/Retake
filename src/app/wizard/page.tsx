@@ -199,12 +199,12 @@ export default function WizardPage() {
       const res = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: videoUrl, isDemoMode, duration: 30 })
+        body: JSON.stringify({ url: videoUrl, isDemoMode, duration: 60 })
       });
       const data = await res.json();
       if (data.success) {
         setDlPercent(100);
-        setDownloadStatus(`✅ Video ingested! Auto-advancing to Whisper Speech...`);
+        setDownloadStatus(`✅ 1-Minute Master Video ingested! Auto-advancing to Whisper Speech...`);
         setSelectedVideo(null);
         
         // Auto-advance to Step 2 & trigger Whisper
