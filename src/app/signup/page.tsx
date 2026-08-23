@@ -56,6 +56,23 @@ export default function SignUpPage() {
 
       if (data?.user) {
         setSuccessMessage('✓ Account created! 1 Free Test Video Credit added.');
+
+        // Dispatch instant Telegram signup alert
+        fetch('/api/webhooks/supabase-signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            record: {
+              id: data.user.id,
+              email: data.user.email,
+              name: name,
+              created_at: new Date().toISOString(),
+              raw_user_meta_data: { full_name: name, email: data.user.email },
+              app_metadata: { provider: 'email' }
+            }
+          })
+        }).catch(() => {});
+
         setTimeout(() => {
           router.push('/wizard');
         }, 1000);
