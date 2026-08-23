@@ -84,26 +84,6 @@ export default function SignUpPage() {
     }
   };
 
-  const handleOAuthSignUp = async (provider: 'google' | 'github') => {
-    try {
-      setIsLoading(true);
-      setErrorMessage(null);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/studio` : undefined,
-        },
-      });
-      if (error) {
-        setErrorMessage(error.message);
-        setIsLoading(false);
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || `Failed to connect with ${provider}`);
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased selection:bg-orange-500/30 flex flex-col justify-between p-6">
       {/* 1. Top Brand Header */}
@@ -144,42 +124,6 @@ export default function SignUpPage() {
               <span>{successMessage}</span>
             </div>
           )}
-
-          {/* Social OAuth Logins */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => handleOAuthSignUp('google')}
-              type="button"
-              disabled={isLoading}
-              className="py-2.5 px-4 rounded-2xl bg-[#181B26] hover:bg-[#202534] disabled:opacity-50 border border-white/5 text-xs font-semibold text-white flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <svg className="w-4 h-4" viewBox="0 0 24 24">
-                <path fill="#EA4335" d="M12 5c1.7 0 3 .7 3.9 1.5l2.9-2.9C17 1.9 14.7 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
-                <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-                <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12 0 14.5s.7 4.8 1.9 7.2l3.7-2.9z"/>
-                <path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 17.4C3.7 21.1 7.5 24 12 24z"/>
-              </svg>
-              <span>Google</span>
-            </button>
-
-            <button
-              onClick={() => handleOAuthSignUp('github')}
-              type="button"
-              disabled={isLoading}
-              className="py-2.5 px-4 rounded-2xl bg-[#181B26] hover:bg-[#202534] disabled:opacity-50 border border-white/5 text-xs font-semibold text-white flex items-center justify-center gap-2 transition-all cursor-pointer"
-            >
-              <svg className="w-4 h-4 fill-current text-white" viewBox="0 0 24 24">
-                <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
-              </svg>
-              <span>GitHub</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-[11px] font-mono text-slate-500 uppercase">or register with email</span>
-            <div className="flex-1 h-px bg-white/10" />
-          </div>
 
           {/* Email/Password Signup Form */}
           <form onSubmit={handleSignUp} className="space-y-4">
