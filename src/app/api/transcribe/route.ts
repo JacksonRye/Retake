@@ -29,6 +29,29 @@ export async function POST(request: Request) {
       }
     }
 
+    const transcriberScript = path.join(PROJECT_ROOT, 'backend', 'transcriber.py');
+    const PIPELINE_WORKER_URL = process.env.PIPELINE_WORKER_URL || 'http://132.145.72.176:8000';
+
+    if (!fs.existsSync(transcriberScript)) {
+      console.log(`☁️ Cloud Serverless Environment detected. Forwarding transcribe to Oracle Worker: ${PIPELINE_WORKER_URL}`);
+      try {
+        const workerRes = await fetch(`${PIPELINE_WORKER_URL}/api/v1/transcribe`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        if (workerRes.ok) {
+          const workerData = await workerRes.json();
+          return NextResponse.json(workerData);
+        } else {
+          const errData = await workerRes.json().catch(() => ({}));
+          return NextResponse.json({ error: errData.detail || 'Cloud worker transcription failed' }, { status: 500 });
+        }
+      } catch (workerErr: any) {
+        return NextResponse.json({ error: `Cloud worker unreachable: ${workerErr.message}` }, { status: 503 });
+      }
+    }
+
     console.log(`[API Transcribe] Executing Whisper transcriber.py on ${videoInputPath}...`);
 
     // 2. Run backend/transcriber.py with --input

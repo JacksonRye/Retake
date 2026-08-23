@@ -60,6 +60,32 @@ export async function POST(request: Request) {
       if (body.resolution) resolution = body.resolution;
     }
 
+    const sceneScript = path.join(PROJECT_ROOT, 'backend', 'scene_generator.py');
+    const PIPELINE_WORKER_URL = process.env.PIPELINE_WORKER_URL || 'http://132.145.72.176:8000';
+
+    if (!fs.existsSync(sceneScript)) {
+      console.log(`☁️ Cloud Serverless Environment detected. Forwarding pipeline generation to Oracle Worker: ${PIPELINE_WORKER_URL}`);
+      try {
+        const workerRes = await fetch(`${PIPELINE_WORKER_URL}/api/v1/pipeline`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ style, pacing, resolution })
+        });
+        if (workerRes.ok) {
+          const workerData = await workerRes.json();
+          return NextResponse.json({
+            ...workerData,
+            remainingCredits: creditResult.remainingCredits
+          });
+        } else {
+          const errData = await workerRes.json().catch(() => ({}));
+          return NextResponse.json({ error: errData.detail || 'Cloud worker pipeline generation failed' }, { status: 500 });
+        }
+      } catch (workerErr: any) {
+        return NextResponse.json({ error: `Cloud worker unreachable: ${workerErr.message}` }, { status: 503 });
+      }
+    }
+
     console.log(`[API Pipeline] Executing Autonomous Scene Generation with Style: ${style} (User: ${user?.email || 'API/Admin'})...`);
 
     // 2. Run Scene Table Generator (scene_generator.py using Gemini 3.7 Flash)
