@@ -27,25 +27,41 @@ export default function Navbar() {
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     async function checkAuth() {
-      const { data } = await supabase.auth.getUser();
-      if (data?.user) {
-        setUser(data.user);
-        setCredits(data.user.user_metadata?.credits ?? 1);
+      // 1. Instant local session lookup
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (isMounted && sessionData?.session?.user) {
+        setUser(sessionData.session.user);
+        setCredits(sessionData.session.user.user_metadata?.credits ?? 1);
+      }
+
+      // 2. Secure server verification
+      const { data: userData } = await supabase.auth.getUser();
+      if (isMounted) {
+        if (userData?.user) {
+          setUser(userData.user);
+          setCredits(userData.user.user_metadata?.credits ?? 1);
+        } else if (!sessionData?.session?.user) {
+          setUser(null);
+        }
       }
     }
     checkAuth();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser(session.user);
-        setCredits(session.user.user_metadata?.credits ?? 1);
-      } else {
-        setUser(null);
+      if (isMounted) {
+        if (session?.user) {
+          setUser(session.user);
+          setCredits(session.user.user_metadata?.credits ?? 1);
+        } else {
+          setUser(null);
+        }
       }
     });
 
     return () => {
+      isMounted = false;
       authListener.subscription.unsubscribe();
     };
   }, []);
