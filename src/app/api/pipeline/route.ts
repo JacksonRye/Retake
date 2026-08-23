@@ -3,6 +3,8 @@ import { exec } from 'child_process';
 import util from 'util';
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@/lib/supabase/server';
+import { deductCreditIfRequired } from '@/lib/credits';
 
 const execPromise = util.promisify(exec);
 const PROJECT_ROOT = '/Users/gameboy/Documents/Dev Apps/Saas Video';
@@ -12,6 +14,23 @@ const SCENE_TABLE_PATH = path.join(PROJECT_ROOT, 'backend', 'output_scene_table.
 
 export async function POST(request: Request) {
   try {
+    // 1. Authenticate user & verify/deduct credit
+    let user = null;
+    try {
+      const supabase = await createClient();
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      user = authUser;
+    } catch (authErr) {
+      // Ignored if unauthenticated or running without cookies
+    }
+
+    const creditResult = await deductCreditIfRequired(user);
+    if (!creditResult.success) {
+      return NextResponse.json({
+        error: creditResult.message || 'Insufficient credits. Please upgrade or purchase credits.'
+      }, { status: 402 });
+    }
+
     const contentType = request.headers.get('content-type') || '';
     let style = 'CHRON_STYLE_100';
     let pacing = 'fast';
@@ -41,31 +60,31 @@ export async function POST(request: Request) {
       if (body.resolution) resolution = body.resolution;
     }
 
-    console.log(`[API Pipeline] Executing Autonomous Scene Generation with Style: ${style}...`);
+    console.log(`[API Pipeline] Executing Autonomous Scene Generation with Style: ${style} (User: ${user?.email || 'API/Admin'})...`);
 
-    // 1. Run Scene Table Generator (scene_generator.py using Gemini 3.7 Flash)
+    // 2. Run Scene Table Generator (scene_generator.py using Gemini 3.7 Flash)
     console.log('[API Pipeline] Step 1: Running AI Scene Table Generator...');
     const cmdScene = `source "${PROJECT_ROOT}/venv/bin/activate" && python "${PROJECT_ROOT}/backend/scene_generator.py" --style "${style}"`;
     const resScene = await execPromise(cmdScene, { cwd: PROJECT_ROOT, shell: '/bin/zsh' });
     console.log('[API Pipeline Scene Output]:', resScene.stdout);
 
-    // 2. Run Component Generator (component_generator.py using Gemini 3.7 Flash to write TSX files)
+    // 3. Run Component Generator (component_generator.py using Gemini 3.7 Flash to write TSX files)
     console.log('[API Pipeline] Step 2: Running AI Component Generator...');
     const cmdComponent = `source "${PROJECT_ROOT}/venv/bin/activate" && python "${PROJECT_ROOT}/backend/component_generator.py"`;
     const resComponent = await execPromise(cmdComponent, { cwd: PROJECT_ROOT, shell: '/bin/zsh' });
     console.log('[API Pipeline Component Output]:', resComponent.stdout);
 
-    // 3. Run Remotion Builder (remotion_builder.py to assemble FullEditPixel and Root.tsx)
+    // 4. Run Remotion Builder (remotion_builder.py to assemble FullEditPixel and Root.tsx)
     console.log('[API Pipeline] Step 3: Running Remotion Component Builder...');
     const cmdBuilder = `source "${PROJECT_ROOT}/venv/bin/activate" && python "${PROJECT_ROOT}/backend/remotion_builder.py" --style "${style}"`;
     const resBuilder = await execPromise(cmdBuilder, { cwd: PROJECT_ROOT, shell: '/bin/zsh' });
     console.log('[API Pipeline Builder Output]:', resBuilder.stdout);
 
-    // 4. Sync generated components to studio-web
+    // 5. Sync generated components to studio-web
     const copyCmd = `cp -r "${PROJECT_ROOT}/remotion-project/src/"* "${PROJECT_ROOT}/studio-web/src/remotion_components/"`;
     await execPromise(copyCmd, { shell: '/bin/zsh' });
 
-    // 4. Read generated scene table
+    // 6. Read generated scene table
     let scenes = [];
     if (fs.existsSync(SCENE_TABLE_PATH)) {
       try {
@@ -80,7 +99,8 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: 'Autonomous Scene Architecture & Remotion TSX generation complete!',
-      scenes: scenes
+      scenes: scenes,
+      remainingCredits: creditResult.remainingCredits
     });
 
   } catch (error: any) {

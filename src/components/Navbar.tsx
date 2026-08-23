@@ -130,7 +130,11 @@ export default function Navbar() {
               {/* Credit Badge */}
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-950/50 border border-orange-700/40 text-xs font-semibold text-orange-300">
                 <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-                <span>{credits} {credits === 1 ? 'Credit' : 'Credits'}</span>
+                <span>
+                  {user.email?.toLowerCase() === 'chijiokejackson35@gmail.com' 
+                    ? '♾️ Unlimited (Admin)' 
+                    : `${credits} ${credits === 1 ? 'Credit' : 'Credits'}`}
+                </span>
               </div>
 
               {/* + Create Video Primary Action */}

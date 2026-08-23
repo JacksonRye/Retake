@@ -24,10 +24,8 @@ import {
   Check, 
   Search, 
   Star, 
-  Heart, 
-  X,
-  Filter
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 const WIZARD_STEPS = [
   { id: 1, label: '1. Config & Source', icon: Sliders },
@@ -109,7 +107,19 @@ export default function WizardPage() {
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
   const [scenesData, setScenesData] = useState<SceneItem[]>([]);
 
+  // Auth & Credit State
+  const [user, setUser] = useState<any>(null);
+  const [userCredits, setUserCredits] = useState<number>(1);
+
   useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) {
+        setUser(data.user);
+        setUserCredits(data.user.user_metadata?.credits ?? 1);
+      }
+    });
+
     fetch('/sampler_manifest.json')
       .then((res) => (res.ok ? res.json() : []))
       .then((data: StyleManifestItem[]) => {
@@ -297,7 +307,11 @@ export default function WizardPage() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-950/50 border border-orange-700/40 text-xs font-semibold text-orange-300">
               <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-              <span>1 Credit Available</span>
+              <span>
+                {user?.email?.toLowerCase() === 'chijiokejackson35@gmail.com' 
+                  ? '♾️ Unlimited (Admin)' 
+                  : `${userCredits} ${userCredits === 1 ? 'Credit' : 'Credits'} Available`}
+              </span>
             </div>
             <Link
               href="/studio"
