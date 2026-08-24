@@ -145,48 +145,37 @@ function StudioContent() {
       }
     });
 
-    // 1. Restore persistent rendered video across refresh
-    try {
-      const savedVideo = localStorage.getItem('retake_rendered_video');
-      if (savedVideo) {
-        setRenderedVideoUrl(savedVideo);
-      }
+    // 1. Fetch live jobs directly from Cloud Worker API for 100% database persistence
+    fetch('/api/v1/console/events')
+      .then((res) => res.json())
+      .then((data) => {
+        const jobs = data.jobs || [];
+        if (jobs.length > 0) {
+          const activeJob = jobs.find((j: any) => j.status === 'processing' || j.status === 'queued');
+          const latestCompletedJob = jobs.find((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
 
-      // 2. Check for active background render job across refresh
-      const savedJobRaw = localStorage.getItem('retake_last_job');
-      if (savedJobRaw) {
-        const savedJob = JSON.parse(savedJobRaw);
-        if (savedJob && savedJob.jobId) {
-          setActiveJobId(savedJob.jobId);
-          if (savedJob.videoUrl) setVideoInputUrl(savedJob.videoUrl);
-          if (savedJob.styleCode) setSelectedStyleCode(savedJob.styleCode);
-
-          fetch(`/api/v1/jobs/${savedJob.jobId}`)
-            .then((r) => r.json())
-            .then((statusData) => {
-              const r2 = statusData.videoUrl_r2 || statusData.videoUrl || statusData.video_url;
-              if (statusData.status === 'completed' || (r2 && r2.startsWith('http'))) {
-                if (r2) {
-                  setRenderedVideoUrl(r2);
-                  try {
-                    localStorage.setItem('retake_rendered_video', r2);
-                  } catch (e) {}
-                }
-                setIsGenerating(false);
-                setGenerationProgress(100);
-              } else if (statusData.status === 'processing' || statusData.status === 'queued') {
-                setIsGenerating(true);
-                if (statusData.stage) setGenerationStage(statusData.stage);
-                if (statusData.progress) setGenerationProgress(statusData.progress);
-                subscribeToJobStream(savedJob.jobId);
-              }
-            })
-            .catch(() => {});
+          if (activeJob) {
+            setActiveJobId(activeJob.jobId);
+            if (activeJob.videoUrl) setVideoInputUrl(activeJob.videoUrl);
+            if (activeJob.styleCode) setSelectedStyleCode(activeJob.styleCode);
+            setIsGenerating(true);
+            if (activeJob.message) setGenerationStage(activeJob.message.replace(/^\[Remotion\]\s*/, '🎬 '));
+            else if (activeJob.stage) setGenerationStage(activeJob.stage);
+            if (typeof activeJob.progress === 'number') setGenerationProgress(activeJob.progress);
+            subscribeToJobStream(activeJob.jobId);
+          } else if (latestCompletedJob) {
+            const finalR2 = latestCompletedJob.videoUrl_r2 || latestCompletedJob.videoUrl;
+            if (finalR2) {
+              setRenderedVideoUrl(finalR2);
+              if (latestCompletedJob.videoUrl) setVideoInputUrl(latestCompletedJob.videoUrl);
+              if (latestCompletedJob.styleCode) setSelectedStyleCode(latestCompletedJob.styleCode);
+            }
+          }
         }
-      }
-    } catch (err) {
-      console.error('Persistent state restoration error:', err);
-    }
+      })
+      .catch((err) => {
+        console.warn('Could not restore from worker events:', err);
+      });
   }, [router]);
 
   const handleGenerateVideo = async (e: React.FormEvent) => {
@@ -294,11 +283,13 @@ function StudioContent() {
         <div className="w-[300px] xs:w-[340px] sm:w-[380px] h-[533px] xs:h-[604px] sm:h-[675px] bg-black rounded-[32px] border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden relative flex-shrink-0 flex items-center justify-center">
           {renderedVideoUrl ? (
             <video
+              key={renderedVideoUrl}
               src={renderedVideoUrl}
               controls
               autoPlay
               loop
               playsInline
+              preload="auto"
               className="w-full h-full object-cover"
             />
           ) : (
