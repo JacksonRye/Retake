@@ -261,7 +261,7 @@ export default function WizardPage() {
   const executeBuildPipeline = async (overrideJobId?: string) => {
     const currentJid = overrideJobId || wizardJobId;
     setIsBuildingPipeline(true);
-    setPipelineStatus('⚡ Gemini 3.7 Flash constructing scene metaphors & Remotion TSX code...');
+    setPipelineStatus('⚡ Gemini 3.6 Flash constructing scene metaphors & Remotion TSX code...');
     try {
       const res = await fetch('/api/pipeline', {
         method: 'POST',
