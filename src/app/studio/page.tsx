@@ -11,7 +11,8 @@ import {
   RefreshCw, 
   Sliders,
   Download,
-  AlertCircle
+  AlertCircle,
+  Play
 } from 'lucide-react';
 
 const CleanPlayer = dynamic(() => import('../../components/CleanPlayer'), {
