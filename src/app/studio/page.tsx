@@ -53,6 +53,13 @@ function StudioContent() {
   const [timeRemaining, setTimeRemaining] = useState('');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [activeScenes, setActiveScenes] = useState<any[]>([]);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [videoInputUrl, setVideoInputUrl] = useState('');
+  const [selectedStyleCode, setSelectedStyleCode] = useState('CHRON_STYLE_100');
+  const [isGeneratingNewVideo, setIsGeneratingNewVideo] = useState(false);
+  const [generationStage, setGenerationStage] = useState('');
+  const [generationError, setGenerationError] = useState<string | null>(null);
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   const [sceneButtons, setSceneButtons] = useState<{ label: string; compId: string }[]>([
     { label: 'Full Edit', compId: 'FullEditPixel' }
@@ -225,6 +232,100 @@ function StudioContent() {
     };
   };
 
+  const handleCreateNewVideo = async () => {
+    if (!videoInputUrl.trim()) {
+      setGenerationError('Please enter a valid YouTube, Shorts, or MP4 video URL.');
+      return;
+    }
+    setIsGeneratingNewVideo(true);
+    setGenerationError(null);
+    setGenerationProgress(10);
+    setGenerationStage('📥 Ingesting & downloading master video...');
+
+    try {
+      // 1. Download Master Video
+      const dlRes = await fetch('/api/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: videoInputUrl.trim(),
+          duration: 60,
+          isDemoMode: false,
+          styleCode: selectedStyleCode,
+        }),
+      });
+      const dlData = await dlRes.json();
+      if (!dlRes.ok || dlData.error) {
+        throw new Error(dlData.error || 'Video download failed');
+      }
+
+      // 2. Transcribe with Whisper
+      setGenerationProgress(35);
+      setGenerationStage('🎙️ Transcribing speech with Whisper...');
+      const trRes = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const trData = await trRes.json();
+      if (!trRes.ok || trData.error) {
+        throw new Error(trData.error || 'Speech transcription failed');
+      }
+
+      // 3. AI Full-Screen Scene & Component Generation
+      setGenerationProgress(65);
+      setGenerationStage(`⚡ Generating full-screen ${selectedStyleCode} motion graphics...`);
+      const pipeRes = await fetch('/api/pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          style: selectedStyleCode,
+          pacing: 'fast',
+          resolution: '9:16',
+        }),
+      });
+      const pipeData = await pipeRes.json();
+      if (!pipeRes.ok || pipeData.error) {
+        throw new Error(pipeData.error || 'AI Scene generation failed');
+      }
+
+      // 4. Poll build completion
+      setGenerationProgress(85);
+      setGenerationStage('🛠️ Compiling Remotion master timeline...');
+      
+      let attempts = 0;
+      while (attempts < 60) {
+        await new Promise((r) => setTimeout(r, 2000));
+        attempts++;
+        try {
+          const statusRes = await fetch('/api/build/status?t=' + Date.now());
+          const statusData = await statusRes.json();
+          if (statusData.percentage) {
+            setGenerationProgress(Math.min(95, 65 + Math.round(statusData.percentage * 0.3)));
+          }
+          if (statusData.status === 'completed' || (statusData.percentage && statusData.percentage >= 100)) {
+            break;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      setGenerationProgress(100);
+      setGenerationStage('✨ Full-Screen Video ready in Studio!');
+      
+      setTimeout(() => {
+        setIsGeneratingNewVideo(false);
+        setIsCreateModalOpen(false);
+        window.location.href = `/studio?t=${Date.now()}&style=${selectedStyleCode}`;
+      }, 1500);
+
+    } catch (err: any) {
+      setGenerationError(err.message || 'Generation failed');
+      setIsGeneratingNewVideo(false);
+    }
+  };
+
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-[#0A0B0E] flex items-center justify-center text-xs font-mono text-slate-500">
@@ -257,11 +358,11 @@ function StudioContent() {
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* + Create Video Button */}
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(249,115,22,0.35)] cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>+ Refresh Studio</span>
+            <span>+ Create Video</span>
           </button>
 
           {/* Credit Badge */}
@@ -436,7 +537,7 @@ function StudioContent() {
             <button
               onClick={handleExport4K}
               disabled={isExporting}
-              className="w-full py-3.5 bg-white hover:bg-slate-200 disabled:opacity-50 text-black font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl shadow-white/5 transition-all"
+              className="w-full py-3.5 bg-white hover:bg-slate-200 disabled:opacity-50 text-black font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl shadow-white/5 transition-all cursor-pointer"
             >
               {isExporting ? (
                 <>
@@ -453,6 +554,119 @@ function StudioContent() {
           </div>
         </aside>
       </div>
+
+      {/* 2. One-Step Create Video Direct API Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="w-full max-w-lg bg-[#0F1118] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-white/5 pb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-orange-400" />
+                <h2 className="text-base font-bold text-white tracking-tight">Create New Video</h2>
+              </div>
+              {!isGeneratingNewVideo && (
+                <button
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Video URL Input */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                <span>Video Source URL</span>
+                <span className="text-[11px] font-normal text-slate-500 font-mono">YouTube, Shorts, or MP4</span>
+              </label>
+              <input
+                type="text"
+                value={videoInputUrl}
+                onChange={(e) => setVideoInputUrl(e.target.value)}
+                disabled={isGeneratingNewVideo}
+                placeholder="https://www.youtube.com/shorts/..."
+                className="w-full bg-[#141722] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all font-mono disabled:opacity-50"
+              />
+            </div>
+
+            {/* Style Selector */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Motion Graphics Style
+              </label>
+              <select
+                value={selectedStyleCode}
+                onChange={(e) => setSelectedStyleCode(e.target.value)}
+                disabled={isGeneratingNewVideo}
+                className="w-full bg-[#141722] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-orange-500 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                <option value="CHRON_STYLE_100">100 Neubrutal — Brutal Pop (High Impact)</option>
+                <option value="CHRON_STYLE_98">98 Corrupted Feed — Glitch Protocol</option>
+                <option value="CHRON_STYLE_01">1 Editorial Investigation — Dark Noir</option>
+                <option value="CHRON_STYLE_02">2 Mission Control — The Stakes Room</option>
+                <option value="CHRON_STYLE_55">55 Fold Logic — Origami Dimensional</option>
+                <option value="CHRON_STYLE_72">72 Pixel Quest — 8-Bit Retro</option>
+                <option value="CHRON_STYLE_90">90 Caliber Watch — Macro Luxury</option>
+              </select>
+            </div>
+
+            {/* Generation Progress or Error */}
+            {generationError && (
+              <div className="p-3 bg-red-950/40 border border-red-800/40 rounded-xl text-red-300 text-xs font-mono">
+                ⚠️ {generationError}
+              </div>
+            )}
+
+            {isGeneratingNewVideo && (
+              <div className="space-y-3 bg-[#141722] border border-white/10 rounded-2xl p-4">
+                <div className="flex justify-between items-center text-xs font-mono text-slate-300">
+                  <span className="flex items-center gap-2">
+                    <RefreshCw className="w-3.5 h-3.5 text-orange-400 animate-spin" />
+                    <span>{generationStage}</span>
+                  </span>
+                  <span className="text-orange-400 font-bold">{generationProgress}%</span>
+                </div>
+                <div className="w-full h-2 bg-[#1C202E] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-300 rounded-full"
+                    style={{ width: `${generationProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              {!isGeneratingNewVideo && (
+                <button
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={handleCreateNewVideo}
+                disabled={isGeneratingNewVideo || !videoInputUrl.trim()}
+                className="px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)] cursor-pointer"
+              >
+                {isGeneratingNewVideo ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Generating Video...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4" />
+                    <span>Generate Full-Screen Video</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
