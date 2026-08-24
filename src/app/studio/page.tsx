@@ -48,6 +48,7 @@ function StudioContent() {
   const [generationStage, setGenerationStage] = useState('');
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [showCompletionNotification, setShowCompletionNotification] = useState(false);
 
   const subscribeToJobStream = (jobId: string) => {
     // 1. Instant Real-Time Polling Loop (1.5s interval for 100% dependable UI updates)
@@ -72,6 +73,7 @@ function StudioContent() {
             clearInterval(pollInterval);
             if (r2Url) {
               setRenderedVideoUrl(r2Url);
+              setShowCompletionNotification(true);
               try {
                 localStorage.setItem('retake_rendered_video', r2Url);
               } catch (e) {}
@@ -162,10 +164,16 @@ function StudioContent() {
           fetch(`/api/v1/jobs/${savedJob.jobId}`)
             .then((r) => r.json())
             .then((statusData) => {
-              const r2 = statusData.videoUrl || statusData.video_url;
-              if (statusData.status === 'completed' && r2) {
-                setRenderedVideoUrl(r2);
-                localStorage.setItem('retake_rendered_video', r2);
+              const r2 = statusData.videoUrl_r2 || statusData.videoUrl || statusData.video_url;
+              if (statusData.status === 'completed' || (r2 && r2.startsWith('http'))) {
+                if (r2) {
+                  setRenderedVideoUrl(r2);
+                  try {
+                    localStorage.setItem('retake_rendered_video', r2);
+                  } catch (e) {}
+                }
+                setIsGenerating(false);
+                setGenerationProgress(100);
               } else if (statusData.status === 'processing' || statusData.status === 'queued') {
                 setIsGenerating(true);
                 if (statusData.stage) setGenerationStage(statusData.stage);
@@ -416,7 +424,7 @@ function StudioContent() {
                 target="_blank"
                 rel="noreferrer"
                 download
-                className="w-full py-3 bg-white hover:bg-slate-200 text-black font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+                className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download Master Video (.mp4)</span>
@@ -425,6 +433,29 @@ function StudioContent() {
           )}
         </div>
       </main>
+
+      {/* Celebratory Video Render Complete Notification Toast */}
+      {showCompletionNotification && (
+        <div className="fixed top-6 right-6 z-50 bg-[#0F1118] border border-emerald-500/40 rounded-2xl p-4 shadow-2xl shadow-emerald-950/50 flex items-start gap-3 max-w-sm animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="flex-1 space-y-1">
+            <div className="text-xs font-bold text-white flex items-center justify-between">
+              <span>🎉 Video Render Complete!</span>
+              <button
+                onClick={() => setShowCompletionNotification(false)}
+                className="text-slate-400 hover:text-white text-xs cursor-pointer ml-2"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-[11px] text-slate-300 leading-relaxed font-mono">
+              Your master video is ready, uploaded to Cloudflare R2, and active in the player!
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
