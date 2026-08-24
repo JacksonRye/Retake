@@ -165,16 +165,20 @@ export default function DynamicRemotionComposition({
     ? scenes.find((s, idx) => s.component_name === activeComp || `Scene ${s.scene_number || idx + 1}` === activeComp || `Scene${s.scene_number || idx + 1}` === activeComp) || scenes[0]
     : null;
 
+  const resolvedVideoSrc = (videoUrl && (videoUrl.startsWith('http') || videoUrl.startsWith('/')))
+    ? videoUrl
+    : '/api/video/stream';
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#0A0B0E', overflow: 'hidden' }}>
       {/* Background Video Layer */}
       <OffthreadVideo
-        src={staticFile(videoUrl || 'video.mp4')}
+        src={resolvedVideoSrc}
         style={{
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          opacity: 0.85,
+          opacity: 1,
         }}
       />
 

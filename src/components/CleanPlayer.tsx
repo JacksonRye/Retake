@@ -17,7 +17,7 @@ export default function CleanPlayer({
   totalFrames = 900,
   scenes = [],
   styleCode = 'CHRON_STYLE_100',
-  videoUrl = 'video.mp4',
+  videoUrl = '/api/video/stream',
 }: CleanPlayerProps) {
   const isSingleScene = activeComp !== 'FullEditPixel';
   const durationInFrames = isSingleScene ? 135 : totalFrames;
