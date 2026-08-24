@@ -71,13 +71,11 @@ function StudioContent() {
             setGenerationStage(statusData.stage);
           }
 
-          const r2Url = statusData.videoUrl_r2 || statusData.videoUrl || statusData.video_url;
-          if (statusData.status === 'completed' || (r2Url && r2Url.startsWith('http'))) {
+          const r2Url = statusData.videoUrl_r2;
+          if (statusData.status === 'completed' && r2Url) {
             clearInterval(pollInterval);
-            if (r2Url) {
-              setRenderedVideoUrl(r2Url);
-              setShowCompletionNotification(true);
-            }
+            setRenderedVideoUrl(r2Url);
+            setShowCompletionNotification(true);
             setIsGenerating(false);
             setGenerationProgress(100);
             setGenerationStage('✨ Video rendered & uploaded to Cloudflare R2!');
@@ -87,7 +85,7 @@ function StudioContent() {
               fetch(`/api/v1/console/events?userEmail=${encodeURIComponent(currentUser.email)}`)
                 .then((r) => r.json())
                 .then((d) => {
-                  const cJobs = (d.jobs || []).filter((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
+                  const cJobs = (d.jobs || []).filter((j: any) => j.status === 'completed' && j.videoUrl_r2);
                   setUserHistoryJobs(cJobs);
                 })
                 .catch(() => {});
@@ -121,8 +119,8 @@ function StudioContent() {
             setGenerationProgress(payload.progress);
           }
 
-          const finalUrl = payload.videoUrl_r2 || payload.videoUrl || payload.video_url || (payload.data && payload.data.videoUrl);
-          if (finalUrl) {
+          const finalUrl = payload.videoUrl_r2;
+          if (finalUrl && (payload.status === 'completed' || payload.stage === 'finished')) {
             clearInterval(pollInterval);
             setRenderedVideoUrl(finalUrl);
             setShowCompletionNotification(true);
@@ -160,7 +158,7 @@ function StudioContent() {
             const jobs = data.jobs || [];
 
             // History contains ONLY finished, playable videos
-            const completedJobs = jobs.filter((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
+            const completedJobs = jobs.filter((j: any) => j.status === 'completed' && j.videoUrl_r2);
             setUserHistoryJobs(completedJobs);
 
             const activeJob = jobs.find((j: any) => j.status === 'processing' || j.status === 'queued');
@@ -180,7 +178,7 @@ function StudioContent() {
             } else if (completedJobs.length > 0) {
               // When idle, load latest finished video
               const latestCompletedJob = completedJobs[0];
-              const finalR2 = latestCompletedJob.videoUrl_r2 || latestCompletedJob.videoUrl;
+              const finalR2 = latestCompletedJob.videoUrl_r2;
               if (finalR2) {
                 setRenderedVideoUrl(finalR2);
                 if (latestCompletedJob.videoUrl) setVideoInputUrl(latestCompletedJob.videoUrl);
@@ -447,7 +445,7 @@ function StudioContent() {
 
               <div className="max-h-48 overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-white/10">
                 {userHistoryJobs.map((job) => {
-                  const r2 = job.videoUrl_r2 || job.videoUrl;
+                  const r2 = job.videoUrl_r2;
                   const isCurrent = r2 && r2 === renderedVideoUrl;
                   const styleInfo = POPULAR_STYLES.find((s) => s.code === job.styleCode);
 
