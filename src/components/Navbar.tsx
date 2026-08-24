@@ -187,18 +187,10 @@ export default function Navbar() {
                     <Link
                       href="/studio"
                       onClick={() => setIsDropdownOpen(false)}
-                      className="flex items-center gap-2 px-3.5 py-2 text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
-                    >
-                      <Video className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Video Studio</span>
-                    </Link>
-                    <Link
-                      href="/studio"
-                      onClick={() => setIsDropdownOpen(false)}
                       className="flex items-center gap-2 px-3.5 py-2 hover:bg-white/5 hover:text-white transition-colors"
                     >
                       <Video className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Video Studio</span>
+                      <span>Studio</span>
                     </Link>
                     <Link
                       href="/sampler"

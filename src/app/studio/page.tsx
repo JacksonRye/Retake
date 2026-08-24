@@ -1,69 +1,58 @@
 'use client';
 
-import React, { useState, useEffect, useRef, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { 
   Sparkles, 
-  Video, 
-  CheckCircle2, 
-  Monitor, 
-  Download, 
-  Send, 
-  RefreshCw, 
-  Layers, 
   Film, 
-  UploadCloud, 
-  FileVideo, 
-  Activity,
+  RefreshCw, 
   Sliders,
-  ArrowRight
+  Download,
+  AlertCircle
 } from 'lucide-react';
 
 const CleanPlayer = dynamic(() => import('../../components/CleanPlayer'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full flex items-center justify-center bg-black text-slate-500 text-xs font-mono">
-      Initializing Native Player...
+      Initializing Player...
     </div>
   ),
 });
 
+const POPULAR_STYLES = [
+  { code: 'CHRON_STYLE_100', name: '100 Neubrutal — Brutal Pop (High Impact)' },
+  { code: 'CHRON_STYLE_98', name: '98 Corrupted Feed — Glitch Protocol' },
+  { code: 'CHRON_STYLE_01', name: '1 Editorial Investigation — Dark Noir' },
+  { code: 'CHRON_STYLE_02', name: '2 Mission Control — The Stakes Room' },
+  { code: 'CHRON_STYLE_55', name: '55 Fold Logic — Origami Dimensional' },
+  { code: 'CHRON_STYLE_72', name: '72 Pixel Quest — 8-Bit Retro' },
+  { code: 'CHRON_STYLE_90', name: '90 Caliber Watch — Macro Luxury' },
+];
+
 function StudioContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialComp = searchParams?.get('compId') || 'FullEditPixel';
-  const initialStyle = searchParams?.get('style') || 'CHRON_STYLE_98';
+  const initialStyle = searchParams?.get('style') || 'CHRON_STYLE_100';
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [activeComp, setActiveComp] = useState(initialComp);
-  const [activeLabel, setActiveLabel] = useState(initialComp === 'FullEditPixel' ? 'Full Edit' : 'Scene');
-  const [activeVersion, setActiveVersion] = useState('V1');
-  const [availableVersions, setAvailableVersions] = useState<string[]>(['V1']);
   const [currentStyleCode, setCurrentStyleCode] = useState(initialStyle);
-  const [promptText, setPromptText] = useState('');
-  const [selectedVideoName, setSelectedVideoName] = useState<string | null>('video.mp4');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportProgress, setExportProgress] = useState(0);
-  const [renderedFrames, setRenderedFrames] = useState(0);
-  const [totalFrames, setTotalFrames] = useState(2056);
-  const [timeRemaining, setTimeRemaining] = useState('');
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [totalFrames, setTotalFrames] = useState(1801);
   const [activeScenes, setActiveScenes] = useState<any[]>([]);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
   const [videoInputUrl, setVideoInputUrl] = useState('');
-  const [selectedStyleCode, setSelectedStyleCode] = useState('CHRON_STYLE_100');
-  const [isGeneratingNewVideo, setIsGeneratingNewVideo] = useState(false);
+  const [selectedStyleCode, setSelectedStyleCode] = useState(initialStyle);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [generationStage, setGenerationStage] = useState('');
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
 
-  const [sceneButtons, setSceneButtons] = useState<{ label: string; compId: string }[]>([
-    { label: 'Full Edit', compId: 'FullEditPixel' }
-  ]);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -86,19 +75,9 @@ function StudioContent() {
         const data = await res.json();
         if (data && data.scenes && data.scenes.length > 0) {
           setActiveScenes(data.scenes);
-          const dynamicOptions = [
-            { label: 'Full Edit', compId: 'FullEditPixel' }
-          ];
-          data.scenes.forEach((sc: any, idx: number) => {
-            const cname = sc.component_name || `Scene${idx + 1}`;
-            dynamicOptions.push({
-              label: `Scene ${sc.scene_number || idx + 1}`,
-              compId: cname
-            });
-          });
-          setSceneButtons(dynamicOptions);
           if (data.style) {
             setCurrentStyleCode(data.style);
+            setSelectedStyleCode(data.style);
           }
           if (data.total_frames) {
             setTotalFrames(data.total_frames);
@@ -111,68 +90,92 @@ function StudioContent() {
     loadActiveScenes();
   }, [searchParams]);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleGenerateVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!videoInputUrl.trim() || isGenerating) return;
 
-  const handleVideoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedVideoName(file.name);
-      setStatusMessage(`📁 Selected raw video: ${file.name}`);
-    }
-  };
-
-  const handleSelectScene = (label: string, compId: string, versions?: string[]) => {
-    setActiveLabel(label);
-    setActiveComp(compId);
-    if (versions) {
-      setAvailableVersions(versions);
-      const latestVer = versions[versions.length - 1];
-      setActiveVersion(latestVer);
-    } else {
-      setAvailableVersions([]);
-      setActiveVersion('');
-    }
-    setStatusMessage(null);
-  };
-
-  const handleSelectVersion = (ver: string) => {
-    setActiveVersion(ver);
-    const sceneNum = activeLabel.replace(/[^0-9]/g, '') || '1';
-    const newCompId = `Scene${sceneNum}-${ver}`;
-    setActiveComp(newCompId);
-  };
-
-  const handleApplyRevision = async () => {
-    if (!promptText.trim() || isProcessing) return;
-    setIsProcessing(true);
-    setStatusMessage('AI Agent is generating scene TSX code...');
-
-    const sceneNum = activeLabel.includes('Scene') ? parseInt(activeLabel.replace(/[^0-9]/g, '') || '1') : 1;
+    setIsGenerating(true);
+    setGenerationError(null);
+    setGenerationProgress(10);
+    setGenerationStage('📥 Downloading video...');
 
     try {
-      const res = await fetch('/api/revision', {
+      const dlRes = await fetch('/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scene: sceneNum, prompt: promptText }),
+        body: JSON.stringify({
+          url: videoInputUrl.trim(),
+          duration: 60,
+          isDemoMode: false,
+          styleCode: selectedStyleCode,
+        }),
       });
-
-      const data = await res.json();
-      if (data.success && data.newCompId) {
-        const verMatch = data.newCompId.match(/-V(\d+)$/);
-        const newVerStr = verMatch ? `V${verMatch[1]}` : 'V2';
-        
-        setAvailableVersions((prev) => Array.from(new Set([...prev, newVerStr])));
-        setActiveVersion(newVerStr);
-        setActiveComp(data.newCompId);
-        setStatusMessage(`✅ Revision Applied! Switched to ${newVerStr}`);
-        setPromptText('');
-      } else {
-        setStatusMessage(`⚠️ Error: ${data.error}`);
+      const dlData = await dlRes.json();
+      if (!dlRes.ok || dlData.error) {
+        throw new Error(dlData.error || 'Video download failed');
       }
+
+      setGenerationProgress(35);
+      setGenerationStage('🎙️ Transcribing speech with Whisper...');
+      const trRes = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const trData = await trRes.json();
+      if (!trRes.ok || trData.error) {
+        throw new Error(trData.error || 'Speech transcription failed');
+      }
+
+      setGenerationProgress(65);
+      setGenerationStage(`⚡ Generating full-screen ${selectedStyleCode} animations...`);
+      const pipeRes = await fetch('/api/pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          style: selectedStyleCode,
+          pacing: 'fast',
+          resolution: '9:16',
+        }),
+      });
+      const pipeData = await pipeRes.json();
+      if (!pipeRes.ok || pipeData.error) {
+        throw new Error(pipeData.error || 'AI Scene generation failed');
+      }
+
+      setGenerationProgress(85);
+      setGenerationStage('🛠️ Compiling master timeline...');
+      
+      let attempts = 0;
+      while (attempts < 60) {
+        await new Promise((r) => setTimeout(r, 2000));
+        attempts++;
+        try {
+          const statusRes = await fetch('/api/build/status?t=' + Date.now());
+          const statusData = await statusRes.json();
+          if (statusData.percentage) {
+            setGenerationProgress(Math.min(95, 65 + Math.round(statusData.percentage * 0.3)));
+          }
+          if (statusData.status === 'completed' || (statusData.percentage && statusData.percentage >= 100)) {
+            break;
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      setGenerationProgress(100);
+      setGenerationStage('✨ Video ready!');
+      
+      setTimeout(() => {
+        setIsGenerating(false);
+        setVideoInputUrl('');
+        window.location.href = `/studio?t=${Date.now()}&style=${selectedStyleCode}`;
+      }, 1200);
+
     } catch (err: any) {
-      setStatusMessage(`❌ Error: ${err.message}`);
-    } finally {
-      setIsProcessing(false);
+      setGenerationError(err.message || 'Generation failed');
+      setIsGenerating(false);
     }
   };
 
@@ -180,33 +183,25 @@ function StudioContent() {
     if (isExporting) return;
     setIsExporting(true);
     setExportProgress(0);
-    setRenderedFrames(0);
-    setTimeRemaining('initializing encoder...');
-    setStatusMessage(`🎬 Rendering 4K Master Video (${activeComp})...`);
+    setStatusMessage('🎬 Rendering 4K Master Video...');
 
-    const eventSource = new EventSource(`/api/export?comp=${encodeURIComponent(activeComp)}`);
+    const eventSource = new EventSource('/api/export?comp=FullEditPixel');
 
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.status === 'rendering') {
           setExportProgress(data.percent);
-          setRenderedFrames(data.renderedFrames);
-          setTotalFrames(data.totalFrames);
-          if (data.timeRemaining) {
-            setTimeRemaining(`Est. ${data.timeRemaining} remaining`);
-          }
         } else if (data.status === 'complete') {
           setExportProgress(100);
-          setStatusMessage('🎉 4K Video Render Complete! Downloading to your system...');
+          setStatusMessage('🎉 Render Complete! Downloading video...');
           eventSource.close();
 
-          // Automatically trigger direct file download to user's computer
           try {
             const downloadUrl = data.downloadUrl || '/api/export/download';
             const link = document.createElement('a');
             link.href = downloadUrl;
-            link.setAttribute('download', `Retake_4K_${activeComp}_${Date.now()}.mp4`);
+            link.setAttribute('download', `Retake_4K_${Date.now()}.mp4`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -232,100 +227,6 @@ function StudioContent() {
     };
   };
 
-  const handleCreateNewVideo = async () => {
-    if (!videoInputUrl.trim()) {
-      setGenerationError('Please enter a valid YouTube, Shorts, or MP4 video URL.');
-      return;
-    }
-    setIsGeneratingNewVideo(true);
-    setGenerationError(null);
-    setGenerationProgress(10);
-    setGenerationStage('📥 Ingesting & downloading master video...');
-
-    try {
-      // 1. Download Master Video
-      const dlRes = await fetch('/api/download', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: videoInputUrl.trim(),
-          duration: 60,
-          isDemoMode: false,
-          styleCode: selectedStyleCode,
-        }),
-      });
-      const dlData = await dlRes.json();
-      if (!dlRes.ok || dlData.error) {
-        throw new Error(dlData.error || 'Video download failed');
-      }
-
-      // 2. Transcribe with Whisper
-      setGenerationProgress(35);
-      setGenerationStage('🎙️ Transcribing speech with Whisper...');
-      const trRes = await fetch('/api/transcribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
-      const trData = await trRes.json();
-      if (!trRes.ok || trData.error) {
-        throw new Error(trData.error || 'Speech transcription failed');
-      }
-
-      // 3. AI Full-Screen Scene & Component Generation
-      setGenerationProgress(65);
-      setGenerationStage(`⚡ Generating full-screen ${selectedStyleCode} motion graphics...`);
-      const pipeRes = await fetch('/api/pipeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          style: selectedStyleCode,
-          pacing: 'fast',
-          resolution: '9:16',
-        }),
-      });
-      const pipeData = await pipeRes.json();
-      if (!pipeRes.ok || pipeData.error) {
-        throw new Error(pipeData.error || 'AI Scene generation failed');
-      }
-
-      // 4. Poll build completion
-      setGenerationProgress(85);
-      setGenerationStage('🛠️ Compiling Remotion master timeline...');
-      
-      let attempts = 0;
-      while (attempts < 60) {
-        await new Promise((r) => setTimeout(r, 2000));
-        attempts++;
-        try {
-          const statusRes = await fetch('/api/build/status?t=' + Date.now());
-          const statusData = await statusRes.json();
-          if (statusData.percentage) {
-            setGenerationProgress(Math.min(95, 65 + Math.round(statusData.percentage * 0.3)));
-          }
-          if (statusData.status === 'completed' || (statusData.percentage && statusData.percentage >= 100)) {
-            break;
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      setGenerationProgress(100);
-      setGenerationStage('✨ Full-Screen Video ready in Studio!');
-      
-      setTimeout(() => {
-        setIsGeneratingNewVideo(false);
-        setIsCreateModalOpen(false);
-        window.location.href = `/studio?t=${Date.now()}&style=${selectedStyleCode}`;
-      }, 1500);
-
-    } catch (err: any) {
-      setGenerationError(err.message || 'Generation failed');
-      setIsGeneratingNewVideo(false);
-    }
-  };
-
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen bg-[#0A0B0E] flex items-center justify-center text-xs font-mono text-slate-500">
@@ -335,9 +236,8 @@ function StudioContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen md:h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased overflow-x-hidden md:overflow-hidden selection:bg-orange-500/30">
-      {/* 1. Header with Complete Retake Navigation */}
-      <header className="h-16 border-b border-white/5 bg-[#0D0F15]/95 px-4 sm:px-6 flex items-center justify-between backdrop-blur-xl z-20 flex-shrink-0">
+    <div className="flex flex-col min-h-screen bg-[#0A0B0E] text-[#F3F4F6] font-sans antialiased selection:bg-orange-500/30">
+      <header className="h-16 border-b border-white/5 bg-[#0D0F15]/95 px-6 flex items-center justify-between backdrop-blur-xl z-20 flex-shrink-0">
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2.5">
             <img 
@@ -347,279 +247,94 @@ function StudioContent() {
             />
             <span className="font-extrabold text-sm tracking-tight text-white font-mono">RETAKE</span>
           </Link>
-          <span className="text-slate-600 hidden sm:inline">/</span>
-          <div className="hidden sm:flex items-center gap-1.5 text-xs font-semibold text-slate-300">
+          <span className="text-slate-600">/</span>
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-300">
             <Film className="w-3.5 h-3.5 text-orange-400" />
-            <span>Studio Editor</span>
+            <span>Studio</span>
           </div>
         </div>
 
-        {/* Video File & Action Controls */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* + Create Video Button */}
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(249,115,22,0.35)] cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>+ Create Video</span>
-          </button>
-
-          {/* Credit Badge */}
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-950/50 border border-orange-700/40 text-xs font-semibold text-orange-300">
-            <span>⚡ 1 Credit</span>
-          </div>
-
+        <div className="flex items-center gap-3">
           <Link
             href="/sampler"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-xs font-medium text-slate-300 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-xs font-medium text-slate-300 transition-all"
           >
             <Sliders className="w-3.5 h-3.5 text-purple-400" />
             <span>60 Styles</span>
           </Link>
-
-          <Link
-            href="/console"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-xs font-medium text-slate-300 transition-all"
-          >
-            <Activity className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Console</span>
-          </Link>
-
           <Link
             href="/"
-            className="text-xs font-medium text-slate-400 hover:text-white px-2 py-1 transition-colors"
+            className="px-3.5 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-xs font-medium text-slate-400 hover:text-white transition-all"
           >
             Exit
           </Link>
         </div>
       </header>
 
-      {/* 2. Main Responsive 2-Column or Stacked Mobile Layout */}
-      <div className="flex flex-col md:flex-row flex-1 overflow-y-auto md:overflow-hidden">
-        {/* Left Column: Pure Native Video Viewport */}
-        <main className="flex-1 bg-[#07080B] flex flex-col items-center justify-center p-4 sm:p-6 relative min-h-[460px] sm:min-h-[580px]">
-          <div className="w-[280px] xs:w-[320px] sm:w-[360px] h-[480px] xs:h-[540px] sm:h-[620px] bg-black rounded-[28px] sm:rounded-[32px] border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.8)] overflow-hidden relative">
-            <CleanPlayer
-              activeComp={activeComp}
-              totalFrames={totalFrames}
-              scenes={activeScenes}
-              styleCode={currentStyleCode}
-              videoUrl={selectedVideoName || 'video.mp4'}
-            />
-          </div>
-          
-          <div className="mt-3 text-[11px] sm:text-xs text-slate-400 flex items-center gap-2 font-mono">
-            <Monitor className="w-3.5 h-3.5 text-orange-400" />
-            <span>Active: <strong className="text-white">{activeLabel}</strong> ({activeComp})</span>
-          </div>
-        </main>
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
+        <div className="w-[300px] xs:w-[340px] sm:w-[380px] h-[533px] xs:h-[604px] sm:h-[675px] bg-black rounded-[32px] border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden relative flex-shrink-0">
+          <CleanPlayer
+            activeComp="FullEditPixel"
+            totalFrames={totalFrames}
+            scenes={activeScenes}
+            styleCode={currentStyleCode}
+            videoUrl="/api/video/stream"
+          />
+        </div>
 
-        {/* Right Column: Sleek Minimal Control Sidebar */}
-        <aside className="w-full md:w-96 border-t md:border-t-0 md:border-l border-white/5 bg-[#0D0F15] p-5 sm:p-6 flex flex-col justify-between overflow-y-auto space-y-6 md:space-y-0">
-          <div className="space-y-6">
-            {/* Scene Selector Grid */}
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center justify-between">
-                <span>Select Scene</span>
-                <span className="text-[11px] font-mono text-slate-500">{sceneButtons.length} scenes</span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {sceneButtons.map((item) => {
-                  const isSelected = activeComp === item.compId || activeLabel === item.label;
-                  return (
-                    <button
-                      key={item.label}
-                      onClick={() => handleSelectScene(item.label, item.compId)}
-                      className={`py-2 px-3 rounded-2xl text-xs font-semibold transition-all border ${
-                        isSelected
-                          ? 'bg-white text-black border-white shadow-md'
-                          : 'bg-[#141722] border-white/5 text-slate-400 hover:text-white hover:bg-[#1C202E]'
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Version Variant Selector Bar */}
-            {availableVersions.length > 0 && (
-              <div>
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                  <Layers className="w-3.5 h-3.5 text-orange-400" />
-                  <span>Scene Variants ({activeLabel})</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5 bg-[#141722] p-2 rounded-2xl border border-white/5">
-                  {availableVersions.map((ver) => (
-                    <button
-                      key={ver}
-                      onClick={() => handleSelectVersion(ver)}
-                      className={`px-3 py-1 rounded-xl text-xs font-mono font-bold transition-all border ${
-                        activeVersion === ver
-                          ? 'bg-orange-500 text-white border-orange-400 shadow-sm'
-                          : 'bg-[#1C202E] text-slate-400 border-white/5 hover:text-white'
-                      }`}
-                    >
-                      {ver}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* AI Revision Prompt */}
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center justify-between">
-                <span>AI Prompt Correction</span>
-                <span className="text-[10px] font-mono text-orange-400">~2.1s Rebuild</span>
-              </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  value={promptText}
-                  onChange={(e) => setPromptText(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleApplyRevision()}
-                  disabled={isProcessing}
-                  placeholder={`Describe edit for ${activeLabel}...`}
-                  className="w-full bg-[#141722] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30 transition-all pr-11 disabled:opacity-50"
-                />
-                <button
-                  onClick={handleApplyRevision}
-                  disabled={isProcessing || !promptText.trim()}
-                  className="absolute right-2 top-2 p-2 bg-white hover:bg-slate-200 disabled:opacity-50 text-black rounded-xl transition-all shadow-sm"
-                >
-                  {isProcessing ? (
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Send className="w-3.5 h-3.5" />
-                  )}
-                </button>
-              </div>
-
-              {statusMessage && (
-                <div className="mt-3 text-[11px] font-mono text-orange-300 bg-orange-950/30 border border-orange-800/40 px-3.5 py-2 rounded-xl flex items-center gap-2 leading-relaxed">
-                  <Sparkles className="w-3.5 h-3.5 text-orange-400 animate-pulse flex-shrink-0" />
-                  <span>{statusMessage}</span>
-                </div>
-              )}
-            </div>
+        <div className="w-full max-w-md bg-[#0D0F15] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+          <div className="space-y-1">
+            <h1 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-orange-400" />
+              <span>AI Video Generator</span>
+            </h1>
+            <p className="text-xs text-slate-400">
+              Feed any video URL and style code to build full-screen motion graphics.
+            </p>
           </div>
 
-          {/* Export Action Card */}
-          <div className="space-y-3 pt-6 border-t border-white/5">
-            {isExporting && (
-              <div className="bg-[#141722] border border-white/10 rounded-2xl p-4 text-xs space-y-2.5">
-                <div className="flex justify-between items-center text-[11px] font-mono text-slate-300">
-                  <span className="flex items-center gap-1.5">
-                    <RefreshCw className="w-3.5 h-3.5 text-orange-400 animate-spin" />
-                    <span>Frame <strong className="text-white">{renderedFrames}</strong> / {totalFrames}</span>
-                  </span>
-                  <span className="text-orange-400 font-bold font-mono">{exportProgress}%</span>
-                </div>
-
-                <div className="w-full h-2 bg-[#1C202E] rounded-full overflow-hidden border border-white/5">
-                  <div
-                    className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-150 rounded-full"
-                    style={{ width: `${exportProgress}%` }}
-                  />
-                </div>
-
-                {timeRemaining && (
-                  <div className="text-[10px] text-slate-500 font-mono text-right">
-                    {timeRemaining}
-                  </div>
-                )}
-              </div>
-            )}
-
-            <button
-              onClick={handleExport4K}
-              disabled={isExporting}
-              className="w-full py-3.5 bg-white hover:bg-slate-200 disabled:opacity-50 text-black font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-xl shadow-white/5 transition-all cursor-pointer"
-            >
-              {isExporting ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Rendering ({exportProgress}%)...</span>
-                </>
-              ) : (
-                <>
-                  <Film className="w-4 h-4" />
-                  <span>Export 4K Master Video</span>
-                </>
-              )}
-            </button>
-          </div>
-        </aside>
-      </div>
-
-      {/* 2. One-Step Create Video Direct API Modal */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-lg bg-[#0F1118] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-white/5 pb-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-orange-400" />
-                <h2 className="text-base font-bold text-white tracking-tight">Create New Video</h2>
-              </div>
-              {!isGeneratingNewVideo && (
-                <button
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all cursor-pointer"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-
-            {/* Video URL Input */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
-                <span>Video Source URL</span>
-                <span className="text-[11px] font-normal text-slate-500 font-mono">YouTube, Shorts, or MP4</span>
+          <form onSubmit={handleGenerateVideo} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Video URL
               </label>
               <input
                 type="text"
                 value={videoInputUrl}
                 onChange={(e) => setVideoInputUrl(e.target.value)}
-                disabled={isGeneratingNewVideo}
-                placeholder="https://www.youtube.com/shorts/..."
+                disabled={isGenerating}
+                placeholder="Paste YouTube, Shorts, or MP4 link..."
                 className="w-full bg-[#141722] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 transition-all font-mono disabled:opacity-50"
               />
             </div>
 
-            {/* Style Selector */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Motion Graphics Style
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                Visual Style
               </label>
               <select
                 value={selectedStyleCode}
                 onChange={(e) => setSelectedStyleCode(e.target.value)}
-                disabled={isGeneratingNewVideo}
+                disabled={isGenerating}
                 className="w-full bg-[#141722] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-orange-500 transition-all disabled:opacity-50 cursor-pointer"
               >
-                <option value="CHRON_STYLE_100">100 Neubrutal — Brutal Pop (High Impact)</option>
-                <option value="CHRON_STYLE_98">98 Corrupted Feed — Glitch Protocol</option>
-                <option value="CHRON_STYLE_01">1 Editorial Investigation — Dark Noir</option>
-                <option value="CHRON_STYLE_02">2 Mission Control — The Stakes Room</option>
-                <option value="CHRON_STYLE_55">55 Fold Logic — Origami Dimensional</option>
-                <option value="CHRON_STYLE_72">72 Pixel Quest — 8-Bit Retro</option>
-                <option value="CHRON_STYLE_90">90 Caliber Watch — Macro Luxury</option>
+                {POPULAR_STYLES.map((st) => (
+                  <option key={st.code} value={st.code}>
+                    {st.name}
+                  </option>
+                ))}
               </select>
             </div>
 
-            {/* Generation Progress or Error */}
             {generationError && (
-              <div className="p-3 bg-red-950/40 border border-red-800/40 rounded-xl text-red-300 text-xs font-mono">
-                ⚠️ {generationError}
+              <div className="p-3 bg-red-950/40 border border-red-800/40 rounded-xl text-red-300 text-xs font-mono flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{generationError}</span>
               </div>
             )}
 
-            {isGeneratingNewVideo && (
-              <div className="space-y-3 bg-[#141722] border border-white/10 rounded-2xl p-4">
+            {isGenerating && (
+              <div className="space-y-2.5 bg-[#141722] border border-white/10 rounded-2xl p-4">
                 <div className="flex justify-between items-center text-xs font-mono text-slate-300">
                   <span className="flex items-center gap-2">
                     <RefreshCw className="w-3.5 h-3.5 text-orange-400 animate-spin" />
@@ -627,7 +342,7 @@ function StudioContent() {
                   </span>
                   <span className="text-orange-400 font-bold">{generationProgress}%</span>
                 </div>
-                <div className="w-full h-2 bg-[#1C202E] rounded-full overflow-hidden">
+                <div className="w-full h-1.5 bg-[#1C202E] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-300 rounded-full"
                     style={{ width: `${generationProgress}%` }}
@@ -636,44 +351,71 @@ function StudioContent() {
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-2">
-              {!isGeneratingNewVideo && (
-                <button
-                  onClick={() => setIsCreateModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold transition-all cursor-pointer"
-                >
-                  Cancel
-                </button>
+            <button
+              type="submit"
+              disabled={isGenerating || !videoInputUrl.trim()}
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)] cursor-pointer"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Generating Video...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Generate Full-Screen Video</span>
+                </>
               )}
-              <button
-                onClick={handleCreateNewVideo}
-                disabled={isGeneratingNewVideo || !videoInputUrl.trim()}
-                className="px-6 py-3 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-[0_0_20px_rgba(249,115,22,0.4)] cursor-pointer"
-              >
-                {isGeneratingNewVideo ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Generating Video...</span>
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4" />
-                    <span>Generate Full-Screen Video</span>
-                  </>
-                )}
-              </button>
-            </div>
+            </button>
+          </form>
+
+          <div className="pt-4 border-t border-white/5 space-y-3">
+            {isExporting && (
+              <div className="bg-[#141722] border border-white/10 rounded-2xl p-3.5 text-xs space-y-2">
+                <div className="flex justify-between items-center text-[11px] font-mono text-slate-300">
+                  <span className="flex items-center gap-1.5">
+                    <RefreshCw className="w-3 h-3 text-orange-400 animate-spin" />
+                    <span>{statusMessage}</span>
+                  </span>
+                  <span className="text-orange-400 font-bold">{exportProgress}%</span>
+                </div>
+                <div className="w-full h-1.5 bg-[#1C202E] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-150 rounded-full"
+                    style={{ width: `${exportProgress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleExport4K}
+              disabled={isExporting || isGenerating}
+              className="w-full py-3 bg-white hover:bg-slate-200 disabled:opacity-50 text-black font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+            >
+              {isExporting ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Exporting ({exportProgress}%)...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export 4K Master Video</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
-      )}
+      </main>
     </div>
   );
 }
 
 export default function StudioPage() {
   return (
-    <Suspense fallback={<div className="h-screen bg-[#0A0B0E] flex items-center justify-center text-slate-500 text-xs font-mono">Loading Studio Editor...</div>}>
+    <Suspense fallback={<div className="h-screen bg-[#0A0B0E] flex items-center justify-center text-slate-500 text-xs font-mono">Loading Studio...</div>}>
       <StudioContent />
     </Suspense>
   );
