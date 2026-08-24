@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Player } from '@remotion/player';
+import FullEditPixel from '@/remotion_components/FullEditPixel';
 import DynamicRemotionComposition, { SceneData } from './DynamicRemotionComposition';
 
 interface CleanPlayerProps {
@@ -14,7 +15,7 @@ interface CleanPlayerProps {
 
 export default function CleanPlayer({
   activeComp,
-  totalFrames = 900,
+  totalFrames = 1801,
   scenes = [],
   styleCode = 'CHRON_STYLE_100',
   videoUrl = '/api/video/stream',
@@ -22,11 +23,13 @@ export default function CleanPlayer({
   const isSingleScene = activeComp !== 'FullEditPixel';
   const durationInFrames = isSingleScene ? 135 : totalFrames;
 
+  const SelectedComponent = isSingleScene ? DynamicRemotionComposition : FullEditPixel;
+
   return (
     <div className="w-full h-full flex items-center justify-center bg-black relative">
       <Player
-        key={`${activeComp}_${styleCode}_${scenes.length}`}
-        component={DynamicRemotionComposition}
+        key={`${activeComp}_${styleCode}_${scenes.length}_${totalFrames}`}
+        component={SelectedComponent}
         inputProps={{
           scenes,
           styleCode,

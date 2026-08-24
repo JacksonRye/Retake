@@ -1,481 +1,509 @@
 import React from 'react';
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
-
-const palette = ['#FFF8E7', '#000000', '#FF90E8', '#F1F333', '#23A094'];
+import { useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill } from 'remotion';
 
 export default function Style100NeubrutalBrutalPop_Scene7() {
   const frame = useCurrentFrame();
-  const {fps, durationInFrames} = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
 
-  const clamp = {
-    extrapolateLeft: 'clamp' as const,
-    extrapolateRight: 'clamp' as const,
-  };
+  const clamp = { extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const };
 
-  // BEAT 1 — spring entrance from below at 115% scale.
+  // ==========================================
+  // BEAT 1 (0.0s – 1.0s): SNAPPY ENTRANCE
+  // ==========================================
   const cardEntrance = spring({
     frame,
     fps,
-    config: {
-      damping: 11,
-      stiffness: 230,
-      mass: 0.65,
-    },
+    config: { damping: 13, stiffness: 210, mass: 0.6 },
   });
 
   const badgeEntrance = spring({
-    frame: frame - 3,
+    frame: frame - 6,
     fps,
-    config: {
-      damping: 10,
-      stiffness: 260,
-      mass: 0.55,
-    },
+    config: { damping: 11, stiffness: 250, mass: 0.5 },
   });
 
-  const footerEntrance = spring({
-    frame: frame - 7,
+  // ==========================================
+  // BEAT 2 (1.0s – 2.8s): CURSOR CLICK & AUTOMATION
+  // ==========================================
+  const cursorProgress = spring({
+    frame: frame - 20,
     fps,
-    config: {
-      damping: 11,
-      stiffness: 240,
-      mass: 0.6,
-    },
+    config: { damping: 15, stiffness: 170, mass: 0.7 },
   });
 
-  const entranceY = interpolate(cardEntrance, [0, 1], [380, 0]);
-  const entranceScale = interpolate(cardEntrance, [0, 1], [1.15, 1]);
+  const cursorX = interpolate(cursorProgress, [0, 1], [320, 20], clamp);
+  const cursorY = interpolate(cursorProgress, [0, 1], [380, -10], clamp);
+  const cursorOpacity = interpolate(cursorProgress, [0, 0.15, 0.85, 1], [0, 1, 1, 0], clamp);
 
-  // BEAT 2 — segmented transformation.
-  let filledSegments = 0;
+  const isClicked = frame >= 44;
 
-  if (frame >= 30 && frame < 45) {
-    filledSegments = Math.floor(
-      interpolate(frame, [30, 44], [1, 4], clamp),
-    );
-  } else if (frame >= 45 && frame < 63) {
-    filledSegments = Math.floor(
-      interpolate(frame, [45, 62], [5, 8], clamp),
-    );
-  } else if (frame >= 63) {
-    filledSegments = Math.floor(
-      interpolate(frame, [63, 75], [9, 12], clamp),
-    );
-  }
+  const clickScale = isClicked
+    ? interpolate(frame, [44, 48, 54], [1, 0.92, 1], clamp)
+    : 1;
+  const clickShadow = isClicked
+    ? interpolate(frame, [44, 48, 54], [10, 2, 10], clamp)
+    : 10;
 
-  const progressPercent = Math.min(
-    100,
-    Math.round((filledSegments / 12) * 100),
-  );
-
-  const progressState =
-    frame < 30
-      ? 'READY'
-      : frame < 45
-        ? 'SOBER'
-        : frame < 75
-          ? 'IN SHAPE'
-          : 'COMPLETE';
-
-  const stickerImpact = spring({
-    frame: frame - 74,
+  const shockwaveProgress = spring({
+    frame: frame - 44,
     fps,
-    config: {
-      damping: 7,
-      stiffness: 360,
-      mass: 0.45,
-    },
+    config: { damping: 12, stiffness: 200 },
+  });
+  const shockwaveScale = interpolate(shockwaveProgress, [0, 1], [0.2, 2.2], clamp);
+  const shockwaveOpacity = interpolate(shockwaveProgress, [0, 0.2, 1], [0, 0.8, 0], clamp);
+
+  // Sticker Slap ("ENTIRE DEPT IN A BOX")
+  const stickerSpring = spring({
+    frame: frame - 46,
+    fps,
+    config: { damping: 10, stiffness: 260, mass: 0.5 },
   });
 
-  const stickerVisible = frame >= 74;
-  const stickerImpactScale = Math.max(
-    0,
-    interpolate(stickerImpact, [0, 1], [2.1, 1]),
-  );
+  const subStickerSpring = spring({
+    frame: frame - 52,
+    fps,
+    config: { damping: 12, stiffness: 240, mass: 0.5 },
+  });
 
-  const impactActive = frame >= 74 && frame <= 79;
-  const impactThunk = impactActive
-    ? interpolate(frame, [74, 76, 79], [0, 12, 0], clamp)
-    : 0;
+  // ==========================================
+  // BEAT 3 (2.8s – 4.5s): LIVING PHYSICS & EXIT
+  // ==========================================
+  const hoverY = Math.sin(frame * 0.11) * 7;
+  const hoverTilt = Math.sin(frame * 0.07) * 1.4;
+  const shadowOffset = 12 + Math.sin(frame * 0.13) * 4;
 
-  // BEAT 3 — perpetual living physics.
-  const livingAmount = interpolate(frame, [80, 86], [0, 1], clamp);
-  const hoverY = Math.sin(frame * 0.12) * 6 * livingAmount;
-  const hoverTilt = Math.sin(frame * 0.08) * 1.4 * livingAmount;
+  const exitProgress = spring({
+    frame: frame - (durationInFrames - 12),
+    fps,
+    config: { damping: 14, stiffness: 220 },
+  });
+  const exitScale = interpolate(exitProgress, [0, 1], [1, 0.84], clamp);
+  const exitOpacity = interpolate(exitProgress, [0, 1], [1, 0], clamp);
 
-  const alternatingShadow =
-    frame >= 80 && Math.floor((frame - 80) / 7) % 2 === 0 ? 18 : 11;
-  const shadowPulse =
-    alternatingShadow + Math.sin(frame * 0.18) * 2.5 * livingAmount;
+  const cardScale = interpolate(cardEntrance, [0, 1], [0.8, 1], clamp) * exitScale;
+  const cardYOffset = interpolate(cardEntrance, [0, 1], [-120, 0], clamp);
+  const cardOpacity = interpolate(cardEntrance, [0, 0.2], [0, 1], clamp) * exitOpacity;
 
-  const loopFrame = Math.max(0, frame - 80);
-  const travelingSegment = Math.floor(loopFrame / 3) % 12;
-
-  const shineOffset = interpolate(loopFrame % 50, [0, 50], [-300, 920], clamp);
-
-  const stickerTapPhase = loopFrame % 15;
-  const stickerTap =
-    frame >= 80 && stickerTapPhase < 3
-      ? interpolate(stickerTapPhase, [0, 1, 2], [1, 1.09, 1], clamp)
-      : 1;
-
-  const stickerTapRotation =
-    frame >= 80 && stickerTapPhase < 3
-      ? interpolate(stickerTapPhase, [0, 1, 2], [-4, -1, -4], clamp)
-      : -4;
-
-  // Final hard ejection.
-  const ejectStart = durationInFrames - 10;
-  const ejectX = interpolate(
-    frame,
-    [ejectStart, durationInFrames],
-    [0, 1250],
-    clamp,
-  );
-  const ejectRotation = interpolate(
-    frame,
-    [ejectStart, durationInFrames],
-    [0, 10],
-    clamp,
-  );
-  const cardOpacity = interpolate(
-    frame,
-    [durationInFrames - 4, durationInFrames],
-    [1, 0],
-    clamp,
-  );
+  const agentSlots = [
+    { id: '01', title: 'ROPE AGENT #1', tag: 'ROUTING' },
+    { id: '02', title: 'ROPE AGENT #2', tag: 'ANALYSIS' },
+    { id: '03', title: 'ROPE AGENT #3', tag: 'EXECUTION' },
+    { id: '04', title: 'ROPE AGENT #4', tag: 'DISPATCH' },
+    { id: '05', title: 'ROPE AGENT #5', tag: 'SYNC' },
+    { id: '100', title: 'ROPE AGENT #100', tag: 'SCALE' },
+  ];
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: palette[0],
-        color: palette[1],
-        fontFamily:
-          '"Arial Black", "Helvetica Neue", Arial, system-ui, sans-serif',
+        backgroundColor: '#FFF8E7',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         overflow: 'hidden',
+        padding: '40px 20px',
       }}
     >
+      {/* BACKGROUND BRUTALIST GRID PATTERN */}
       <div
         style={{
-          width: '100%',
-          height: '100%',
-          padding: '80px 60px',
-          boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: 16,
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `
+            radial-gradient(#000000 15%, transparent 15%),
+            radial-gradient(#000000 15%, transparent 15%)
+          `,
+          backgroundPosition: '0 0, 20px 20px',
+          backgroundSize: '40px 40px',
+          opacity: 0.07,
+        }}
+      />
+
+      {/* TOP HEADER BRAND BANNER */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 60,
+          backgroundColor: '#000000',
+          color: '#FFF8E7',
+          padding: '12px 32px',
+          borderRadius: 999,
+          fontSize: 22,
+          fontWeight: 900,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          boxShadow: '0px 6px 0px #23A094',
+          zIndex: 5,
         }}
       >
-        {/* TIER 1 — CATEGORY PILL */}
-        <div
-          style={{
-            width: '100%',
-            height: '15%',
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-          }}
-        >
+        TOP ROPE ARCHITECTURE
+      </div>
+
+      {/* MAIN DEPARTMENT HERO CARD CONTAINER */}
+      <div
+        style={{
+          width: '92%',
+          maxWidth: 960,
+          opacity: cardOpacity,
+          transform: `scale(${cardScale}) translateY(${cardYOffset + hoverY}px) rotate(${hoverTilt}deg)`,
+          backgroundColor: '#FF90E8',
+          border: '5px solid #000000',
+          borderRadius: 36,
+          boxShadow: `12px ${shadowOffset}px 0px #000000`,
+          padding: '48px 40px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 28,
+          position: 'relative',
+          zIndex: 10,
+        }}
+      >
+        {/* HEADER BAR INSIDE CARD */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
           <div
             style={{
+              backgroundColor: '#000000',
+              color: '#F1F333',
+              padding: '10px 20px',
+              borderRadius: 14,
+              fontSize: 22,
+              fontWeight: 900,
+              letterSpacing: '0.06em',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              gap: 16,
-              padding: '12px 26px',
-              border: `4px solid ${palette[1]}`,
-              borderRadius: 14,
-              backgroundColor: palette[2],
-              boxShadow: `7px 7px 0 ${palette[1]}`,
-              transform: `scale(${badgeEntrance}) translateY(${
-                Math.sin(frame * 0.12) * 3
-              }px)`,
+              gap: 10,
             }}
           >
-            <span
-              style={{
-                width: 12,
-                height: 12,
-                flexShrink: 0,
-                borderRadius: '50%',
-                backgroundColor: palette[1],
-              }}
-            />
-            <span
-              style={{
-                fontSize: 20,
-                fontWeight: 950,
-                lineHeight: 1,
-                letterSpacing: 3,
-                textTransform: 'uppercase',
-                textDecoration: 'underline',
-                textDecorationThickness: 3,
-                textUnderlineOffset: 5,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Activation Code
-            </span>
+            <span style={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#F1F333', display: 'inline-block' }} />
+            DEPT: SPECIFIC TOP ROPE
+          </div>
+
+          <div
+            style={{
+              transform: `scale(${badgeEntrance}) rotate(2deg)`,
+              backgroundColor: '#23A094',
+              border: '3px solid #000000',
+              borderRadius: 16,
+              padding: '8px 18px',
+              fontSize: 20,
+              fontWeight: 900,
+              color: '#FFFFFF',
+              boxShadow: '4px 4px 0px #000000',
+            }}
+          >
+            100+ AGENTS
           </div>
         </div>
 
-        {/* TIER 2 — ONE HERO RESET CARD */}
+        {/* HERO SPOKEN LINE HEADING */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 54,
+              fontWeight: 900,
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em',
+              color: '#000000',
+              textTransform: 'uppercase',
+            }}
+          >
+            TENS OR HUNDREDS OF AGENTS
+          </h1>
+          <div
+            style={{
+              fontSize: 26,
+              fontWeight: 800,
+              color: '#000000',
+              backgroundColor: '#FFF8E7',
+              border: '3px solid #000000',
+              padding: '6px 16px',
+              borderRadius: 10,
+              display: 'inline-block',
+              alignSelf: 'flex-start',
+              boxShadow: '3px 3px 0px #000000',
+            }}
+          >
+            <u>SPECIFIC DEPARTMENT DEPLOYMENT</u>
+          </div>
+        </div>
+
+        {/* CENTER VISUAL CONTAINER: SWITCHES BETWEEN AGENT SLOTS AND STICKER */}
         <div
           style={{
-            width: '100%',
-            height: '65%',
+            position: 'relative',
+            minHeight: 380,
+            backgroundColor: '#FFF8E7',
+            border: '4px solid #000000',
+            borderRadius: 24,
+            padding: 24,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: 'inset 0px 4px 0px rgba(0,0,0,0.08)',
           }}
         >
+          {/* STATE 1: INDIVIDUAL AGENT SLOTS */}
           <div
             style={{
-              width: '88%',
-              maxWidth: 850,
-              opacity: cardOpacity,
-              transform: `
-                translateX(${ejectX}px)
-                translateY(${entranceY + hoverY + impactThunk}px)
-                scale(${entranceScale})
-                rotate(${hoverTilt + ejectRotation}deg)
-              `,
-              transformOrigin: 'center',
+              width: '100%',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 16,
+              opacity: isClicked ? 0.15 : 1,
+              filter: isClicked ? 'grayscale(100%)' : 'none',
+              transition: 'opacity 0.2s ease, filter 0.2s ease',
             }}
           >
+            {agentSlots.map((slot) => (
+              <div
+                key={slot.id}
+                style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '3px solid #000000',
+                  borderRadius: 16,
+                  padding: '16px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  alignItems: 'center',
+                  boxShadow: '4px 4px 0px #000000',
+                }}
+              >
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 12,
+                    backgroundColor: '#F1F333',
+                    border: '2px solid #000000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 22,
+                    fontWeight: 900,
+                  }}
+                >
+                  🤖
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: '#000000', textAlign: 'center' }}>
+                  {slot.title}
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 800,
+                    backgroundColor: '#23A094',
+                    color: '#FFFFFF',
+                    padding: '2px 8px',
+                    borderRadius: 6,
+                    border: '1px solid #000000',
+                  }}
+                >
+                  {slot.tag}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* STATE 2: OVERSIZED YELLOW STICKER SLAP */}
+          {frame >= 44 && (
             <div
               style={{
-                width: '100%',
-                minHeight: 380,
-                padding: '42px 44px',
-                boxSizing: 'border-box',
-                border: `6px solid ${palette[1]}`,
-                borderRadius: 24,
-                backgroundColor: palette[4],
-                boxShadow: `${shadowPulse}px ${shadowPulse}px 0 ${palette[1]}`,
+                position: 'absolute',
+                inset: 16,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 24,
-                position: 'relative',
-                overflow: 'hidden',
+                gap: 16,
+                zIndex: 20,
               }}
             >
-              {/* Traveling card shine */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: -40,
-                  bottom: -40,
-                  left: 0,
-                  width: 105,
-                  opacity: frame >= 80 ? 0.34 : 0,
-                  backgroundColor: palette[0],
-                  transform: `translateX(${shineOffset}px) skewX(-20deg)`,
-                  pointerEvents: 'none',
-                }}
-              />
-
-              <div
-                style={{
-                  width: '100%',
+                  transform: `scale(${stickerSpring}) rotate(-2.5deg)`,
+                  backgroundColor: '#F1F333',
+                  border: '5px solid #000000',
+                  borderRadius: 28,
+                  padding: '28px 36px',
+                  boxShadow: '10px 10px 0px #000000',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 16,
-                  position: 'relative',
-                  zIndex: 2,
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 54,
-                    fontWeight: 950,
-                    lineHeight: 1,
-                    letterSpacing: -2,
-                    textTransform: 'uppercase',
-                    textDecoration: 'underline',
-                    textDecorationThickness: 6,
-                    textUnderlineOffset: 8,
-                  }}
-                >
-                  RESET
-                </div>
-
-                <div
-                  style={{
-                    minWidth: 118,
-                    padding: '9px 16px',
-                    boxSizing: 'border-box',
-                    border: `4px solid ${palette[1]}`,
-                    borderRadius: 10,
-                    backgroundColor:
-                      progressPercent === 100 ? palette[3] : palette[0],
-                    boxShadow: `4px 4px 0 ${palette[1]}`,
-                    fontSize: 25,
-                    fontWeight: 950,
-                    lineHeight: 1,
-                    textAlign: 'center',
-                  }}
-                >
-                  {progressPercent}%
-                </div>
-              </div>
-
-              {/* Single segmented progress bar */}
-              <div
-                style={{
-                  width: '100%',
-                  padding: 12,
-                  boxSizing: 'border-box',
-                  border: `5px solid ${palette[1]}`,
-                  borderRadius: 14,
-                  backgroundColor: palette[0],
-                  boxShadow: `6px 6px 0 ${palette[1]}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  position: 'relative',
-                  zIndex: 2,
-                }}
-              >
-                {Array.from({length: 12}).map((_, index) => {
-                  const isFilled = index < filledSegments;
-                  const isTraveling =
-                    frame >= 80 && index === travelingSegment;
-
-                  return (
-                    <div
-                      key={index}
-                      style={{
-                        flex: 1,
-                        height: 48,
-                        border: `3px solid ${palette[1]}`,
-                        borderRadius: 5,
-                        backgroundColor: isTraveling
-                          ? palette[2]
-                          : isFilled
-                            ? palette[3]
-                            : '#FFFFFF',
-                        transform: isTraveling
-                          ? 'translateY(-4px)'
-                          : 'translateY(0)',
-                        boxShadow: isTraveling
-                          ? `3px 4px 0 ${palette[1]}`
-                          : 'none',
-                      }}
-                    />
-                  );
-                })}
-              </div>
-
-              <div
-                style={{
-                  minWidth: 240,
-                  padding: '10px 22px',
-                  border: `4px solid ${palette[1]}`,
-                  borderRadius: 10,
-                  backgroundColor:
-                    progressPercent === 100 ? palette[1] : palette[0],
-                  color: progressPercent === 100 ? palette[0] : palette[1],
-                  boxShadow: `5px 5px 0 ${
-                    progressPercent === 100 ? palette[2] : palette[1]
-                  }`,
-                  fontSize: 22,
-                  fontWeight: 950,
-                  lineHeight: 1,
-                  letterSpacing: 3,
+                  justifyContent: 'center',
                   textAlign: 'center',
-                  textTransform: 'uppercase',
-                  position: 'relative',
-                  zIndex: 2,
+                  width: '95%',
                 }}
               >
-                {progressState}
-              </div>
-
-              {stickerVisible && (
                 <div
                   style={{
-                    padding: '12px 28px',
-                    border: `5px solid ${palette[1]}`,
-                    borderRadius: 12,
-                    backgroundColor: palette[3],
-                    boxShadow: `7px 7px 0 ${palette[1]}`,
-                    fontSize: 31,
-                    fontWeight: 950,
-                    lineHeight: 1,
-                    letterSpacing: 1,
-                    textAlign: 'center',
-                    textTransform: 'uppercase',
-                    position: 'relative',
-                    zIndex: 3,
-                    transform: `scale(${
-                      stickerImpactScale * stickerTap
-                    }) rotate(${stickerTapRotation}deg)`,
-                    transformOrigin: 'center',
+                    backgroundColor: '#000000',
+                    color: '#FFFFFF',
+                    fontSize: 18,
+                    fontWeight: 900,
+                    padding: '4px 14px',
+                    borderRadius: 8,
+                    letterSpacing: '0.1em',
+                    marginBottom: 8,
                   }}
                 >
-                  MADE SENSE
+                  ⚡ UNIFIED ARCHITECTURE
                 </div>
-              )}
+                <div
+                  style={{
+                    fontSize: 48,
+                    fontWeight: 900,
+                    lineHeight: 0.95,
+                    letterSpacing: '-0.03em',
+                    color: '#000000',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  ENTIRE DEPT IN A BOX
+                </div>
+              </div>
+
+              <div
+                style={{
+                  transform: `scale(${subStickerSpring}) rotate(3deg)`,
+                  backgroundColor: '#23A094',
+                  border: '4px solid #000000',
+                  borderRadius: 18,
+                  padding: '10px 24px',
+                  color: '#FFFFFF',
+                  fontSize: 22,
+                  fontWeight: 900,
+                  boxShadow: '5px 5px 0px #000000',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                }}
+              >
+                <span>✅ INSTANT DEPLOYMENT</span>
+                <span style={{ backgroundColor: '#000000', color: '#F1F333', padding: '2px 8px', borderRadius: 6, fontSize: 18 }}>
+                  100% READY
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* TIER 3 — COMPLETION PUNCHLINE */}
-        <div
-          style={{
-            width: '100%',
-            height: '20%',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
-          }}
-        >
+        {/* BOTTOM ACTION BUTTON AREA */}
+        <div style={{ position: 'relative', width: '100%' }}>
+          {frame >= 44 && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                width: 200,
+                height: 200,
+                marginTop: -100,
+                marginLeft: -100,
+                borderRadius: '50%',
+                backgroundColor: '#F1F333',
+                border: '4px solid #000000',
+                transform: `scale(${shockwaveScale})`,
+                opacity: shockwaveOpacity,
+                pointerEvents: 'none',
+                zIndex: 15,
+              }}
+            />
+          )}
+
           <div
             style={{
-              padding: '15px 30px',
-              border: `4px solid ${palette[1]}`,
-              borderRadius: 14,
-              backgroundColor: palette[1],
-              boxShadow: `7px 7px 0 ${palette[2]}`,
+              transform: `scale(${clickScale})`,
+              backgroundColor: isClicked ? '#F1F333' : '#23A094',
+              border: '5px solid #000000',
+              borderRadius: 22,
+              padding: '22px 32px',
+              boxShadow: `0px ${clickShadow}px 0px #000000`,
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              gap: 16,
-              transform: `scale(${footerEntrance}) translateY(${
-                Math.sin(frame * 0.12 + 1) * 3
-              }px)`,
+              justifyContent: 'space-between',
             }}
           >
-            <span
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: '50%',
+                  backgroundColor: '#000000',
+                  color: '#FFFFFF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 20,
+                  fontWeight: 900,
+                }}
+              >
+                {isClicked ? '✓' : '⚡'}
+              </div>
+              <span
+                style={{
+                  fontSize: 28,
+                  fontWeight: 900,
+                  letterSpacing: '0.02em',
+                  color: '#000000',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {isClicked ? 'DEPARTMENT AUTOMATED!' : 'AUTOMATE DEPT'}
+              </span>
+            </div>
+
+            <div
               style={{
-                color: palette[0],
-                fontSize: 24,
-                fontWeight: 950,
-                lineHeight: 1,
-                letterSpacing: 2,
-                textAlign: 'center',
-                textTransform: 'uppercase',
-                textDecoration: 'underline',
-                textDecorationColor: palette[3],
-                textDecorationThickness: 4,
-                textUnderlineOffset: 6,
+                backgroundColor: '#000000',
+                color: '#FFF8E7',
+                padding: '8px 18px',
+                borderRadius: 12,
+                fontSize: 18,
+                fontWeight: 900,
               }}
             >
-              RESET COMPLETE · KEEP GOING
-            </span>
+              {isClicked ? 'ACTIVE' : 'CLICK TO BOX'}
+            </div>
           </div>
+
+          {/* SIMULATED NEUBRUTAL CURSOR */}
+          {frame >= 20 && frame <= 65 && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 20,
+                right: 60,
+                transform: `translate(${cursorX}px, ${cursorY}px)`,
+                opacity: cursorOpacity,
+                zIndex: 30,
+                pointerEvents: 'none',
+              }}
+            >
+              <svg
+                width="52"
+                height="52"
+                viewBox="0 0 32 32"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{
+                  filter: 'drop-shadow(3px 3px 0px #000000)',
+                }}
+              >
+                <path
+                  d="M6 2L26 14L16 17.5L22 28L17 30L11 19.5L6 24V2Z"
+                  fill="#F1F333"
+                  stroke="#000000"
+                  strokeWidth="2.5"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          )}
         </div>
       </div>
     </AbsoluteFill>

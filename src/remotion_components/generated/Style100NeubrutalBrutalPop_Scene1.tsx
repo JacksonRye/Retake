@@ -8,318 +8,294 @@ export default function Style100NeubrutalBrutalPop_Scene1() {
   const clamp = { extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const };
 
   // ==========================================
-  // BEAT 1 (0.0s – 1.0s): SNAPPY CARD ENTRANCE
+  // BEAT 1 (0.0s – 1.0s): HARD SNAP ENTRANCE
   // ==========================================
+  // Hard snap move (high stiffness, low damping feel)
   const cardEntrance = spring({
     frame,
     fps,
-    config: { damping: 10, stiffness: 220, mass: 0.5 },
+    config: { damping: 14, stiffness: 280, mass: 0.7 }
   });
-  const cardY = interpolate(cardEntrance, [0, 1], [800, 0], clamp);
-  const cardScale = interpolate(cardEntrance, [0, 1], [0.75, 1], clamp);
 
-  const badgeEntrance = spring({
+  const cardScale = interpolate(cardEntrance, [0, 1], [0.2, 1], clamp);
+  const cardRotate = interpolate(cardEntrance, [0, 1], [-12, -1.5], clamp);
+  const cardOpacity = interpolate(cardEntrance, [0, 0.15], [0, 1], clamp);
+
+  // Top header button slap
+  const topBadgeEntrance = spring({
     frame: frame - 6,
     fps,
-    config: { damping: 9, stiffness: 250, mass: 0.4 },
+    config: { damping: 12, stiffness: 300 }
   });
 
   // ==========================================
-  // BEAT 2 (1.0s – 2.8s): CURSOR CLICK & STICKER SLAP
+  // BEAT 2 (1.0s – 2.8s): RAPID METRIC ROLL & STICKER SLAP
   // ==========================================
-  // Cursor springs towards the toggle button
-  const cursorProgress = spring({
-    frame: frame - 24,
+  // Rapid counter from $0 to $50,000 (Frames 20 to 65)
+  const countRaw = interpolate(frame, [20, 65], [0, 50000], clamp);
+  const formattedCount = "$" + Math.round(countRaw).toLocaleString('en-US');
+
+  // Rev Share calculate string change
+  const revShareAmount = "$" + Math.round(countRaw * 0.10).toLocaleString('en-US');
+
+  // Sticker slap onto top right corner at frame 42
+  const stickerSpring = spring({
+    frame: frame - 40,
     fps,
-    config: { damping: 14, stiffness: 190, mass: 0.6 },
+    config: { damping: 10, stiffness: 340, mass: 0.5 }
   });
-  const cursorX = interpolate(cursorProgress, [0, 1], [220, 45], clamp);
-  const cursorY = interpolate(cursorProgress, [0, 1], [320, 50], clamp);
+  const stickerScale = frame < 40 ? 0 : interpolate(stickerSpring, [0, 1], [2.5, 1], clamp);
+  const stickerRotate = frame < 40 ? 0 : interpolate(stickerSpring, [0, 1], [25, 8], clamp);
 
-  // Button Click Logic
-  const isClicked = frame >= 44;
-  const buttonPressScale = isClicked
-    ? interpolate(frame, [44, 48, 54], [1, 0.91, 1], clamp)
-    : 1;
-  const buttonShadowY = isClicked
-    ? interpolate(frame, [44, 48, 54], [10, 2, 10], clamp)
-    : 10;
-  const buttonShadowX = isClicked
-    ? interpolate(frame, [44, 48, 54], [10, 2, 10], clamp)
-    : 10;
-
-  // Sticker Slap
-  const stickerEntrance = spring({
+  // Bottom text reveal slap (frame 55)
+  const bottomBarEntrance = spring({
     frame: frame - 52,
     fps,
-    config: { damping: 9, stiffness: 280, mass: 0.4 },
+    config: { damping: 13, stiffness: 260 }
   });
-  const stickerScale = interpolate(stickerEntrance, [0, 1], [0, 1], clamp);
-  const stickerRotate = interpolate(stickerEntrance, [0, 1], [28, -12], clamp);
 
   // ==========================================
-  // BEAT 3 (2.8s – 4.5s): JITTER HOVER & SNAPPY EXIT
+  // BEAT 3 (2.8s – 4.5s): HOVER OSCILLATION & EXIT
   // ==========================================
-  // Continuous 2px living jitter + 1-degree angle tilt loop
-  const jitterX = Math.sin(frame * 0.4) * 2;
-  const jitterY = Math.cos(frame * 0.35) * 2;
-  const tiltAngle = Math.sin(frame * 0.15) * 1.2;
+  const hoverY = Math.sin(frame * 0.15) * 6;
+  const shadowOffset = 12 + Math.sin(frame * 0.12) * 4;
 
-  // Shadow pulse rhythm
-  const shadowPulse = interpolate(Math.sin(frame * 0.18), [-1, 1], [10, 16]);
-
-  // Snappy off-screen exit before duration ends
+  // Snappy exit before composition end
   const exitProgress = spring({
     frame: frame - (durationInFrames - 12),
     fps,
-    config: { damping: 11, stiffness: 260 },
+    config: { damping: 12, stiffness: 280 }
   });
-  const exitY = interpolate(exitProgress, [0, 1], [0, -1100], clamp);
 
-  // Final transforms for main container
-  const combinedY = cardY + exitY + jitterY;
-  const combinedX = jitterX;
+  const exitY = interpolate(exitProgress, [0, 1], [0, 600], clamp);
+  const exitOpacity = interpolate(exitProgress, [0, 1], [1, 0], clamp);
+
+  const containerOpacity = cardOpacity * exitOpacity;
 
   return (
     <AbsoluteFill
       style={{
         backgroundColor: '#FFF8E7',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: '"Impact", "Arial Black", system-ui, sans-serif',
+        padding: '60px 40px',
+        fontFamily: '"Arial Black", "Impact", system-ui, sans-serif',
         overflow: 'hidden',
+        boxSizing: 'border-box'
       }}
     >
-      {/* Background Graphic Grid Line Details */}
+      {/* BACKGROUND BRUTALIST PATTERN ELEMENTS */}
       <div
         style={{
           position: 'absolute',
-          inset: 0,
-          backgroundImage:
-            'radial-gradient(#000000 15%, transparent 15%), radial-gradient(#000000 15%, transparent 15%)',
-          backgroundPosition: '0 0, 24px 24px',
-          backgroundSize: '48px 48px',
-          opacity: 0.06,
+          top: 80,
+          left: 60,
+          fontSize: 48,
+          fontWeight: 900,
+          color: '#000000',
+          opacity: 0.15,
+          userSelect: 'none'
         }}
-      />
-
-      {/* Main Container Card */}
+      >
+        ✦ ✦ ✦
+      </div>
       <div
         style={{
-          width: '88%',
-          maxWidth: 900,
-          minHeight: 820,
-          opacity: interpolate(cardEntrance, [0, 0.15], [0, 1], clamp),
-          transform: `translate(${combinedX}px, ${combinedY}px) scale(${cardScale}) rotate(${tiltAngle}deg)`,
-          backgroundColor: '#FF90E8',
+          position: 'absolute',
+          bottom: 100,
+          right: 60,
+          fontSize: 64,
+          fontWeight: 900,
+          color: '#000000',
+          opacity: 0.15,
+          userSelect: 'none'
+        }}
+      >
+        ✚ ✚
+      </div>
+
+      {/* TOP CATEGORY BADGE */}
+      <div
+        style={{
+          transform: `scale(${interpolate(topBadgeEntrance, [0, 1], [0, 1], clamp)})`,
+          backgroundColor: '#23A094',
           border: '5px solid #000000',
+          boxShadow: '6px 6px 0px #000000',
+          borderRadius: 999,
+          padding: '12px 32px',
+          fontSize: 22,
+          fontWeight: 900,
+          letterSpacing: '0.08em',
+          color: '#FFFFFF',
+          textTransform: 'uppercase',
+          marginBottom: 40,
+          zIndex: 2
+        }}
+      >
+        ⚡ REVENUE SHARE LOGIC
+      </div>
+
+      {/* MAIN HERO CARD CONTAINER */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 920,
+          opacity: containerOpacity,
+          transform: `scale(${cardScale}) translateY(${hoverY + exitY}px) rotate(${cardRotate}deg)`,
+          backgroundColor: '#F1F333', // Electric Yellow
+          border: '7px solid #000000',
           borderRadius: 36,
-          boxShadow: `${shadowPulse}px ${shadowPulse}px 0px #000000`,
+          boxShadow: `${shadowOffset}px ${shadowOffset}px 0px #000000`,
           padding: '52px 44px',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
+          gap: 32,
           position: 'relative',
           boxSizing: 'border-box',
+          zIndex: 1
         }}
       >
-        {/* Top Header Row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+        {/* BEAT 2 STICKER SLAP (TOP RIGHT) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: -28,
+            right: -16,
+            transform: `scale(${stickerScale}) rotate(${stickerRotate}deg)`,
+            backgroundColor: '#FF90E8', // Bubblegum Pink
+            border: '5px solid #000000',
+            boxShadow: '8px 8px 0px #000000',
+            borderRadius: 20,
+            padding: '14px 28px',
+            fontSize: 28,
+            fontWeight: 900,
+            color: '#000000',
+            letterSpacing: '0.04em',
+            zIndex: 10,
+            whiteSpace: 'nowrap'
+          }}
+        >
+          🏷️ 10% REV SHARE
+        </div>
+
+        {/* CARD HEADER SECTION */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div
             style={{
               backgroundColor: '#000000',
               color: '#FFF8E7',
-              padding: '10px 22px',
-              borderRadius: 14,
-              fontSize: 24,
-              fontWeight: 900,
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-            }}
-          >
-            REASON #1
-          </div>
-
-          <div
-            style={{
-              transform: `scale(${badgeEntrance})`,
-              backgroundColor: '#F1F333',
-              border: '3px solid #000000',
-              borderRadius: 999,
-              padding: '8px 22px',
+              padding: '8px 18px',
+              borderRadius: 12,
               fontSize: 20,
               fontWeight: 900,
-              color: '#000000',
-              boxShadow: '4px 4px 0px #000000',
-              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
             }}
           >
-            CRITICAL
+            METRIC
           </div>
-        </div>
-
-        {/* Core Message Text Stack */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18, margin: '32px 0' }}>
-          <span
-            style={{
-              fontSize: 48,
-              fontWeight: 900,
-              lineHeight: 1.05,
-              color: '#000000',
-              textTransform: 'uppercase',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            STOP TRYING TO
+          <span style={{ fontSize: 22, fontWeight: 900, textTransform: 'uppercase', color: '#000000' }}>
+            NEW VALUE CREATED
           </span>
+        </div>
 
-          {/* Interactive Toggle Button */}
+        {/* HERO NUMBER COUNTER */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <div
             style={{
-              transform: `scale(${buttonPressScale})`,
-              backgroundColor: isClicked ? '#FF4D4D' : '#F1F333',
-              border: '5px solid #000000',
-              borderRadius: 24,
-              padding: '28px 36px',
-              boxShadow: `${buttonShadowX}px ${buttonShadowY}px 0px #000000`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              cursor: 'pointer',
-              transition: 'background-color 0.1s ease',
-            }}
-          >
-            <span
-              style={{
-                fontSize: 52,
-                fontWeight: 900,
-                color: '#000000',
-                textTransform: 'uppercase',
-                letterSpacing: '-0.03em',
-              }}
-            >
-              {isClicked ? 'STOP IT!' : 'DO EVERYTHING'}
-            </span>
-
-            <div
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: '50%',
-                border: '4px solid #000000',
-                backgroundColor: isClicked ? '#000000' : '#FFF8E7',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <div
-                style={{
-                  width: 16,
-                  height: 16,
-                  borderRadius: '50%',
-                  backgroundColor: isClicked ? '#FF4D4D' : '#000000',
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Subtitle Underlined Link Styling */}
-          <div
-            style={{
-              fontSize: 32,
+              fontSize: 100,
               fontWeight: 900,
+              lineHeight: 0.9,
+              letterSpacing: '-0.04em',
               color: '#000000',
-              textDecoration: 'underline',
-              textDecorationThickness: '5px',
-              textUnderlineOffset: '8px',
-              marginTop: 10,
-              textTransform: 'uppercase',
-              lineHeight: 1.2,
+              fontVariantNumeric: 'tabular-nums'
             }}
           >
-            BECAUSE I MADE THESE MISTAKES
+            {formattedCount}
+          </div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#000000', textTransform: 'uppercase', opacity: 0.9 }}>
+            Directly Generated Revenue
           </div>
         </div>
 
-        {/* Bottom Status Ribbon */}
+        {/* INSIDE BUTTON / TILE ACTION */}
         <div
           style={{
             backgroundColor: '#FFF8E7',
-            border: '4px solid #000000',
-            borderRadius: 16,
-            padding: '16px 24px',
-            boxShadow: '4px 4px 0px #000000',
+            border: '5px solid #000000',
+            borderRadius: 24,
+            padding: '24px 30px',
+            boxShadow: '6px 6px 0px #000000',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 22,
-            fontWeight: 900,
-            color: '#000000',
-            textTransform: 'uppercase',
-            letterSpacing: '0.04em',
+            justifyContent: 'space-between',
+            gap: 16
           }}
         >
-          {isClicked ? '⚠️ SYSTEM OVERLOAD PREVENTED' : '👈 CLICK TOGGLE TO FIX'}
-        </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={{ fontSize: 18, fontWeight: 900, color: '#000000', opacity: 0.7, textTransform: 'uppercase' }}>
+              YOUR CUT (10%)
+            </span>
+            <span style={{ fontSize: 42, fontWeight: 900, color: '#23A094' }}>
+              {revShareAmount}
+            </span>
+          </div>
 
-        {/* Sticker Slap Element (#23A094 Teal) */}
-        <div
-          style={{
-            position: 'absolute',
-            top: -24,
-            right: -20,
-            transform: `scale(${stickerScale}) rotate(${stickerRotate}deg)`,
-            backgroundColor: '#23A094',
-            border: '5px solid #000000',
-            borderRadius: 20,
-            padding: '16px 32px',
-            boxShadow: '8px 8px 0px #000000',
-            zIndex: 20,
-            pointerEvents: 'none',
-          }}
-        >
-          <span
+          <div
             style={{
-              fontSize: 36,
+              backgroundColor: '#000000',
+              color: '#FFFFFF',
+              border: '3px solid #000000',
+              borderRadius: 16,
+              padding: '14px 24px',
+              fontSize: 20,
               fontWeight: 900,
-              color: '#FFF8E7',
               textTransform: 'uppercase',
-              letterSpacing: '0.05em',
+              letterSpacing: '0.05em'
             }}
           >
-            MISTAKE!
-          </span>
+            WIN-WIN 🤝
+          </div>
         </div>
+      </div>
 
-        {/* Oversized Neubrutalist Black Cursor */}
+      {/* BOTTOM QUOTE SLAP CARD (SPOKEN LINE INTEGRATION) */}
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 920,
+          marginTop: 40,
+          opacity: containerOpacity,
+          transform: `scale(${interpolate(bottomBarEntrance, [0, 1], [0.8, 1], clamp)}) translateY(${exitY}px)`,
+          backgroundColor: '#FF90E8',
+          border: '6px solid #000000',
+          borderRadius: 28,
+          boxShadow: '10px 10px 0px #000000',
+          padding: '28px 36px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          boxSizing: 'border-box',
+          zIndex: 1
+        }}
+      >
         <div
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: `translate(${cursorX}px, ${cursorY}px)`,
-            zIndex: 30,
-            pointerEvents: 'none',
+            fontSize: 24,
+            fontWeight: 900,
+            color: '#000000',
+            lineHeight: 1.3,
+            textTransform: 'uppercase'
           }}
         >
-          <svg
-            width="64"
-            height="64"
-            viewBox="0 0 32 32"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ filter: 'drop-shadow(3px 3px 0px #000000)' }}
-          >
-            <path
-              d="M6 3L26 15L16 18L22 28L17 30L11 20L6 25V3Z"
-              fill="#000000"
-              stroke="#FFF8E7"
-              strokeWidth="2.5"
-              strokeLinejoin="round"
-            />
-          </svg>
+          "ANY SANE BUSINESS OWNER WILL HAPPILY GIVE YOU A FRACTION OF MONEY THEY HAVE NOT MADE."
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ height: 4, width: 40, backgroundColor: '#000000' }} />
+          <span style={{ fontSize: 18, fontWeight: 900, textDecoration: 'underline', color: '#000000' }}>
+            NO RISK REALITY
+          </span>
         </div>
       </div>
     </AbsoluteFill>

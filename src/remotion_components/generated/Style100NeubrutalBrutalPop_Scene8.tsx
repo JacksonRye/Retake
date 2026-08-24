@@ -1,547 +1,327 @@
 import React from 'react';
-import {
-	AbsoluteFill,
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import { useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill } from 'remotion';
 
 export default function Style100NeubrutalBrutalPop_Scene8() {
-	const frame = useCurrentFrame();
-	const {fps, durationInFrames} = useVideoConfig();
+  const frame = useCurrentFrame();
+  const { fps, durationInFrames } = useVideoConfig();
 
-	const clamp = {
-		extrapolateLeft: 'clamp' as const,
-		extrapolateRight: 'clamp' as const,
-	};
+  const clamp = { extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const };
 
-	// Beat 1: BEFORE card slams into place.
-	const heroEntrance = spring({
-		frame,
-		fps,
-		config: {
-			damping: 10,
-			stiffness: 260,
-			mass: 0.62,
-		},
-	});
+  // ==========================================
+  // BEAT 1 (0.0s – 1.0s): HARD SNAP ENTRANCE FROM RIGHT
+  // ==========================================
+  const cardEntrance = spring({
+    frame,
+    fps,
+    config: { damping: 13, stiffness: 210, mass: 0.6 }
+  });
+  const cardX = interpolate(cardEntrance, [0, 1], [900, 0], clamp);
+  const cardRotate = interpolate(cardEntrance, [0, 1], [12, 0], clamp);
 
-	const badgeEntrance = spring({
-		frame: frame - 3,
-		fps,
-		config: {
-			damping: 11,
-			stiffness: 250,
-			mass: 0.5,
-		},
-	});
+  const badgeEntrance = spring({
+    frame: frame - 8,
+    fps,
+    config: { damping: 10, stiffness: 260, mass: 0.4 }
+  });
 
-	const heroSlideX = interpolate(frame, [0, 9], [-180, 0], clamp);
-	const initialRotation = interpolate(frame, [0, 11], [-5, 0], clamp);
+  // ==========================================
+  // BEAT 2 (1.0s – 2.8s): PRICE SLASH & TEAL TAG STICKER SLAP
+  // ==========================================
+  // Slash Sticker Pop (around frame 35 ~ 1.1s)
+  const slashSpring = spring({
+    frame: frame - 35,
+    fps,
+    config: { damping: 9, stiffness: 300, mass: 0.4 }
+  });
+  const slashScale = interpolate(slashSpring, [0, 1], [0, 1], clamp);
 
-	// Beat 2: cursor physically drags the reveal divider.
-	const dragStart = 30;
-	const dragEnd = 78;
-	const dragProgress = interpolate(frame, [dragStart, dragEnd], [0, 1], clamp);
-	const draggedDivider = interpolate(dragProgress, [0, 1], [7, 91], clamp);
+  // Teal New Price Tag Slap (around frame 52 ~ 1.7s)
+  const tealTagSpring = spring({
+    frame: frame - 52,
+    fps,
+    config: { damping: 10, stiffness: 250, mass: 0.5 }
+  });
+  const tealTagScale = interpolate(tealTagSpring, [0, 1], [0, 1], clamp);
+  const tealTagY = interpolate(tealTagSpring, [0, 1], [40, 0], clamp);
 
-	// Beat 3: divider never settles.
-	const livingDivider =
-		91 + Math.sin((frame - 78) * 0.22) * 3.5 + Math.sin(frame * 0.08) * 1.2;
+  // Interactive Cursor Click on Bottom Button (around frame 72 ~ 2.4s)
+  const cursorProgress = spring({
+    frame: frame - 68,
+    fps,
+    config: { damping: 14, stiffness: 190, mass: 0.6 }
+  });
+  const cursorX = interpolate(cursorProgress, [0, 1], [280, 80], clamp);
+  const cursorY = interpolate(cursorProgress, [0, 1], [180, -10], clamp);
 
-	const dividerPercent =
-		frame < dragStart
-			? 7
-			: frame <= dragEnd
-				? draggedDivider
-				: livingDivider;
+  const isClicked = frame >= 80;
+  const buttonPressScale = isClicked
+    ? interpolate(frame, [80, 84, 90], [1, 0.92, 1], clamp)
+    : 1;
+  const buttonShadowOffset = isClicked
+    ? interpolate(frame, [80, 84, 90], [8, 2, 8], clamp)
+    : 8;
 
-	const cursorVisible = frame >= 25 && frame <= 84;
-	const cursorLeadIn = interpolate(frame, [25, 30], [24, 0], clamp);
-	const cursorPress =
-		frame >= 29 && frame <= 34
-			? interpolate(frame, [29, 31, 34], [1, 0.82, 1], clamp)
-			: 1;
+  // ==========================================
+  // BEAT 3 (2.8s – 4.5s): LIVING PHYSICS & EXIT SNAP
+  // ==========================================
+  const floatY = Math.sin(frame * 0.11) * 7;
+  const floatTilt = Math.sin(frame * 0.07) * 1.8;
+  const shadowPulse = interpolate(Math.sin(frame * 0.13), [-1, 1], [12, 22]);
 
-	const cursorY =
-		interpolate(frame, [25, 36], [90, 12], clamp) +
-		Math.sin(frame * 0.28) * 2;
+  const exitProgress = spring({
+    frame: frame - (durationInFrames - 12),
+    fps,
+    config: { damping: 12, stiffness: 240 }
+  });
+  const exitScale = interpolate(exitProgress, [0, 1], [1, 0.82], clamp);
+  const exitOpacity = interpolate(exitProgress, [0, 1], [1, 0], clamp);
 
-	// SUCCESS sticker slap and gentle continuous punching.
-	const stampEntrance = spring({
-		frame: frame - 69,
-		fps,
-		config: {
-			damping: 8,
-			stiffness: 330,
-			mass: 0.45,
-		},
-	});
+  const opacityCombined = exitOpacity;
+  const scaleCombined = exitScale;
 
-	const stampPunch =
-		frame >= 80
-			? 1 + Math.max(0, Math.sin((frame - 80) * 0.24)) * 0.055
-			: 1;
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundColor: '#FF90E8',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: '"Impact", "Arial Black", system-ui, sans-serif',
+        overflow: 'hidden'
+      }}
+    >
+      {/* Background Graphic Grid / Pattern Accent */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          backgroundImage: 'radial-gradient(#000000 15%, transparent 16%)',
+          backgroundSize: '36px 36px',
+          opacity: 0.12
+        }}
+      />
 
-	const stampRotation =
-		-6 + (frame >= 80 ? Math.sin((frame - 80) * 0.16) * 1.2 : 0);
+      {/* Hero Neubrutalist Card Container */}
+      <div
+        style={{
+          width: '90%',
+          maxWidth: 960,
+          minHeight: 1100,
+          opacity: opacityCombined,
+          transform: `translateX(${cardX}px) scale(${scaleCombined}) translateY(${floatY}px) rotate(${cardRotate + floatTilt}deg)`,
+          backgroundColor: '#FFF8E7',
+          border: '6px solid #000000',
+          borderRadius: 32,
+          boxShadow: `${shadowPulse}px ${shadowPulse}px 0px #000000`,
+          padding: '48px 36px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          position: 'relative'
+        }}
+      >
+        {/* Top Header Row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div
+            style={{
+              backgroundColor: '#000000',
+              color: '#FFF8E7',
+              padding: '10px 22px',
+              borderRadius: 12,
+              fontSize: 24,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase'
+            }}
+          >
+            DEPT VS FRACTIONAL
+          </div>
 
-	// Beat 3: continuous living physics.
-	const hoverY = Math.sin(frame * 0.12) * 6;
-	const hoverTilt = Math.sin(frame * 0.08) * 1.25;
-	const shadowPulse = 15 + Math.sin(frame * 0.18) * 3;
+          <div
+            style={{
+              transform: `scale(${badgeEntrance}) rotate(-3deg)`,
+              backgroundColor: '#F1F333',
+              border: '4px solid #000000',
+              borderRadius: 999,
+              padding: '8px 24px',
+              fontSize: 22,
+              fontWeight: 900,
+              color: '#000000',
+              boxShadow: '4px 4px 0px #000000'
+            }}
+          >
+            100% CAPABILITY
+          </div>
+        </div>
 
-	const shineOffset = interpolate((frame + 16) % 62, [0, 62], [-180, 1040], clamp);
+        {/* Center Comparison Area */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28, margin: '24px 0' }}>
+          
+          {/* Main Title Banner */}
+          <div style={{ textTransform: 'uppercase', lineHeight: 1.05 }}>
+            <div style={{ fontSize: 36, color: '#000000', letterSpacing: '-0.02em' }}>
+              REPLACING THE ENTIRE
+            </div>
+            <div
+              style={{
+                fontSize: 68,
+                color: '#000000',
+                textDecoration: 'underline 8px #000000',
+                lineHeight: 0.95
+              }}
+            >
+              DEPARTMENT
+            </div>
+          </div>
 
-	// Teal border flashes in the final beat.
-	const flashPhase = Math.floor(Math.max(0, frame - 84) / 5) % 2;
-	const borderColor =
-		frame < 84
-			? '#FF90E8'
-			: frame >= 112
-				? '#23A094'
-				: flashPhase === 0
-					? '#23A094'
-					: '#FF90E8';
+          {/* Old Price Box with Red Slash Sticker */}
+          <div
+            style={{
+              position: 'relative',
+              backgroundColor: '#FFFFFF',
+              border: '4px solid #000000',
+              borderRadius: 20,
+              padding: '28px 24px',
+              boxShadow: '6px 6px 0px #000000',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 6
+            }}
+          >
+            <span style={{ fontSize: 20, color: '#666666', letterSpacing: '0.05em' }}>
+              FULL-TIME PAYROLL COST
+            </span>
+            <span
+              style={{
+                fontSize: 72,
+                color: '#000000',
+                lineHeight: 1,
+                opacity: frame > 40 ? 0.4 : 1
+              }}
+            >
+              $100,000/YR
+            </span>
 
-	const borderGlow =
-		frame >= 84 && flashPhase === 0
-			? `0 0 0 8px #23A094, ${shadowPulse}px ${shadowPulse}px 0 #000000`
-			: `${shadowPulse}px ${shadowPulse}px 0 #000000`;
+            {/* Red Diagonal Strike Slash Sticker */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: `translate(-50%, -50%) scale(${slashScale}) rotate(-12deg)`,
+                backgroundColor: '#FF3333',
+                color: '#FFFFFF',
+                border: '4px solid #000000',
+                padding: '12px 36px',
+                fontSize: 38,
+                fontWeight: 900,
+                boxShadow: '6px 6px 0px #000000',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                zIndex: 10
+              }}
+            >
+              ✖ SLASHED ✖
+            </div>
+          </div>
 
-	const exitY = interpolate(
-		frame,
-		[durationInFrames - 9, durationInFrames],
-		[0, -70],
-		clamp,
-	);
+          {/* New Teal Price Tag Sticker Slap */}
+          <div
+            style={{
+              transform: `scale(${tealTagScale}) translateY(${tealTagY}px) rotate(-1.5deg)`,
+              backgroundColor: '#23A094',
+              border: '5px solid #000000',
+              borderRadius: 24,
+              padding: '30px 24px',
+              boxShadow: '8px 8px 0px #000000',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+              position: 'relative'
+            }}
+          >
+            {/* Corner Pop Tag */}
+            <div
+              style={{
+                position: 'absolute',
+                top: -20,
+                right: 20,
+                backgroundColor: '#F1F333',
+                border: '3px solid #000000',
+                padding: '4px 14px',
+                borderRadius: 999,
+                fontSize: 18,
+                color: '#000000',
+                boxShadow: '3px 3px 0px #000000'
+              }}
+            >
+              SAVE 80%
+            </div>
 
-	const opacity = interpolate(
-		frame,
-		[0, 4, durationInFrames - 7, durationInFrames],
-		[0, 1, 1, 0],
-		clamp,
-	);
+            <span style={{ fontSize: 22, color: '#FFFFFF', letterSpacing: '0.05em' }}>
+              FRACTIONAL FUNCTION COST
+            </span>
+            <span style={{ fontSize: 76, color: '#FFF8E7', lineHeight: 0.95 }}>
+              $20,000
+            </span>
+            <span style={{ fontSize: 24, color: '#000000', fontWeight: 900 }}>
+              FULL FUNCTION OUTPUT
+            </span>
+          </div>
 
-	const afterMetric = Math.round(
-		interpolate(frame, [38, 76], [24, 148], clamp),
-	);
+        </div>
 
-	const dividerThunk =
-		frame >= 75 && frame <= 80
-			? interpolate(frame, [75, 77, 80], [0, 7, 0], clamp)
-			: 0;
+        {/* Bottom Interactive Button */}
+        <div
+          style={{
+            position: 'relative',
+            transform: `scale(${buttonPressScale})`,
+            backgroundColor: '#F1F333',
+            border: '5px solid #000000',
+            borderRadius: 20,
+            padding: '24px 20px',
+            boxShadow: `0px ${buttonShadowOffset}px 0px #000000`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 32,
+            letterSpacing: '0.04em',
+            color: '#000000',
+            cursor: 'pointer'
+          }}
+        >
+          {isClicked ? "⚡ DEPLOYED AS A FUNCTION" : "ACTIVATE AS ENTIRE DEPT"}
 
-	return (
-		<AbsoluteFill
-			style={{
-				backgroundColor: '#FFF8E7',
-				opacity,
-				fontFamily:
-					'"Arial Black", "Helvetica Neue", Impact, Arial, sans-serif',
-				color: '#000000',
-				overflow: 'hidden',
-			}}
-		>
-			<div
-				style={{
-					width: '100%',
-					height: '100%',
-					padding: '80px 20px',
-					boxSizing: 'border-box',
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					transform: `translateY(${exitY}px)`,
-				}}
-			>
-				{/* Tier 1: category badge */}
-				<div
-					style={{
-						height: '15%',
-						width: '100%',
-						display: 'flex',
-						alignItems: 'flex-start',
-						justifyContent: 'center',
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							gap: 16,
-							padding: '11px 25px',
-							border: '4px solid #000000',
-							borderRadius: 14,
-							backgroundColor: '#FF90E8',
-							boxShadow: '7px 7px 0 #000000',
-							transform: `scale(${badgeEntrance}) translateY(${
-								Math.sin(frame * 0.11) * 3
-							}px) rotate(${Math.sin(frame * 0.07) * 0.7}deg)`,
-							transformOrigin: 'center',
-						}}
-					>
-						<div
-							style={{
-								width: 12,
-								height: 12,
-								flexShrink: 0,
-								borderRadius: '50%',
-								backgroundColor: '#000000',
-							}}
-						/>
-						<div
-							style={{
-								fontSize: 20,
-								fontWeight: 950,
-								lineHeight: 1,
-								letterSpacing: 3,
-								textTransform: 'uppercase',
-								whiteSpace: 'nowrap',
-							}}
-						>
-							Activation Code
-						</div>
-					</div>
-				</div>
+          {/* Animated Cursor Vector */}
+          <div
+            style={{
+              position: 'absolute',
+              right: cursorX,
+              bottom: cursorY,
+              width: 44,
+              height: 44,
+              pointerEvents: 'none',
+              transition: 'transform 0.05s ease',
+              transform: isClicked ? 'scale(0.82)' : 'scale(1)'
+            }}
+          >
+            <svg
+              width="44"
+              height="44"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#000000"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ filter: 'drop-shadow(3px 3px 0px #FFFFFF)' }}
+            >
+              <path d="M3 3l7 18 3-7 7-3L3 3z" fill="#000000" />
+            </svg>
+          </div>
+        </div>
 
-				{/* Tier 2: one oversized transformation card */}
-				<div
-					style={{
-						height: '65%',
-						width: '100%',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-						padding: '20px 0',
-						boxSizing: 'border-box',
-					}}
-				>
-					<div
-						style={{
-							position: 'relative',
-							width: '88%',
-							maxWidth: 850,
-							height: '76%',
-							minHeight: 360,
-							maxHeight: 510,
-							transform: `translateX(${heroSlideX}px) translateY(${
-								hoverY + dividerThunk
-							}px) rotate(${initialRotation + hoverTilt}deg) scale(${heroEntrance})`,
-							transformOrigin: 'center',
-						}}
-					>
-						<div
-							style={{
-								position: 'absolute',
-								inset: 0,
-								overflow: 'hidden',
-								border: `7px solid ${borderColor}`,
-								borderRadius: 28,
-								backgroundColor: '#FFF8E7',
-								boxShadow: borderGlow,
-							}}
-						>
-							{/* BEFORE face */}
-							<div
-								style={{
-									position: 'absolute',
-									inset: 0,
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'center',
-									justifyContent: 'center',
-									gap: 16,
-									padding: '34px',
-									boxSizing: 'border-box',
-									backgroundColor: '#FFF8E7',
-								}}
-							>
-								<div
-									style={{
-										padding: '8px 19px',
-										border: '4px solid #000000',
-										borderRadius: 10,
-										backgroundColor: '#FF90E8',
-										boxShadow: '5px 5px 0 #000000',
-										fontSize: 22,
-										fontWeight: 950,
-										letterSpacing: 4,
-										lineHeight: 1,
-									}}
-								>
-									BEFORE
-								</div>
-
-								<div
-									style={{
-										fontSize: 92,
-										fontWeight: 950,
-										lineHeight: 0.95,
-										letterSpacing: -4,
-										textAlign: 'center',
-									}}
-								>
-									24
-								</div>
-
-								<div
-									style={{
-										fontSize: 22,
-										fontWeight: 900,
-										letterSpacing: 2,
-										textDecoration: 'underline',
-										textDecorationThickness: 4,
-										textUnderlineOffset: 7,
-										textAlign: 'center',
-									}}
-								>
-									QUALIFIED LEADS
-								</div>
-							</div>
-
-							{/* AFTER face revealed by the draggable divider */}
-							<div
-								style={{
-									position: 'absolute',
-									inset: 0,
-									width: `${dividerPercent}%`,
-									overflow: 'hidden',
-									backgroundColor: '#23A094',
-								}}
-							>
-								<div
-									style={{
-										position: 'absolute',
-										inset: 0,
-										width: '100%',
-										minWidth: '850px',
-										display: 'flex',
-										flexDirection: 'column',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: 16,
-										padding: '34px',
-										boxSizing: 'border-box',
-									}}
-								>
-									<div
-										style={{
-											padding: '8px 19px',
-											border: '4px solid #000000',
-											borderRadius: 10,
-											backgroundColor: '#F1F333',
-											boxShadow: '5px 5px 0 #000000',
-											fontSize: 22,
-											fontWeight: 950,
-											letterSpacing: 4,
-											lineHeight: 1,
-										}}
-									>
-										AFTER
-									</div>
-
-									<div
-										style={{
-											fontSize: 92,
-											fontWeight: 950,
-											lineHeight: 0.95,
-											letterSpacing: -4,
-											textAlign: 'center',
-										}}
-									>
-										{afterMetric}
-									</div>
-
-									<div
-										style={{
-											fontSize: 22,
-											fontWeight: 900,
-											letterSpacing: 2,
-											textDecoration: 'underline',
-											textDecorationThickness: 4,
-											textUnderlineOffset: 7,
-											textAlign: 'center',
-										}}
-									>
-										QUALIFIED LEADS
-									</div>
-								</div>
-							</div>
-
-							{/* Traveling shine */}
-							<div
-								style={{
-									position: 'absolute',
-									top: -80,
-									bottom: -80,
-									left: 0,
-									width: 100,
-									backgroundColor: 'rgba(255,255,255,0.38)',
-									transform: `translateX(${shineOffset}px) skewX(-22deg)`,
-									pointerEvents: 'none',
-									zIndex: 4,
-								}}
-							/>
-
-							{/* Thick reveal divider */}
-							<div
-								style={{
-									position: 'absolute',
-									zIndex: 8,
-									top: 0,
-									bottom: 0,
-									left: `${dividerPercent}%`,
-									width: 13,
-									backgroundColor: '#000000',
-									transform: 'translateX(-50%)',
-									boxShadow: '5px 0 0 rgba(0,0,0,0.22)',
-								}}
-							>
-								<div
-									style={{
-										position: 'absolute',
-										top: '50%',
-										left: '50%',
-										width: 42,
-										height: 74,
-										border: '5px solid #000000',
-										borderRadius: 12,
-										backgroundColor: '#F1F333',
-										boxShadow: '5px 5px 0 #000000',
-										transform: `translate(-50%, -50%) scale(${
-											1 + Math.sin(frame * 0.16) * 0.025
-										})`,
-										display: 'flex',
-										alignItems: 'center',
-										justifyContent: 'center',
-										gap: 5,
-									}}
-								>
-									<div
-										style={{
-											width: 4,
-											height: 31,
-											borderRadius: 4,
-											backgroundColor: '#000000',
-										}}
-									/>
-									<div
-										style={{
-											width: 4,
-											height: 31,
-											borderRadius: 4,
-											backgroundColor: '#000000',
-										}}
-									/>
-								</div>
-							</div>
-						</div>
-
-						{/* SUCCESS stamp */}
-						<div
-							style={{
-								position: 'absolute',
-								zIndex: 15,
-								right: 24,
-								bottom: 20,
-								padding: '12px 24px',
-								border: '5px solid #000000',
-								borderRadius: 12,
-								backgroundColor: '#F1F333',
-								boxShadow: '7px 7px 0 #000000',
-								fontSize: 25,
-								fontWeight: 950,
-								letterSpacing: 3,
-								lineHeight: 1,
-								transform: `rotate(${stampRotation}deg) scale(${
-									stampEntrance * stampPunch
-								})`,
-								transformOrigin: 'center',
-							}}
-						>
-							SUCCESS
-						</div>
-
-						{/* Dragging cursor */}
-						{cursorVisible ? (
-							<div
-								style={{
-									position: 'absolute',
-									zIndex: 30,
-									left: `${dividerPercent}%`,
-									top: '56%',
-									transform: `translate(${cursorLeadIn}px, ${cursorY}px) scale(${cursorPress})`,
-									filter: 'drop-shadow(5px 7px 0 rgba(0,0,0,0.35))',
-									pointerEvents: 'none',
-								}}
-							>
-								<svg
-									width="58"
-									height="66"
-									viewBox="0 0 48 56"
-									fill="none"
-								>
-									<path
-										d="M6 3L40 35L25 37L18 52L6 3Z"
-										fill="#FF90E8"
-										stroke="#000000"
-										strokeWidth="5"
-										strokeLinejoin="round"
-									/>
-								</svg>
-							</div>
-						) : null}
-					</div>
-				</div>
-
-				{/* Tier 3: punchline */}
-				<div
-					style={{
-						height: '20%',
-						width: '100%',
-						display: 'flex',
-						alignItems: 'flex-end',
-						justifyContent: 'center',
-					}}
-				>
-					<div
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							justifyContent: 'center',
-							gap: 16,
-							padding: '15px 30px',
-							border: '4px solid #000000',
-							borderRadius: 15,
-							backgroundColor: '#000000',
-							boxShadow: `7px ${7 + Math.sin(frame * 0.17) * 2}px 0 #FF90E8`,
-							transform: `scale(${heroEntrance}) translateY(${
-								Math.sin(frame * 0.12 + 1) * 3
-							}px)`,
-						}}
-					>
-						<div
-							style={{
-								color: '#FFF8E7',
-								fontSize: 23,
-								fontWeight: 950,
-								letterSpacing: 2,
-								lineHeight: 1,
-								textAlign: 'center',
-								textDecoration: 'underline',
-								textDecorationColor: '#F1F333',
-								textDecorationThickness: 4,
-								textUnderlineOffset: 7,
-							}}
-						>
-							DRAG TO SEE THE PROOF →
-						</div>
-					</div>
-				</div>
-			</div>
-		</AbsoluteFill>
-	);
+      </div>
+    </AbsoluteFill>
+  );
 }

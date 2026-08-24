@@ -8,88 +8,82 @@ export default function Style100NeubrutalBrutalPop_Scene4() {
   const clamp = { extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const };
 
   // ==========================================
-  // BEAT 1 (0.0s – 1.0s): SNAPPY ENTRANCE & CARD POP
+  // BEAT 1 (0.0s – 1.0s): SNAPPY BRUTALIST ENTRANCE
   // ==========================================
-  const cardEntrance = spring({
+  const containerEntrance = spring({
     frame,
     fps,
-    config: { damping: 13, stiffness: 210, mass: 0.6 }
+    config: { damping: 12, stiffness: 200, mass: 0.6 },
   });
 
-  const headerSticker = spring({
-    frame: frame - 6,
+  const headerEntrance = spring({
+    frame: frame - 4,
     fps,
-    config: { damping: 11, stiffness: 240, mass: 0.5 }
+    config: { damping: 10, stiffness: 240, mass: 0.5 },
+  });
+
+  const scaleEntrance = spring({
+    frame: frame - 8,
+    fps,
+    config: { damping: 11, stiffness: 220, mass: 0.6 },
   });
 
   // ==========================================
-  // BEAT 2 (1.0s – 2.8s): INTERACTIVE TETHER YANK & METRIC
+  // BEAT 2 (1.0s – 2.8s): TEAL LEVERAGE BLOCK SLAM & TIPPING PHYSICS
   // ==========================================
-  // Money Counter (Ticks up during approach)
-  const rawMoney = Math.round(interpolate(frame, [25, 50], [0, 10000], clamp));
-  const formattedMoney = `$${rawMoney.toLocaleString()}`;
-
-  // Cursor Phase 1: Moves toward "MAKING MONEY"
-  const cursorApproach = spring({
-    frame: frame - 20,
+  // Heavy Teal Block Slam down onto the scale
+  const tealDropProgress = spring({
+    frame: frame - 30,
     fps,
-    config: { damping: 15, stiffness: 170 }
+    config: { damping: 14, stiffness: 280, mass: 0.8 },
   });
+  const tealY = interpolate(tealDropProgress, [0, 1], [-280, 0], clamp);
+  const tealOpacity = interpolate(tealDropProgress, [0, 0.15], [0, 1], clamp);
 
-  // Cursor Phase 2: Violent Yank back to "ADMIN TRAP"
-  const cursorYank = spring({
-    frame: frame - 52,
+  // Scale Tipping Physics upon Impact (Frame 35)
+  const impactFrame = 35;
+  const tiltSpring = spring({
+    frame: frame - impactFrame,
     fps,
-    config: { damping: 9, stiffness: 260, mass: 0.7 }
+    config: { damping: 8, stiffness: 180, mass: 0.7 },
   });
+  const tiltAngle = interpolate(tiltSpring, [0, 1], [0, 14], clamp);
 
-  // Interpolated Cursor Coordinates (Targeting inside container space)
-  const targetX1 = 280; // "MAKING MONEY" button area
-  const targetY1 = 430;
-  const targetX2 = 620; // "ADMIN TRAP" box area
-  const targetY2 = 910;
+  // Thunk vibration on impact
+  const impactShake =
+    frame >= impactFrame && frame <= impactFrame + 8
+      ? Math.sin((frame - impactFrame) * 1.2) * 8
+      : 0;
 
-  const initialCursorX = 850;
-  const initialCursorY = 1200;
-
-  const approachX = interpolate(cursorApproach, [0, 1], [initialCursorX, targetX1], clamp);
-  const approachY = interpolate(cursorApproach, [0, 1], [initialCursorY, targetY1], clamp);
-
-  const cursorX = interpolate(cursorYank, [0, 1], [approachX, targetX2], clamp);
-  const cursorY = interpolate(cursorYank, [0, 1], [approachY, targetY2], clamp);
-
-  // Warning Badge Slap (Triggered right after yank)
-  const warningSlap = spring({
-    frame: frame - 56,
+  // Impact Stamp Pop at Frame 38
+  const stampSpring = spring({
+    frame: frame - 38,
     fps,
-    config: { damping: 10, stiffness: 280, mass: 0.5 }
+    config: { damping: 9, stiffness: 300, mass: 0.4 },
   });
+  const stampScale = interpolate(stampSpring, [0, 1], [0, 1], clamp);
 
-  // Tether visual state
-  const isTetherActive = frame >= 50 && frame <= 105;
-  const tetherOpacity = interpolate(frame, [50, 54, 98, 106], [0, 1, 1, 0], clamp);
+  // Dynamic Ratio Counter Shift (50/50 -> 90/10)
+  const ratioYou = Math.round(interpolate(frame, [35, 55], [50, 90], clamp));
+  const ratioThem = 100 - ratioYou;
 
   // ==========================================
-  // BEAT 3 (2.8s – 4.5s): CONTINUOUS HOVER & SNAPPY EXIT
+  // BEAT 3 (2.8s – 4.5s): LIVING PHYSICS & CLEAN EXIT
   // ==========================================
-  const floatY = Math.sin(frame * 0.11) * 7;
-  const floatRotate = Math.sin(frame * 0.08) * 1.2;
-  const dynamicShadowY = 14 + Math.sin(frame * 0.13) * 5;
+  const hoverY = Math.sin(frame * 0.1) * 6;
+  const hoverTilt = Math.sin(frame * 0.07) * 1.2;
+  const shadowPulse = 10 + Math.sin(frame * 0.12) * 4;
 
   const exitProgress = spring({
     frame: frame - (durationInFrames - 12),
     fps,
-    config: { damping: 12, stiffness: 240 }
+    config: { damping: 12, stiffness: 240 },
   });
-
-  const exitScale = interpolate(exitProgress, [0, 1], [1, 0.82], clamp);
+  const exitScale = interpolate(exitProgress, [0, 1], [1, 0.88], clamp);
   const exitOpacity = interpolate(exitProgress, [0, 1], [1, 0], clamp);
 
-  const containerOpacity = interpolate(cardEntrance, [0, 0.15], [0, 1], clamp) * exitOpacity;
-  const containerScale = interpolate(cardEntrance, [0, 1], [0.82, 1], clamp) * exitScale;
-
-  // Active tab state logic
-  const isStuckInAdmin = frame >= 54;
+  const globalOpacity = interpolate(containerEntrance, [0, 0.2], [0, 1], clamp) * exitOpacity;
+  const globalScale = interpolate(containerEntrance, [0, 1], [0.85, 1], clamp) * exitScale;
 
   return (
     <AbsoluteFill
@@ -98,267 +92,479 @@ export default function Style100NeubrutalBrutalPop_Scene4() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: "'Impact', 'Arial Black', system-ui, sans-serif",
-        overflow: 'hidden'
+        fontFamily: 'Impact, "Arial Black", system-ui, -apple-system, sans-serif',
+        overflow: 'hidden',
+        padding: '20px',
       }}
     >
-      {/* Background Dot Grid */}
+      {/* Background Decorative Pop Elements */}
       <div
         style={{
           position: 'absolute',
-          inset: 0,
-          backgroundImage: 'radial-gradient(#000000 15%, transparent 15%)',
-          backgroundSize: '36px 36px',
-          opacity: 0.08
+          top: 50,
+          left: 50,
+          width: 80,
+          height: 80,
+          borderRadius: '50%',
+          backgroundColor: '#FF90E8',
+          border: '4px solid #000000',
+          boxShadow: '4px 4px 0px #000000',
+          transform: `rotate(${frame * 0.5}deg)`,
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 70,
+          right: 50,
+          width: 90,
+          height: 90,
+          backgroundColor: '#F1F333',
+          border: '4px solid #000000',
+          boxShadow: '6px 6px 0px #000000',
+          transform: `rotate(${-frame * 0.3}deg)`,
         }}
       />
 
-      {/* Main Responsive Neubrutal Card Container */}
+      {/* Main Outer Hero Card Container */}
       <div
         style={{
-          width: '90%',
+          width: '92%',
           maxWidth: 960,
-          minHeight: 1100,
-          opacity: containerOpacity,
-          transform: `scale(${containerScale}) translateY(${floatY}px) rotate(${floatRotate}deg)`,
-          backgroundColor: '#FF90E8',
-          border: '6px solid #000000',
-          borderRadius: 36,
-          boxShadow: `12px ${dynamicShadowY}px 0px #000000`,
-          padding: '48px 40px',
+          height: '90%',
+          maxHeight: 1650,
+          opacity: globalOpacity,
+          transform: `scale(${globalScale}) translateY(${hoverY + impactShake}px) rotate(${hoverTilt}deg)`,
+          backgroundColor: '#FFFFFF',
+          border: '5px solid #000000',
+          borderRadius: 32,
+          boxShadow: `12px ${shadowPulse}px 0px #000000`,
+          padding: '44px 32px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
+          alignItems: 'center',
           position: 'relative',
-          boxSizing: 'border-box'
+          overflow: 'hidden',
+          boxSizing: 'border-box',
         }}
       >
-        {/* Top Navigation / Status Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-          <div
-            style={{
-              transform: `scale(${headerSticker}) rotate(-2deg)`,
-              backgroundColor: '#F1F333',
-              border: '4px solid #000000',
-              borderRadius: 16,
-              padding: '10px 22px',
-              fontSize: 26,
-              fontWeight: 900,
-              letterSpacing: '0.05em',
-              color: '#000000',
-              boxShadow: '4px 4px 0px #000000'
-            }}
-          >
-            STEP #02
-          </div>
-
-          <div
-            style={{
-              backgroundColor: '#23A094',
-              border: '4px solid #000000',
-              borderRadius: 999,
-              padding: '8px 24px',
-              fontSize: 22,
-              fontWeight: 900,
-              color: '#FFFFFF',
-              boxShadow: '4px 4px 0px #000000',
-              textTransform: 'uppercase'
-            }}
-          >
-            ENTREPRENEUR TRAP
-          </div>
-        </div>
-
-        {/* Dual Tab Controller */}
-        <div style={{ display: 'flex', gap: 16, marginTop: 28 }}>
-          {/* Tab 1: Making Money */}
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: !isStuckInAdmin ? '#23A094' : '#FFFFFF',
-              color: !isStuckInAdmin ? '#FFFFFF' : '#000000',
-              border: '4px solid #000000',
-              borderRadius: 20,
-              padding: '20px 16px',
-              textAlign: 'center',
-              fontSize: 28,
-              fontWeight: 900,
-              letterSpacing: '0.02em',
-              boxShadow: !isStuckInAdmin ? '6px 6px 0px #000000' : '2px 2px 0px #000000',
-              transition: 'all 0.1s ease',
-              textDecoration: 'underline',
-              textUnderlineOffset: '6px'
-            }}
-          >
-            1. MAKING MONEY
-          </div>
-
-          {/* Tab 2: Admin Trap */}
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: isStuckInAdmin ? '#F1F333' : '#FFFFFF',
-              color: '#000000',
-              border: '4px solid #000000',
-              borderRadius: 20,
-              padding: '20px 16px',
-              textAlign: 'center',
-              fontSize: 28,
-              fontWeight: 900,
-              letterSpacing: '0.02em',
-              boxShadow: isStuckInAdmin ? '6px 6px 0px #000000' : '2px 2px 0px #000000'
-            }}
-          >
-            2. ADMIN TRAP
-          </div>
-        </div>
-
-        {/* Hero Section: Active Metric / Business Target */}
+        {/* TOP HEADER SECTION */}
         <div
           style={{
-            backgroundColor: '#FFF8E7',
-            border: '5px solid #000000',
-            borderRadius: 28,
-            padding: '36px 32px',
-            margin: '24px 0',
-            boxShadow: '8px 8px 0px #000000',
             display: 'flex',
             flexDirection: 'column',
-            gap: 12
+            alignItems: 'center',
+            gap: 16,
+            width: '100%',
+            transform: `scale(${headerEntrance})`,
           }}
         >
-          <div style={{ fontSize: 24, fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            GOAL: REVENUE & CUSTOMERS
+          {/* Top Badge Sticker */}
+          <div
+            style={{
+              backgroundColor: '#FF90E8',
+              border: '3px solid #000000',
+              borderRadius: 999,
+              padding: '8px 24px',
+              fontSize: 20,
+              fontWeight: 900,
+              color: '#000000',
+              boxShadow: '4px 4px 0px #000000',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+            }}
+          >
+            ★ LEVERAGE EQUATION ★
           </div>
 
           <div
             style={{
-              fontSize: 88,
+              fontSize: 46,
               fontWeight: 900,
-              lineHeight: 0.95,
               color: '#000000',
-              letterSpacing: '-0.03em'
+              textAlign: 'center',
+              lineHeight: 1.05,
+              textTransform: 'uppercase',
+              letterSpacing: '-0.02em',
             }}
           >
-            {formattedMoney}
-          </div>
-
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#000000', opacity: 0.85 }}>
-            Focus on high-value business building moves
+            WHO NEEDS WHO MORE?
           </div>
         </div>
 
-        {/* Lower Section: The "Stuck" Trap Block */}
+        {/* METRIC SHIFT DISPLAY BAR */}
         <div
           style={{
-            backgroundColor: '#000000',
-            border: '4px solid #000000',
-            borderRadius: 28,
-            padding: '32px 30px',
-            color: '#FFFFFF',
-            position: 'relative',
-            boxShadow: '8px 8px 0px #23A094'
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            margin: '12px 0',
           }}
         >
-          <div style={{ fontSize: 28, fontWeight: 900, color: '#F1F333', marginBottom: 16, textTransform: 'uppercase' }}>
-            ⚠️ WHERE MOST GET STUCK:
+          {/* Left Side: Them */}
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: '#FFF8E7',
+              border: '4px solid #000000',
+              borderRadius: 20,
+              padding: '16px 12px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 4,
+              boxShadow: '4px 4px 0px #000000',
+            }}
+          >
+            <span style={{ fontSize: 16, fontWeight: 900, color: '#000000', opacity: 0.7 }}>
+              THEM NEEDING YOU
+            </span>
+            <span style={{ fontSize: 48, fontWeight: 900, color: '#000000', lineHeight: 1 }}>
+              {ratioThem}%
+            </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, fontSize: 22, fontWeight: 800 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ color: '#FF90E8' }}>✖</span>
-              <span>Endless admin task paralysis</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ color: '#FF90E8' }}>✖</span>
-              <span>Obsessing over tiny setup details</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <span style={{ color: '#FF90E8' }}>✖</span>
-              <span>Busywork instead of getting paid</span>
-            </div>
+          {/* Center VS Badge */}
+          <div
+            style={{
+              backgroundColor: '#F1F333',
+              border: '3px solid #000000',
+              borderRadius: 12,
+              padding: '8px 14px',
+              fontSize: 22,
+              fontWeight: 900,
+              color: '#000000',
+              boxShadow: '3px 3px 0px #000000',
+              transform: 'rotate(-4deg)',
+            }}
+          >
+            VS
+          </div>
+
+          {/* Right Side: You */}
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: ratioYou > 50 ? '#23A094' : '#FFF8E7',
+              border: '4px solid #000000',
+              borderRadius: 20,
+              padding: '16px 12px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 4,
+              boxShadow: '4px 4px 0px #000000',
+            }}
+          >
+            <span
+              style={{
+                fontSize: 16,
+                fontWeight: 900,
+                color: ratioYou > 50 ? '#FFFFFF' : '#000000',
+              }}
+            >
+              YOU NEEDING THEM
+            </span>
+            <span
+              style={{
+                fontSize: 48,
+                fontWeight: 900,
+                color: ratioYou > 50 ? '#FFFFFF' : '#000000',
+                lineHeight: 1,
+              }}
+            >
+              {ratioYou}%
+            </span>
           </div>
         </div>
 
-        {/* Warning Sticker Slap Overlay (Appears when yanked) */}
-        {warningSlap > 0.01 && (
+        {/* HERO BALANCE SCALE VISUAL */}
+        <div
+          style={{
+            width: '100%',
+            height: 480,
+            position: 'relative',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            transform: `scale(${scaleEntrance})`,
+            margin: '10px 0',
+          }}
+        >
+          {/* Fulcrum Stand (Triangle Base) */}
           <div
             style={{
               position: 'absolute',
-              top: '46%',
-              left: '50%',
-              transform: `translate(-50%, -50%) scale(${warningSlap}) rotate(-6deg)`,
-              backgroundColor: '#F1F333',
-              border: '6px solid #000000',
-              borderRadius: 24,
-              padding: '24px 36px',
-              fontSize: 38,
-              fontWeight: 900,
-              color: '#000000',
-              boxShadow: '12px 12px 0px #000000',
-              textAlign: 'center',
-              zIndex: 30,
-              whiteSpace: 'nowrap'
+              bottom: 20,
+              width: 0,
+              height: 0,
+              borderLeft: '50px solid transparent',
+              borderRight: '50px solid transparent',
+              borderBottom: '110px solid #000000',
+              zIndex: 1,
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 24,
+              width: 0,
+              height: 0,
+              borderLeft: '42px solid transparent',
+              borderRight: '42px solid transparent',
+              borderBottom: '96px solid #F1F333',
+              zIndex: 2,
+            }}
+          />
+
+          {/* Tilting Beam Assembly */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 125,
+              width: '94%',
+              maxWidth: 620,
+              height: 20,
+              backgroundColor: '#000000',
+              borderRadius: 10,
+              transformOrigin: 'center center',
+              transform: `rotate(${tiltAngle}deg)`,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              zIndex: 3,
             }}
           >
-            STUCK ON WRONG THING!
-          </div>
-        )}
-      </div>
+            {/* Center Pivot Point */}
+            <div
+              style={{
+                position: 'absolute',
+                top: -10,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: '#FF90E8',
+                border: '4px solid #000000',
+              }}
+            />
 
-      {/* SVG Tether Line (Black heavy cord yanking cursor) */}
-      {isTetherActive && (
-        <svg
+            {/* LEFT PAN ASSEMBLY */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 10,
+                top: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                transform: `rotate(${-tiltAngle}deg)`,
+                transformOrigin: 'top center',
+              }}
+            >
+              <div style={{ width: 4, height: 90, backgroundColor: '#000000' }} />
+              <div
+                style={{
+                  width: 170,
+                  minHeight: 100,
+                  backgroundColor: '#FFF8E7',
+                  border: '4px solid #000000',
+                  borderRadius: 16,
+                  boxShadow: '4px 4px 0px #000000',
+                  padding: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                }}
+              >
+                <span style={{ fontSize: 14, fontWeight: 900, color: '#000000', opacity: 0.6 }}>
+                  STANDARD
+                </span>
+                <span
+                  style={{
+                    fontSize: 20,
+                    fontWeight: 900,
+                    color: '#000000',
+                    textAlign: 'center',
+                    lineHeight: 1.1,
+                  }}
+                >
+                  LOW LEVERAGE
+                </span>
+              </div>
+            </div>
+
+            {/* RIGHT PAN ASSEMBLY (HEAVY SLAM TARGET) */}
+            <div
+              style={{
+                position: 'absolute',
+                right: 10,
+                top: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                transform: `rotate(${-tiltAngle}deg)`,
+                transformOrigin: 'top center',
+              }}
+            >
+              <div style={{ width: 4, height: 90, backgroundColor: '#000000' }} />
+              <div
+                style={{
+                  width: 200,
+                  minHeight: 120,
+                  backgroundColor: '#FFF8E7',
+                  border: '4px solid #000000',
+                  borderRadius: 16,
+                  boxShadow: '4px 4px 0px #000000',
+                  padding: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                }}
+              >
+                {/* Heavy Teal Slam Block */}
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: '#23A094',
+                    border: '4px solid #000000',
+                    borderRadius: 12,
+                    boxShadow: '4px 4px 0px #000000',
+                    padding: '14px 10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 4,
+                    transform: `translateY(${tealY}px)`,
+                    opacity: tealOpacity,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 900,
+                      color: '#F1F333',
+                      letterSpacing: '0.08em',
+                    }}
+                  >
+                    ★ SPECIALIZED ★
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 900,
+                      color: '#FFFFFF',
+                      textAlign: 'center',
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    HIGH SKILL LEVERAGE
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* IMPACT STAMP STICKER POP */}
+          <div
+            style={{
+              position: 'absolute',
+              right: 15,
+              top: 40,
+              transform: `scale(${stampScale}) rotate(-8deg)`,
+              backgroundColor: '#F1F333',
+              border: '4px solid #000000',
+              borderRadius: 16,
+              padding: '12px 20px',
+              boxShadow: '6px 6px 0px #000000',
+              zIndex: 10,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ fontSize: 24, fontWeight: 900, color: '#000000', lineHeight: 1 }}>
+              POWER SHIFTED!
+            </span>
+            <span style={{ fontSize: 13, fontWeight: 900, color: '#000000', opacity: 0.8 }}>
+              IMPACT 90/10
+            </span>
+          </div>
+        </div>
+
+        {/* BOTTOM ACTION BUTTON & LINK */}
+        <div
           style={{
-            position: 'absolute',
-            inset: 0,
             width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            zIndex: 40,
-            opacity: tetherOpacity
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 14,
           }}
         >
-          <line
-            x1={targetX2 + 100}
-            y1={targetY2 + 200}
-            x2={cursorX}
-            y2={cursorY}
-            stroke="#000000"
-            strokeWidth="10"
-            strokeDasharray="14 10"
-            strokeLinecap="round"
-          />
-        </svg>
-      )}
+          {/* Brutalist Action Button */}
+          <div
+            style={{
+              width: '100%',
+              backgroundColor: '#23A094',
+              border: '4px solid #000000',
+              borderRadius: 20,
+              padding: '20px 24px',
+              boxShadow: `0px ${shadowPulse}px 0px #000000`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 12,
+            }}
+          >
+            <div
+              style={{
+                width: 16,
+                height: 16,
+                borderRadius: '50%',
+                backgroundColor: '#F1F333',
+                border: '2px solid #000000',
+              }}
+            />
+            <span
+              style={{
+                fontSize: 26,
+                fontWeight: 900,
+                color: '#FFFFFF',
+                letterSpacing: '0.02em',
+                textTransform: 'uppercase',
+              }}
+            >
+              NEGOTIATE MORE
+            </span>
+          </div>
 
-      {/* Neubrutal Heavy Cursor */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          transform: `translate3d(${cursorX}px, ${cursorY}px, 0px)`,
-          pointerEvents: 'none',
-          zIndex: 50,
-          filter: 'drop-shadow(4px 4px 0px #000000)'
-        }}
-      >
-        <svg
-          width="54"
-          height="54"
-          viewBox="0 0 32 32"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M6 3L25 15L15 18L10 28L6 3Z"
-            fill="#FFFFFF"
-            stroke="#000000"
-            strokeWidth="3.5"
-            strokeLinejoin="miter"
-          />
-        </svg>
+          {/* Underlined Link Style Text */}
+          <div
+            style={{
+              fontSize: 18,
+              fontWeight: 900,
+              color: '#000000',
+              textDecoration: 'underline',
+              textDecorationThickness: '3px',
+              textUnderlineOffset: '4px',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <u>HOW MUCH THEY NEED YOU</u>
+          </div>
+        </div>
       </div>
     </AbsoluteFill>
   );

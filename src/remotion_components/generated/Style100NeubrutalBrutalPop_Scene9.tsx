@@ -1,473 +1,485 @@
 import React from 'react';
-import {
-  AbsoluteFill,
-  interpolate,
-  spring,
-  useCurrentFrame,
-  useVideoConfig,
-} from 'remotion';
+import { useCurrentFrame, useVideoConfig, interpolate, spring, AbsoluteFill } from 'remotion';
 
 export default function Style100NeubrutalBrutalPop_Scene9() {
   const frame = useCurrentFrame();
-  const {fps, durationInFrames, width: canvasWidth} = useVideoConfig();
+  const { fps, durationInFrames } = useVideoConfig();
 
-  const clamp = {
-    extrapolateLeft: 'clamp' as const,
-    extrapolateRight: 'clamp' as const,
-  };
+  const clamp = { extrapolateLeft: 'clamp' as const, extrapolateRight: 'clamp' as const };
 
-  const palette = ['#FFF8E7', '#000000', '#FF90E8', '#F1F333', '#23A094'];
-
-  // Beat 1: compressed slab shoots in with a spring overshoot.
-  const heroEntrance = spring({
+  // ==========================================
+  // BEAT 1 (0.0s – 1.0s): HARD SNAP STICKER ENTRANCE
+  // ==========================================
+  const mainCardSpring = spring({
     frame,
     fps,
-    config: {
-      damping: 11,
-      stiffness: 260,
-      mass: 0.55,
-    },
+    config: { damping: 12, stiffness: 220, mass: 0.6 }
   });
 
-  const badgeEntrance = spring({
-    frame: frame - 3,
+  const headerBadgeSpring = spring({
+    frame: frame - 4,
     fps,
-    config: {
-      damping: 12,
-      stiffness: 250,
-      mass: 0.5,
-    },
+    config: { damping: 10, stiffness: 260, mass: 0.4 }
   });
 
-  const footerEntrance = spring({
-    frame: frame - 8,
+  // Card entrance dynamics (Hard slap down with recoil tilt)
+  const cardScale = interpolate(mainCardSpring, [0, 1], [0.75, 1], clamp);
+  const cardRotate = interpolate(mainCardSpring, [0, 0.7, 1], [-8, 2, 0], clamp);
+  const cardTranslateY = interpolate(mainCardSpring, [0, 1], [120, 0], clamp);
+
+  // ==========================================
+  // BEAT 2 (1.0s – 2.8s): CURSOR CLICK & TOGGLE SLAM
+  // ==========================================
+  const clickTriggerFrame = 38;
+  const isToggled = frame >= clickTriggerFrame;
+
+  // Animated Cursor path towards the switch button
+  const cursorMoveProgress = spring({
+    frame: frame - 14,
     fps,
-    config: {
-      damping: 13,
-      stiffness: 230,
-      mass: 0.55,
-    },
+    config: { damping: 15, stiffness: 140, mass: 0.7 }
   });
 
-  const shootY = interpolate(frame, [0, 7], [280, 0], clamp);
+  const cursorX = interpolate(cursorMoveProgress, [0, 1], [320, 75], clamp);
+  const cursorY = interpolate(cursorMoveProgress, [0, 1], [380, 130], clamp);
 
-  // Beat 2: hard, stepped width expansion from opposing edges.
-  const finalHeroWidth = Math.min(canvasWidth * 0.78, 840);
-  const narrowWidth = Math.min(116, finalHeroWidth * 0.22);
+  const isClicking = frame >= clickTriggerFrame - 3 && frame <= clickTriggerFrame + 3;
+  const cursorClickScale = isClicking ? 0.78 : 1;
 
-  let widthProgress = 0;
-  if (frame >= 30 && frame < 37) widthProgress = 0.24;
-  if (frame >= 37 && frame < 44) widthProgress = 0.43;
-  if (frame >= 44 && frame < 51) widthProgress = 0.62;
-  if (frame >= 51 && frame < 58) widthProgress = 0.82;
-  if (frame >= 58) widthProgress = 1;
+  // Cursor fade out after action
+  const cursorOpacity = interpolate(frame, [0, 10, 52, 60], [0, 1, 1, 0], clamp);
 
-  // Beat 3: edges continue making hard expansion pulses.
-  const beat3 = frame >= 84;
-  const edgePulse =
-    beat3 && Math.floor((frame - 84) / 6) % 2 === 0 ? 12 : 0;
-
-  const heroWidth =
-    narrowWidth + (finalHeroWidth - narrowWidth) * widthProgress + edgePulse;
-
-  const cursorVisible = frame >= 24 && frame <= 66;
-  const cursorX = interpolate(frame, [24, 34], [190, 48], clamp);
-  const cursorY = interpolate(frame, [24, 34], [125, 28], clamp);
-  const isClicking =
-    (frame >= 34 && frame <= 38) ||
-    (frame >= 44 && frame <= 47) ||
-    (frame >= 54 && frame <= 57);
-
-  const clickThunk = isClicking ? 8 : 0;
-
-  const stickerSlap = spring({
-    frame: frame - 59,
+  // Toggle switch position spring
+  const toggleSpring = spring({
+    frame: frame - clickTriggerFrame,
     fps,
-    config: {
-      damping: 7,
-      stiffness: 320,
-      mass: 0.42,
-    },
+    config: { damping: 11, stiffness: 280, mass: 0.4 }
   });
 
-  const stickerRotation = interpolate(
-    stickerSlap,
-    [0, 0.7, 1],
-    [-24, 8, -5],
-    clamp,
+  // Impact stickers slap after toggle
+  const roiBadgeSpring = spring({
+    frame: frame - (clickTriggerFrame + 3),
+    fps,
+    config: { damping: 9, stiffness: 250, mass: 0.5 }
+  });
+
+  const checkmark1Spring = spring({
+    frame: frame - (clickTriggerFrame + 7),
+    fps,
+    config: { damping: 8, stiffness: 300, mass: 0.4 }
+  });
+
+  const checkmark2Spring = spring({
+    frame: frame - (clickTriggerFrame + 11),
+    fps,
+    config: { damping: 8, stiffness: 300, mass: 0.4 }
+  });
+
+  // Dynamic counter / numerical interpolation
+  const costNumber = Math.round(
+    interpolate(
+      spring({ frame: frame - clickTriggerFrame, fps, config: { damping: 14, stiffness: 180 } }),
+      [0, 1],
+      [120000, 45000],
+      clamp
+    )
   );
 
-  // Continuous living physics.
-  const hoverY = beat3 ? Math.sin(frame * 0.12) * 6 : 0;
-  const hoverTilt = beat3 ? Math.sin(frame * 0.08) * 1.35 : 0;
-  const shadowToggle =
-    beat3 && Math.floor((frame - 84) / 5) % 2 === 0 ? 15 : 8;
-  const shadowPulse = shadowToggle + (beat3 ? Math.sin(frame * 0.18) * 2 : 0);
-
-  const shineCycle = (frame - 84 + 90) % 54;
-  const shineOffset = interpolate(
-    shineCycle,
-    [0, 54],
-    [-180, finalHeroWidth + 180],
-    clamp,
+  const earningsNumber = Math.round(
+    interpolate(
+      spring({ frame: frame - clickTriggerFrame, fps, config: { damping: 14, stiffness: 180 } }),
+      [0, 1],
+      [75000, 165000],
+      clamp
+    )
   );
 
-  const underlineCycle = (frame - 84 + 48) % 30;
-  const underlineWidth = beat3
-    ? interpolate(underlineCycle, [0, 22, 30], [0, 100, 100], clamp)
-    : 100;
+  // ==========================================
+  // BEAT 3 (2.8s – 4.5s): CONTINUOUS WOBBLE & SNAPPY EXIT
+  // ==========================================
+  const floatY = Math.sin(frame * 0.11) * 7;
+  const wobbleTilt = Math.sin(frame * 0.08) * 1.4;
+  const shadowOffset = 14 + Math.sin(frame * 0.13) * 4;
 
-  const headlineVisible = frame >= 51;
-  const isExpanded = frame >= 58;
+  const exitProgress = spring({
+    frame: frame - (durationInFrames - 12),
+    fps,
+    config: { damping: 12, stiffness: 240 }
+  });
+  const exitScale = interpolate(exitProgress, [0, 1], [1, 0.82], clamp);
+  const exitOpacity = interpolate(exitProgress, [0, 1], [1, 0], clamp);
 
-  const exitSlide = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [0, -90],
-    clamp,
-  );
-
-  const exitScale = interpolate(
-    frame,
-    [durationInFrames - 9, durationInFrames],
-    [1, 0.94],
-    clamp,
-  );
-
-  const opacity = interpolate(
-    frame,
-    [0, 4, durationInFrames - 7, durationInFrames],
-    [0, 1, 1, 0],
-    clamp,
-  );
-
-  const responsiveHeadlineSize = Math.min(70, canvasWidth * 0.064);
+  const finalContainerOpacity = interpolate(mainCardSpring, [0, 0.2], [0, 1], clamp) * exitOpacity;
+  const finalContainerScale = cardScale * exitScale;
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: palette[0],
-        color: palette[1],
-        padding: '80px 20px',
-        boxSizing: 'border-box',
-        opacity,
-        fontFamily:
-          '"Arial Black", "Helvetica Neue", Impact, Arial, sans-serif',
+        backgroundColor: '#FFF8E7',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        overflow: 'hidden'
       }}
     >
+      {/* Background Graphic Pattern (Neubrutal Grid Accents) */}
       <div
         style={{
-          width: '100%',
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'radial-gradient(#000000 2px, transparent 2px)',
+          backgroundSize: '36px 36px',
+          opacity: 0.15
+        }}
+      />
+
+      {/* Outer Border Decor Frame */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 24,
+          border: '4px solid #000000',
+          borderRadius: 36,
+          pointerEvents: 'none'
+        }}
+      />
+
+      {/* MAIN NEUBRUTALIST HERO CARD */}
+      <div
+        style={{
+          width: '90%',
           maxWidth: 920,
-          height: '100%',
-          margin: '0 auto',
+          opacity: finalContainerOpacity,
+          transform: `scale(${finalContainerScale}) translateY(${cardTranslateY + floatY}px) rotate(${cardRotate + wobbleTilt}deg)`,
+          backgroundColor: '#FFF8E7',
+          border: '6px solid #000000',
+          borderRadius: 32,
+          boxShadow: `${shadowOffset}px ${shadowOffset}px 0px #000000`,
+          padding: '44px 36px',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          gap: 16,
-          transform: `translateY(${exitSlide}px) scale(${exitScale})`,
+          gap: 28,
+          position: 'relative'
         }}
       >
-        {/* Tier 1: category badge */}
-        <div
-          style={{
-            flex: '15 1 0',
-            width: '100%',
-            minHeight: 0,
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 16,
-              padding: '11px 24px',
-              border: `4px solid ${palette[1]}`,
-              borderRadius: 12,
-              backgroundColor: palette[2],
-              boxShadow: `6px 6px 0 ${palette[1]}`,
-              transform: `scale(${badgeEntrance}) translateY(${
-                beat3 ? Math.sin(frame * 0.12 + 1) * 3 : 0
-              }px)`,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <span
+        {/* TOP HEADER BAR */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div
               style={{
-                width: 11,
-                height: 11,
-                flexShrink: 0,
-                borderRadius: '50%',
-                backgroundColor: palette[1],
-              }}
-            />
-            <span
-              style={{
-                fontSize: 19,
-                fontWeight: 950,
-                lineHeight: 1,
-                letterSpacing: 2.5,
-                textTransform: 'uppercase',
+                backgroundColor: '#000000',
+                color: '#F1F333',
+                padding: '8px 16px',
+                borderRadius: 12,
+                fontSize: 18,
+                fontWeight: 900,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase'
               }}
             >
-              Coaching Mission
-            </span>
+              ALIGNMENT ENGINE
+            </div>
+          </div>
+
+          {/* BADGE: MUTUAL WIN */}
+          <div
+            style={{
+              transform: `scale(${headerBadgeSpring}) rotate(-3deg)`,
+              backgroundColor: '#FF90E8',
+              border: '4px solid #000000',
+              borderRadius: 999,
+              padding: '10px 24px',
+              fontSize: 22,
+              fontWeight: 900,
+              color: '#000000',
+              boxShadow: '4px 4px 0px #000000'
+            }}
+          >
+            ⚡ MUTUAL WIN
           </div>
         </div>
 
-        {/* Tier 2: one expanding hero element */}
+        {/* SECTION 1: INTERACTIVE TOGGLE SWITCH */}
         <div
           style={{
-            flex: '65 1 0',
-            width: '100%',
-            minHeight: 0,
+            backgroundColor: '#000000',
+            border: '4px solid #000000',
+            borderRadius: 24,
+            padding: 8,
             position: 'relative',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            boxShadow: '6px 6px 0px #000000'
           }}
         >
+          {/* Sliding Pill Indicator */}
           <div
             style={{
-              position: 'relative',
-              width: heroWidth,
-              height: 310,
-              flexShrink: 0,
-              transform: `
-                translateY(${shootY + hoverY + clickThunk}px)
-                rotate(${hoverTilt}deg)
-                scale(${heroEntrance})
-              `,
-              transformOrigin: 'center center',
+              position: 'absolute',
+              top: 8,
+              bottom: 8,
+              left: 8,
+              width: 'calc(50% - 8px)',
+              transform: `translateX(${toggleSpring * 100}%)`,
+              backgroundColor: isToggled ? '#23A094' : '#FF90E8',
+              border: '3px solid #000000',
+              borderRadius: 18,
+              transition: 'background-color 0.1s step-end'
+            }}
+          />
+
+          {/* Toggle Option Left */}
+          <div
+            style={{
+              flex: 1,
+              zIndex: 2,
+              padding: '18px 12px',
+              textAlign: 'center',
+              fontSize: 20,
+              fontWeight: 900,
+              color: isToggled ? '#FFFFFF' : '#000000',
+              textDecoration: isToggled ? 'line-through' : 'none',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
             }}
           >
+            TRADITIONAL SALARY
+          </div>
+
+          {/* Toggle Option Right */}
+          <div
+            style={{
+              flex: 1,
+              zIndex: 2,
+              padding: '18px 12px',
+              textAlign: 'center',
+              fontSize: 22,
+              fontWeight: 900,
+              color: isToggled ? '#FFF8E7' : '#FFFFFF',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8
+            }}
+          >
+            WIN-WIN HYBRID
+            {isToggled && (
+              <span
+                style={{
+                  backgroundColor: '#F1F333',
+                  color: '#000000',
+                  border: '2px solid #000000',
+                  borderRadius: 99,
+                  padding: '2px 10px',
+                  fontSize: 14,
+                  fontWeight: 900
+                }}
+              >
+                ACTIVE
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* SECTION 2: METRIC COMPARISON SPLIT BOXES */}
+        <div style={{ display: 'flex', gap: 20, width: '100%' }}>
+          {/* Box 1: Employer Side */}
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: isToggled ? '#FFF8E7' : '#FFFFFF',
+              border: '4px solid #000000',
+              borderRadius: 24,
+              padding: '24px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              boxShadow: '6px 6px 0px #000000',
+              position: 'relative'
+            }}
+          >
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#000000', opacity: 0.7, letterSpacing: '0.05em' }}>
+              EMPLOYER FIXED OUTLAY
+            </div>
+            <div style={{ fontSize: 48, fontWeight: 900, color: '#000000', lineHeight: 1 }}>
+              ${costNumber.toLocaleString()}
+              <span style={{ fontSize: 20, fontWeight: 800 }}>/yr</span>
+            </div>
             <div
               style={{
-                position: 'absolute',
-                inset: 0,
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 16,
-                boxSizing: 'border-box',
-                padding: '36px 26px',
-                border: `6px solid ${palette[1]}`,
-                borderRadius: 22,
-                backgroundColor: isExpanded ? palette[4] : palette[3],
-                boxShadow: `${shadowPulse}px ${shadowPulse}px 0 ${palette[1]}`,
+                alignSelf: 'flex-start',
+                backgroundColor: isToggled ? '#23A094' : '#000000',
+                color: '#FFFFFF',
+                border: '2px solid #000000',
+                borderRadius: 99,
+                padding: '6px 14px',
+                fontSize: 15,
+                fontWeight: 900
               }}
             >
-              {/* Traveling shine */}
-              {beat3 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: -40,
-                    bottom: -40,
-                    left: 0,
-                    width: 86,
-                    zIndex: 1,
-                    opacity: 0.42,
-                    backgroundColor: palette[0],
-                    transform: `translateX(${shineOffset}px) skewX(-24deg)`,
-                    pointerEvents: 'none',
-                  }}
-                />
-              )}
-
-              {/* Compressed slab mark */}
-              {!headlineVisible && (
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 16,
-                    zIndex: 2,
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 15,
-                      height: 124,
-                      borderRadius: 4,
-                      backgroundColor: palette[1],
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Broad coaching headline */}
-              {headlineVisible && (
-                <div
-                  style={{
-                    width: '100%',
-                    minWidth: 0,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 16,
-                    zIndex: 2,
-                    opacity: isExpanded ? 1 : 0,
-                  }}
-                >
-                  <div
-                    style={{
-                      position: 'relative',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      whiteSpace: 'nowrap',
-                      fontSize: responsiveHeadlineSize,
-                      fontWeight: 950,
-                      lineHeight: 0.94,
-                      letterSpacing: -2,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Broader Coaching
-                    <div
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        bottom: -13,
-                        width: `${underlineWidth}%`,
-                        height: 9,
-                        backgroundColor: palette[1],
-                        transformOrigin: 'left center',
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Pink sticker shock at full width */}
-              {frame >= 58 && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 18,
-                    right: 18,
-                    zIndex: 4,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 16,
-                    padding: '10px 17px',
-                    border: `4px solid ${palette[1]}`,
-                    borderRadius: 9,
-                    backgroundColor: palette[2],
-                    boxShadow: `5px 5px 0 ${palette[1]}`,
-                    transform: `scale(${stickerSlap}) rotate(${stickerRotation}deg)`,
-                    transformOrigin: 'center',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 17,
-                      fontWeight: 950,
-                      lineHeight: 1,
-                      letterSpacing: 1.5,
-                      textTransform: 'uppercase',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    Go Wider!
-                  </span>
-                </div>
-              )}
+              {isToggled ? '▼ 62.5% RISK REDUCTION' : 'HIGH FIXED COST'}
             </div>
 
-            {/* Cursor click remains part of the single hero interaction */}
-            {cursorVisible && (
+            {/* Sticker Checkmark 1 */}
+            {isToggled && (
               <div
                 style={{
                   position: 'absolute',
-                  left: '50%',
-                  top: '50%',
-                  zIndex: 8,
-                  filter: isClicking
-                    ? `drop-shadow(2px 2px 0 ${palette[2]})`
-                    : `drop-shadow(6px 6px 0 ${palette[2]})`,
-                  transform: `
-                    translate(${cursorX}px, ${cursorY}px)
-                    scale(${isClicking ? 0.78 : 1})
-                  `,
-                  pointerEvents: 'none',
+                  top: -16,
+                  right: -12,
+                  transform: `scale(${checkmark1Spring}) rotate(-12deg)`,
+                  backgroundColor: '#23A094',
+                  color: '#FFFFFF',
+                  border: '3px solid #000000',
+                  borderRadius: 999,
+                  width: 44,
+                  height: 44,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  fontWeight: 900,
+                  boxShadow: '3px 3px 0px #000000'
                 }}
               >
-                <svg
-                  width="54"
-                  height="54"
-                  viewBox="0 0 24 24"
-                  fill={palette[1]}
-                  stroke={palette[0]}
-                  strokeWidth="1.5"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 3.5L11.3 21l2.65-7.15L21 11.15 4 3.5z" />
-                </svg>
+                ✓
+              </div>
+            )}
+          </div>
+
+          {/* Box 2: Talent Side */}
+          <div
+            style={{
+              flex: 1,
+              backgroundColor: isToggled ? '#F1F333' : '#FFFFFF',
+              border: '4px solid #000000',
+              borderRadius: 24,
+              padding: '24px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 12,
+              boxShadow: '6px 6px 0px #000000',
+              position: 'relative'
+            }}
+          >
+            <div style={{ fontSize: 16, fontWeight: 900, color: '#000000', opacity: 0.7, letterSpacing: '0.05em' }}>
+              TALENT MAX EARNINGS
+            </div>
+            <div style={{ fontSize: 48, fontWeight: 900, color: '#000000', lineHeight: 1 }}>
+              ${earningsNumber.toLocaleString()}
+              <span style={{ fontSize: 20, fontWeight: 800 }}>+</span>
+            </div>
+            <div
+              style={{
+                alignSelf: 'flex-start',
+                backgroundColor: '#000000',
+                color: '#FFF8E7',
+                border: '2px solid #000000',
+                borderRadius: 99,
+                padding: '6px 14px',
+                fontSize: 15,
+                fontWeight: 900
+              }}
+            >
+              {isToggled ? '▲ UNCAPPED UPSIDE' : 'LIMITED CAP'}
+            </div>
+
+            {/* Sticker Checkmark 2 */}
+            {isToggled && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: -16,
+                  right: -12,
+                  transform: `scale(${checkmark2Spring}) rotate(14deg)`,
+                  backgroundColor: '#23A094',
+                  color: '#FFFFFF',
+                  border: '3px solid #000000',
+                  borderRadius: 999,
+                  width: 44,
+                  height: 44,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  fontWeight: 900,
+                  boxShadow: '3px 3px 0px #000000'
+                }}
+              >
+                ✓
               </div>
             )}
           </div>
         </div>
 
-        {/* Tier 3: activation punchline */}
+        {/* SECTION 3: STATEMENT BUTTON BANNER */}
         <div
           style={{
-            flex: '20 1 0',
-            width: '100%',
-            minHeight: 0,
+            backgroundColor: '#FF90E8',
+            border: '4px solid #000000',
+            borderRadius: 20,
+            padding: '20px 24px',
+            boxShadow: '6px 6px 0px #000000',
             display: 'flex',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             justifyContent: 'center',
+            gap: 12
           }}
         >
+          <span style={{ fontSize: 26, fontWeight: 900, color: '#000000', textTransform: 'uppercase', letterSpacing: '-0.02em' }}>
+            "WE ARE BOTH BETTER OFF AS A RESULT"
+          </span>
+        </div>
+
+        {/* UNLOCKED IMPACT BADGE STICKER (POPS ON TOGGLE) */}
+        {isToggled && (
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 16,
-              padding: '14px 28px',
-              border: `4px solid ${palette[1]}`,
-              borderRadius: 13,
-              backgroundColor: palette[1],
-              boxShadow: `${
-                beat3 && Math.floor((frame - 84) / 6) % 2 === 0 ? 8 : 5
-              }px ${
-                beat3 && Math.floor((frame - 84) / 6) % 2 === 0 ? 8 : 5
-              }px 0 ${palette[3]}`,
-              transform: `scale(${footerEntrance}) translateY(${
-                beat3 ? Math.sin(frame * 0.12 + 2) * 3 : 0
-              }px)`,
+              position: 'absolute',
+              top: -28,
+              right: 32,
+              transform: `scale(${roiBadgeSpring}) rotate(10deg)`,
+              backgroundColor: '#F1F333',
+              border: '5px solid #000000',
+              borderRadius: 20,
+              padding: '12px 28px',
+              boxShadow: '8px 8px 0px #000000',
+              fontSize: 32,
+              fontWeight: 900,
+              color: '#000000',
+              zIndex: 10
             }}
           >
-            <span
-              style={{
-                color: palette[0],
-                fontSize: 22,
-                fontWeight: 950,
-                lineHeight: 1,
-                letterSpacing: 2,
-                textDecoration: 'underline',
-                textDecorationThickness: 4,
-                textUnderlineOffset: 7,
-                textTransform: 'uppercase',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Activate the broader mission
-            </span>
+            🔥 10X ROI ALIGNED!
           </div>
+        )}
+
+        {/* ANIMATED CURSOR HAND/POINTER */}
+        <div
+          style={{
+            position: 'absolute',
+            left: cursorX,
+            top: cursorY,
+            opacity: cursorOpacity,
+            transform: `scale(${cursorClickScale})`,
+            pointerEvents: 'none',
+            zIndex: 30,
+            filter: 'drop-shadow(4px 4px 0px #000000)'
+          }}
+        >
+          <svg width="54" height="54" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M9 3L23 17H15L21 29L16 31L10 19L3 26V3Z"
+              fill="#FFFFFF"
+              stroke="#000000"
+              strokeWidth="3"
+              strokeLinejoin="round"
+            />
+            <path d="M9 3L23 17H15L21 29L16 31L10 19L3 26V3Z" fill="#000000" />
+          </svg>
         </div>
       </div>
     </AbsoluteFill>
