@@ -256,13 +256,13 @@ function StudioContent() {
         {/* Video File & Action Controls */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* + Create Video Button */}
-          <Link
-            href="/wizard"
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(249,115,22,0.35)]"
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(249,115,22,0.35)] cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>+ Create Video</span>
-          </Link>
+            <span>+ Refresh Studio</span>
+          </button>
 
           {/* Credit Badge */}
           <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-950/50 border border-orange-700/40 text-xs font-semibold text-orange-300">

@@ -79,8 +79,8 @@ function SingleSceneVisual({ scene, styleCode }: { scene: SceneData; styleCode: 
       style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'flex-end',
-        padding: '0 40px 160px 40px',
+        justifyContent: 'center',
+        padding: '0 48px',
         opacity: opacity * exitOpacity,
         transform: `translateY(${hoverY}px) scale(${scale * pulse * exitScale}) rotate(${rotateEntrance}deg)`,
       }}

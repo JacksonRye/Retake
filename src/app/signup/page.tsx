@@ -37,7 +37,7 @@ export default function SignUpPage() {
     setSuccessMessage(null);
 
     try {
-      const redirectUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://retake.cloud'}/auth/callback?next=/wizard`;
+      const redirectUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://retake.cloud'}/auth/callback?next=/studio`;
 
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -77,7 +77,7 @@ export default function SignUpPage() {
         }).catch(() => {});
 
         setTimeout(() => {
-          router.push('/wizard');
+          router.push('/studio');
         }, 1000);
       }
     } catch (err: any) {

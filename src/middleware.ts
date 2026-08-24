@@ -44,13 +44,13 @@ export async function middleware(request: NextRequest) {
       url.pathname = '/auth/callback';
       url.searchParams.set('code', authCode);
       if (!url.searchParams.has('next')) {
-        url.searchParams.set('next', '/wizard');
+        url.searchParams.set('next', '/studio');
       }
       return NextResponse.redirect(url);
     }
 
-    // 1. Protected routes: /wizard and /studio require a logged-in user
-    if ((pathname.startsWith('/wizard') || pathname.startsWith('/studio')) && !user) {
+    // 1. Protected route: /studio requires a logged-in user
+    if (pathname.startsWith('/studio') && !user) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       url.searchParams.set('next', pathname);
@@ -72,10 +72,10 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // 3. Auth pages: redirect to /wizard if already logged in
+    // 3. Auth pages: redirect to /studio if already logged in
     if ((pathname === '/login' || pathname === '/signup') && user) {
       const url = request.nextUrl.clone();
-      url.pathname = '/wizard';
+      url.pathname = '/studio';
       return NextResponse.redirect(url);
     }
   } catch (err) {

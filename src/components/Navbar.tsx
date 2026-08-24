@@ -128,15 +128,6 @@ export default function Navbar() {
           {user && (
             <>
               <Link 
-                href="/wizard" 
-                className={`transition-colors flex items-center gap-1.5 ${
-                  pathname === '/wizard' ? 'text-orange-400 font-bold' : 'hover:text-white'
-                }`}
-              >
-                <Sliders className="w-3.5 h-3.5" />
-                <span>Create Video</span>
-              </Link>
-              <Link 
                 href="/studio" 
                 className={`transition-colors flex items-center gap-1.5 ${
                   pathname === '/studio' ? 'text-orange-400 font-bold' : 'hover:text-white'
@@ -194,12 +185,12 @@ export default function Navbar() {
                       <div className="text-orange-400 text-[11px] font-semibold mt-0.5">{credits ?? 0} Credits Available</div>
                     </div>
                     <Link
-                      href="/wizard"
+                      href="/studio"
                       onClick={() => setIsDropdownOpen(false)}
                       className="flex items-center gap-2 px-3.5 py-2 text-slate-300 hover:bg-white/5 hover:text-white transition-colors"
                     >
-                      <PlusCircle className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Create Video</span>
+                      <Video className="w-3.5 h-3.5 text-slate-400" />
+                      <span>Video Studio</span>
                     </Link>
                     <Link
                       href="/studio"
