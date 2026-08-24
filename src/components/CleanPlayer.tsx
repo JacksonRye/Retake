@@ -23,7 +23,7 @@ export default function CleanPlayer({
   const isSingleScene = activeComp !== 'FullEditPixel';
   const durationInFrames = isSingleScene ? 135 : totalFrames;
 
-  const SelectedComponent = isSingleScene ? DynamicRemotionComposition : FullEditPixel;
+  const SelectedComponent = DynamicRemotionComposition;
 
   return (
     <div className="w-full h-full flex items-center justify-center bg-black relative">
