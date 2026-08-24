@@ -74,7 +74,7 @@ export async function getCreditStatus(user: { id?: string; email?: string; user_
  * Deducts 1 video credit from a standard user upon generation dispatch.
  * Admin users and API calls bypass deduction automatically.
  */
-export async function deductCreditIfRequired(user: { id: string; email: string; user_metadata?: any } | null, isApiRequest = false): Promise<{ success: boolean; remainingCredits: number; message?: string }> {
+export async function deductCreditIfRequired(user: { id?: string; email?: string; user_metadata?: any } | null, isApiRequest = false): Promise<{ success: boolean; remainingCredits: number; message?: string }> {
   if (isApiRequest) {
     return { success: true, remainingCredits: 999999, message: 'API unlimited access' };
   }
@@ -84,6 +84,15 @@ export async function deductCreditIfRequired(user: { id: string; email: string; 
       success: false,
       remainingCredits: 0,
       message: 'Authentication required. Please log in to use video credits.'
+    };
+  }
+
+  const email = user.email.toLowerCase();
+  if (isUnlimitedAccess(email)) {
+    return {
+      success: true,
+      remainingCredits: 999999,
+      message: 'Admin unlimited access'
     };
   }
 
