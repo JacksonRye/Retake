@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { deductCreditIfRequired, isUnlimitedAccess } from '@/lib/credits';
 
 const PIPELINE_WORKER_URL = process.env.PIPELINE_WORKER_URL || 'http://132.145.72.176:8000';
 
@@ -38,6 +39,24 @@ export async function POST(request: Request) {
         { error: 'Valid "videoUrl" is required in request payload.' },
         { status: 400 }
       );
+    }
+
+    // Enforce 1 credit for new users, unlimited for super admin
+    if (finalUserEmail && !isUnlimitedAccess(finalUserEmail)) {
+      const creditRes = await deductCreditIfRequired({
+        id: finalUserId,
+        email: finalUserEmail,
+      });
+
+      if (!creditRes.success) {
+        return NextResponse.json(
+          {
+            error: creditRes.message || 'You have 0 credits remaining. Please upgrade to generate more videos.',
+            remainingCredits: creditRes.remainingCredits,
+          },
+          { status: 403 }
+        );
+      }
     }
 
     if (PIPELINE_WORKER_URL) {

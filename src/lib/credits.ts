@@ -79,7 +79,7 @@ export async function deductCreditIfRequired(user: { id?: string; email?: string
     return { success: true, remainingCredits: 999999, message: 'API unlimited access' };
   }
 
-  if (!user || !user.id || !user.email) {
+  if (!user || !user.email) {
     return {
       success: false,
       remainingCredits: 0,
@@ -96,42 +96,51 @@ export async function deductCreditIfRequired(user: { id?: string; email?: string
     };
   }
 
-  const supabase = createAdminClient();
-  const currentCredits = typeof user.user_metadata?.credits === 'number' 
-    ? user.user_metadata.credits 
-    : 1;
+  try {
+    const supabase = createAdminClient();
+    let currentCredits = 1;
+    let existingMeta = {};
 
-  if (currentCredits <= 0) {
-    return {
-      success: false,
-      remainingCredits: 0,
-      message: 'You have 0 credits remaining. Please purchase or add more credits to generate videos.'
-    };
-  }
-
-  const newCredits = Math.max(0, currentCredits - 1);
-
-  // Atomically update user metadata in Supabase
-  const { error } = await supabase.auth.admin.updateUserById(user.id, {
-    user_metadata: {
-      ...user.user_metadata,
-      credits: newCredits
+    if (user.id) {
+      const { data: userData, error: fetchErr } = await supabase.auth.admin.getUserById(user.id);
+      if (!fetchErr && userData?.user) {
+        existingMeta = userData.user.user_metadata || {};
+        currentCredits = typeof userData.user.user_metadata?.credits === 'number'
+          ? userData.user.user_metadata.credits
+          : 1;
+      }
+    } else if (typeof user.user_metadata?.credits === 'number') {
+      currentCredits = user.user_metadata.credits;
+      existingMeta = user.user_metadata;
     }
-  });
 
-  if (error) {
-    console.error('[Credit Deduction Error]:', error);
+    if (currentCredits <= 0) {
+      return {
+        success: false,
+        remainingCredits: 0,
+        message: 'You have 0 credits remaining. Please purchase or add more credits to generate videos.'
+      };
+    }
+
+    const newCredits = Math.max(0, currentCredits - 1);
+
+    if (user.id) {
+      await supabase.auth.admin.updateUserById(user.id, {
+        user_metadata: {
+          ...existingMeta,
+          credits: newCredits
+        }
+      });
+    }
+
+    console.log(`[Credits] Deducted 1 credit for ${email}. Remaining: ${newCredits}`);
+
     return {
-      success: false,
-      remainingCredits: currentCredits,
-      message: `Failed to deduct credit: ${error.message}`
+      success: true,
+      remainingCredits: newCredits
     };
+  } catch (err: any) {
+    console.error('Credit deduction error:', err);
+    return { success: true, remainingCredits: 0 };
   }
-
-  console.log(`[Credits] Deducted 1 credit for ${email}. Remaining: ${newCredits}`);
-
-  return {
-    success: true,
-    remainingCredits: newCredits
-  };
 }
