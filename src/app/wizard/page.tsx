@@ -275,8 +275,45 @@ export default function WizardPage() {
     return true;
   });
 
+  const handleStartFresh = () => {
+    try {
+      localStorage.removeItem('retake_wizard_session');
+    } catch (e) {}
+    setVideoUrl('');
+    setSelectedVideo(null);
+    setTranscriptData([]);
+    setScenesData([]);
+    setPipelineStatus(null);
+    setTranscriptionStatus(null);
+    setDownloadStatus(null);
+    setDlPercent(0);
+    setBuildProgress({
+      percentage: 0,
+      current: 0,
+      total: 0,
+      message: '',
+      eta_seconds: 0,
+      status: 'idle',
+    });
+    setCurrentStep(1);
+  };
+
   const handleDownloadUrl = async () => {
     if (!videoUrl || isDownloadingUrl) return;
+
+    // Fresh generation: Clear previous video's transcripts, scenes, and statuses
+    setTranscriptData([]);
+    setScenesData([]);
+    setPipelineStatus(null);
+    setTranscriptionStatus(null);
+    setBuildProgress({
+      percentage: 0,
+      current: 0,
+      total: 0,
+      message: '',
+      eta_seconds: 0,
+      status: 'idle',
+    });
 
     const newJobId = `wizard_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     setWizardJobId(newJobId);
@@ -485,9 +522,19 @@ export default function WizardPage() {
         {/* Step 1: Config & Video Source */}
         {currentStep === 1 && (
           <div className="p-8 rounded-3xl bg-[#12141C] border border-white/10 space-y-8 shadow-sm">
-            <div>
-              <h2 className="text-xl font-bold text-white mb-1">Step 1: Configuration & Video Source</h2>
-              <p className="text-xs text-slate-400">Choose aspect ratio, visual motion graphics style, and paste your video.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold text-white mb-1">Step 1: Configuration & Video Source</h2>
+                <p className="text-xs text-slate-400">Choose aspect ratio, visual motion graphics style, and paste your video.</p>
+              </div>
+              <button
+                onClick={handleStartFresh}
+                className="px-3.5 py-1.5 rounded-full bg-[#1A1D2A] hover:bg-[#252A3C] border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer self-start sm:self-auto"
+                title="Clear previous session and start a completely new video"
+              >
+                <RefreshCw className="w-3 h-3 text-orange-400" />
+                <span>Start New Video</span>
+              </button>
             </div>
 
             {/* Resolution Selector */}
