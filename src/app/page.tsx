@@ -206,25 +206,29 @@ export default function CleanDarkMinimalLandingPage() {
                 <span className="text-xs text-slate-400">/ month</span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed mb-6">
-                Great for coaches and solo creators posting weekly videos.
+                For solo creators posting weekly high-retention short videos ($4.90/video).
               </p>
 
               <div className="space-y-3 py-6 border-t border-white/5 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span><strong>10 AI Videos / month</strong></span>
+                  <span><strong>10 Videos / month</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Instant AI Revisions</span>
+                  <span>1080p Resolution</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>1080p 60FPS High Quality</span>
+                  <span>1 Custom Brand Kit</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Zero Watermarks</span>
+                  <span>Manual Cloud Rendering</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Instant AI Revisions & Zero Watermarks</span>
                 </div>
               </div>
             </div>
@@ -237,91 +241,99 @@ export default function CleanDarkMinimalLandingPage() {
             </button>
           </div>
 
-          {/* Plan 2: Pro ($97/mo) - Highlighted */}
+          {/* Plan 2: Growth ($99/mo) - Highlighted */}
           <div className="p-8 rounded-3xl bg-[#181B26] text-white border-2 border-orange-500/80 flex flex-col justify-between shadow-2xl relative transform md:-translate-y-2">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-0.5 rounded-full shadow-sm">
               Most Popular
             </div>
 
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-orange-300 mb-1">Pro Growth 🔥</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-orange-300 mb-1">Growth 🔥</div>
               <div className="flex items-baseline gap-1 mb-3">
                 <span className="text-5xl font-extrabold text-white">
-                  ${isAnnual ? '79' : '97'}
+                  ${isAnnual ? '79' : '99'}
                 </span>
                 <span className="text-xs text-slate-400">/ month</span>
               </div>
               <p className="text-xs text-slate-300 leading-relaxed mb-6">
-                For creators posting 2 videos every single day on social media.
+                For active creators scaling organic social channels ($3.96/video).
               </p>
 
               <div className="space-y-3 py-6 border-t border-white/10 text-xs text-slate-200">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                  <span><strong>60 AI Videos / month</strong> (2/day)</span>
+                  <span><strong>25 Videos / month</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                  <span>Fast-Lane Priority Cloud Rendering</span>
+                  <span>1080p 60fps High Quality</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                  <span>Instant AI Natural Language Revisions</span>
+                  <span>3 Custom Brand Kits</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-orange-400 flex-shrink-0" />
-                  <span>Custom Fonts & Brand Colors</span>
+                  <span>Auto-Scheduling Engine</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-orange-400 flex-shrink-0" />
+                  <span>Fast-Lane Priority Rendering</span>
                 </div>
               </div>
             </div>
 
             <button 
-              onClick={() => handleOpenWaitlist('Pro: 60 Videos / mo ($97)')}
+              onClick={() => handleOpenWaitlist('Growth: 25 Videos / mo ($99)')}
               className="w-full py-3.5 rounded-full bg-orange-500 hover:bg-orange-400 text-xs font-bold text-white transition-all shadow-md cursor-pointer"
             >
-              Start Pro ($97)
+              Start Growth ($99)
             </button>
           </div>
 
-          {/* Plan 3: Agency ($297/mo) */}
+          {/* Plan 3: Scale ($199/mo) */}
           <div className="p-8 rounded-3xl bg-[#12141C] border border-white/10 flex flex-col justify-between hover:border-white/20 transition-all">
             <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Agency</div>
+              <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">Scale</div>
               <div className="flex items-baseline gap-1 mb-3">
                 <span className="text-4xl font-extrabold text-white">
-                  ${isAnnual ? '249' : '297'}
+                  ${isAnnual ? '159' : '199'}
                 </span>
                 <span className="text-xs text-slate-400">/ month</span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed mb-6">
-                For agencies and podcast studios handling multiple clients.
+                For agencies, production houses & podcast studios ($3.06/video).
               </p>
 
               <div className="space-y-3 py-6 border-t border-white/5 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span><strong>200 AI Videos / month</strong></span>
+                  <span><strong>65 Videos / month</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>5 Client Workspaces</span>
+                  <span>4K / High Bitrate Master Rendering</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Unlimited Brand Kits</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                  <span>Full API & Webhooks Access</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                   <span>Dedicated Cloud Instance</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span>Direct Webhook API Access</span>
-                </div>
               </div>
             </div>
 
             <button 
-              onClick={() => handleOpenWaitlist('Agency: 200 Videos / mo ($297)')}
+              onClick={() => handleOpenWaitlist('Scale: 65 Videos / mo ($199)')}
               className="w-full py-3 rounded-full bg-[#1E2230] hover:bg-[#282D40] text-xs font-bold text-white transition-all cursor-pointer"
             >
-              Choose Agency ($297)
+              Choose Scale ($199)
             </button>
           </div>
         </div>
