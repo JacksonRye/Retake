@@ -37,10 +37,13 @@ export default function SignUpPage() {
     setSuccessMessage(null);
 
     try {
+      const redirectUrl = `${typeof window !== 'undefined' ? window.location.origin : 'https://retake.cloud'}/auth/callback?next=/wizard`;
+
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             full_name: name,
             credits: 1, // 1 Free Test Credit granted on registration

@@ -37,6 +37,18 @@ export async function middleware(request: NextRequest) {
 
     const { pathname } = request.nextUrl;
 
+    // 0. Catch email confirmation code links and forward to /auth/callback
+    const authCode = request.nextUrl.searchParams.get('code');
+    if (authCode && pathname !== '/auth/callback') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/auth/callback';
+      url.searchParams.set('code', authCode);
+      if (!url.searchParams.has('next')) {
+        url.searchParams.set('next', '/wizard');
+      }
+      return NextResponse.redirect(url);
+    }
+
     // 1. Protected routes: /wizard and /studio require a logged-in user
     if ((pathname.startsWith('/wizard') || pathname.startsWith('/studio')) && !user) {
       const url = request.nextUrl.clone();
