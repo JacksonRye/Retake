@@ -39,9 +39,8 @@ function StudioContent() {
   const initialStyle = searchParams?.get('style') || 'CHRON_STYLE_100';
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [currentStyleCode, setCurrentStyleCode] = useState(initialStyle);
-  const [totalFrames, setTotalFrames] = useState(1801);
-  const [activeScenes, setActiveScenes] = useState<any[]>([]);
+  const [renderedVideoUrl, setRenderedVideoUrl] = useState<string | null>(null);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
 
   const [videoInputUrl, setVideoInputUrl] = useState('');
   const [selectedStyleCode, setSelectedStyleCode] = useState(initialStyle);
@@ -49,10 +48,6 @@ function StudioContent() {
   const [generationStage, setGenerationStage] = useState('');
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
-
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportProgress, setExportProgress] = useState(0);
-  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -65,166 +60,97 @@ function StudioContent() {
     });
   }, [router]);
 
-  useEffect(() => {
-    async function loadActiveScenes() {
-      try {
-        const res = await fetch(`/api/scenetable/active?t=${Date.now()}`, { 
-          cache: 'no-store',
-          headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
-        });
-        const data = await res.json();
-        if (data && data.scenes && data.scenes.length > 0) {
-          setActiveScenes(data.scenes);
-          if (data.style) {
-            setCurrentStyleCode(data.style);
-            setSelectedStyleCode(data.style);
-          }
-          if (data.total_frames) {
-            setTotalFrames(data.total_frames);
-          }
-        }
-      } catch (e) {
-        // fallback
-      }
-    }
-    loadActiveScenes();
-  }, [searchParams]);
-
   const handleGenerateVideo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!videoInputUrl.trim() || isGenerating) return;
 
+    const jobId = `studio_lead_${Date.now()}`;
+    setActiveJobId(jobId);
     setIsGenerating(true);
     setGenerationError(null);
-    setGenerationProgress(10);
-    setGenerationStage('📥 Downloading video...');
+    setGenerationProgress(5);
+    setGenerationStage('Dispatching to Oracle Cloud Worker...');
 
     try {
-      const dlRes = await fetch('/api/download', {
+      const res = await fetch('/api/v1/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url: videoInputUrl.trim(),
-          duration: 60,
-          isDemoMode: false,
+          jobId,
+          videoUrl: videoInputUrl.trim(),
           styleCode: selectedStyleCode,
+          stylePrompt: '',
+          webhookUrl: '',
         }),
       });
-      const dlData = await dlRes.json();
-      if (!dlRes.ok || dlData.error) {
-        throw new Error(dlData.error || 'Video download failed');
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Failed to dispatch rendering job');
       }
 
-      setGenerationProgress(35);
-      setGenerationStage('🎙️ Transcribing speech with Whisper...');
-      const trRes = await fetch('/api/transcribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
-      const trData = await trRes.json();
-      if (!trRes.ok || trData.error) {
-        throw new Error(trData.error || 'Speech transcription failed');
-      }
+      setGenerationProgress(15);
+      setGenerationStage('Job queued on Oracle Worker...');
 
-      setGenerationProgress(65);
-      setGenerationStage(`⚡ Generating full-screen ${selectedStyleCode} animations...`);
-      const pipeRes = await fetch('/api/pipeline', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          style: selectedStyleCode,
-          pacing: 'fast',
-          resolution: '9:16',
-        }),
-      });
-      const pipeData = await pipeRes.json();
-      if (!pipeRes.ok || pipeData.error) {
-        throw new Error(pipeData.error || 'AI Scene generation failed');
-      }
+      const eventSource = new EventSource(`/api/v1/jobs/${jobId}/stream`);
 
-      setGenerationProgress(85);
-      setGenerationStage('🛠️ Compiling master timeline...');
-      
-      let attempts = 0;
-      while (attempts < 60) {
-        await new Promise((r) => setTimeout(r, 2000));
-        attempts++;
+      eventSource.onmessage = (event) => {
         try {
-          const statusRes = await fetch('/api/build/status?t=' + Date.now());
-          const statusData = await statusRes.json();
-          if (statusData.percentage) {
-            setGenerationProgress(Math.min(95, 65 + Math.round(statusData.percentage * 0.3)));
-          }
-          if (statusData.status === 'completed' || (statusData.percentage && statusData.percentage >= 100)) {
-            break;
-          }
-        } catch {
-          // ignore
-        }
-      }
+          const payload = JSON.parse(event.data);
 
-      setGenerationProgress(100);
-      setGenerationStage('✨ Video ready!');
-      
-      setTimeout(() => {
-        setIsGenerating(false);
-        setVideoInputUrl('');
-        window.location.href = `/studio?t=${Date.now()}&style=${selectedStyleCode}`;
-      }, 1200);
+          if (payload.stage) {
+            setGenerationStage(payload.stage);
+          }
+          if (typeof payload.progress === 'number') {
+            setGenerationProgress(payload.progress);
+          }
+
+          const finalUrl = payload.videoUrl || payload.video_url || (payload.data && payload.data.videoUrl);
+          if (finalUrl) {
+            setRenderedVideoUrl(finalUrl);
+            setIsGenerating(false);
+            setGenerationProgress(100);
+            setGenerationStage('✨ Video rendered & uploaded to R2!');
+            eventSource.close();
+          } else if (payload.stage === 'finished' || payload.status === 'completed') {
+            setGenerationProgress(100);
+            setIsGenerating(false);
+            eventSource.close();
+          } else if (payload.status === 'failed' || payload.stage === 'error') {
+            setGenerationError(payload.error || 'Rendering job failed');
+            setIsGenerating(false);
+            eventSource.close();
+          }
+        } catch (err) {
+          console.error('SSE parse error:', err);
+        }
+      };
+
+      eventSource.onerror = () => {
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await fetch(`/api/v1/jobs/${jobId}`);
+            const statusData = await statusRes.json();
+            if (statusData.progress) setGenerationProgress(statusData.progress);
+            if (statusData.stage) setGenerationStage(statusData.stage);
+            
+            const r2Url = statusData.videoUrl || statusData.video_url || (statusData.data && statusData.data.videoUrl);
+            if (r2Url || statusData.status === 'completed' || statusData.stage === 'finished') {
+              clearInterval(pollInterval);
+              if (r2Url) setRenderedVideoUrl(r2Url);
+              setIsGenerating(false);
+              setGenerationProgress(100);
+            }
+          } catch {
+            // ignore
+          }
+        }, 3000);
+      };
 
     } catch (err: any) {
       setGenerationError(err.message || 'Generation failed');
       setIsGenerating(false);
     }
-  };
-
-  const handleExport4K = () => {
-    if (isExporting) return;
-    setIsExporting(true);
-    setExportProgress(0);
-    setStatusMessage('🎬 Rendering 4K Master Video...');
-
-    const eventSource = new EventSource('/api/export?comp=FullEditPixel');
-
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.status === 'rendering') {
-          setExportProgress(data.percent);
-        } else if (data.status === 'complete') {
-          setExportProgress(100);
-          setStatusMessage('🎉 Render Complete! Downloading video...');
-          eventSource.close();
-
-          try {
-            const downloadUrl = data.downloadUrl || '/api/export/download';
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.setAttribute('download', `Retake_4K_${Date.now()}.mp4`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          } catch (dlErr) {
-            console.error('Failed to trigger automatic download:', dlErr);
-          }
-
-          setTimeout(() => setIsExporting(false), 2000);
-        } else if (data.status === 'error') {
-          setStatusMessage(`⚠️ Render Error: ${data.message}`);
-          eventSource.close();
-          setIsExporting(false);
-        }
-      } catch (err) {
-        console.error('Failed to parse SSE data:', err);
-      }
-    };
-
-    eventSource.onerror = (err) => {
-      console.error('SSE Error:', err);
-      eventSource.close();
-      setIsExporting(false);
-    };
   };
 
   if (isAuthenticated === null) {
@@ -256,6 +182,13 @@ function StudioContent() {
 
         <div className="flex items-center gap-3">
           <Link
+            href="/console"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-xs font-medium text-slate-300 transition-all"
+          >
+            <Film className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Console</span>
+          </Link>
+          <Link
             href="/sampler"
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#141722] hover:bg-[#1C202E] border border-white/10 text-xs font-medium text-slate-300 transition-all"
           >
@@ -272,14 +205,27 @@ function StudioContent() {
       </header>
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-8 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12">
-        <div className="w-[300px] xs:w-[340px] sm:w-[380px] h-[533px] xs:h-[604px] sm:h-[675px] bg-black rounded-[32px] border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden relative flex-shrink-0">
-          <CleanPlayer
-            activeComp="FullEditPixel"
-            totalFrames={totalFrames}
-            scenes={activeScenes}
-            styleCode={currentStyleCode}
-            videoUrl="/api/video/stream"
-          />
+        <div className="w-[300px] xs:w-[340px] sm:w-[380px] h-[533px] xs:h-[604px] sm:h-[675px] bg-black rounded-[32px] border border-white/10 shadow-[0_25px_70px_rgba(0,0,0,0.85)] overflow-hidden relative flex-shrink-0 flex items-center justify-center">
+          {renderedVideoUrl ? (
+            <video
+              src={renderedVideoUrl}
+              controls
+              autoPlay
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center bg-[#07080B] text-slate-500 p-6 text-center space-y-3">
+              <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-slate-400">
+                <Film className="w-8 h-8" />
+              </div>
+              <div className="text-sm font-bold text-white">No Video Loaded</div>
+              <div className="text-xs text-slate-400 max-w-[220px]">
+                Paste a video URL and pick a style on the right, then click Generate.
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="w-full max-w-md bg-[#0D0F15] border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
@@ -289,7 +235,7 @@ function StudioContent() {
               <span>AI Video Generator</span>
             </h1>
             <p className="text-xs text-slate-400">
-              Feed any video URL and style code to build full-screen motion graphics.
+              Dispatches directly to the Cloud Pipeline & streams to Console.
             </p>
           </div>
 
@@ -359,7 +305,7 @@ function StudioContent() {
               {isGenerating ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Generating Video...</span>
+                  <span>Rendering Video...</span>
                 </>
               ) : (
                 <>
@@ -370,43 +316,20 @@ function StudioContent() {
             </button>
           </form>
 
-          <div className="pt-4 border-t border-white/5 space-y-3">
-            {isExporting && (
-              <div className="bg-[#141722] border border-white/10 rounded-2xl p-3.5 text-xs space-y-2">
-                <div className="flex justify-between items-center text-[11px] font-mono text-slate-300">
-                  <span className="flex items-center gap-1.5">
-                    <RefreshCw className="w-3 h-3 text-orange-400 animate-spin" />
-                    <span>{statusMessage}</span>
-                  </span>
-                  <span className="text-orange-400 font-bold">{exportProgress}%</span>
-                </div>
-                <div className="w-full h-1.5 bg-[#1C202E] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-150 rounded-full"
-                    style={{ width: `${exportProgress}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <button
-              onClick={handleExport4K}
-              disabled={isExporting || isGenerating}
-              className="w-full py-3 bg-white hover:bg-slate-200 disabled:opacity-50 text-black font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
-            >
-              {isExporting ? (
-                <>
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  <span>Exporting ({exportProgress}%)...</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Export 4K Master Video</span>
-                </>
-              )}
-            </button>
-          </div>
+          {renderedVideoUrl && (
+            <div className="pt-4 border-t border-white/5">
+              <a
+                href={renderedVideoUrl}
+                target="_blank"
+                rel="noreferrer"
+                download
+                className="w-full py-3 bg-white hover:bg-slate-200 text-black font-bold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download Master Video (.mp4)</span>
+              </a>
+            </div>
+          )}
         </div>
       </main>
     </div>
