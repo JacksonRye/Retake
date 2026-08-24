@@ -108,9 +108,109 @@ export default function WizardPage() {
   const [scenesData, setScenesData] = useState<SceneItem[]>([]);
   const [wizardJobId, setWizardJobId] = useState<string>('');
 
+  const [buildProgress, setBuildProgress] = useState<{
+    percentage: number;
+    current: number;
+    total: number;
+    message: string;
+    eta_seconds: number;
+    status: string;
+  }>({
+    percentage: 0,
+    current: 0,
+    total: 0,
+    message: '',
+    eta_seconds: 0,
+    status: 'idle',
+  });
+
   // Auth & Credit State
   const [user, setUser] = useState<any>(null);
   const [userCredits, setUserCredits] = useState<number>(1);
+
+  // 1. Restore persistent wizard session on mount (survives refreshes, reboots, and log-outs)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('retake_wizard_session');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.currentStep) setCurrentStep(parsed.currentStep);
+        if (parsed.videoUrl) setVideoUrl(parsed.videoUrl);
+        if (parsed.styleCode) setStyleCode(parsed.styleCode);
+        if (parsed.pacing) setPacing(parsed.pacing);
+        if (parsed.resolution) setResolution(parsed.resolution);
+        if (parsed.transcriptData && parsed.transcriptData.length > 0) setTranscriptData(parsed.transcriptData);
+        if (parsed.scenesData && parsed.scenesData.length > 0) setScenesData(parsed.scenesData);
+        if (parsed.wizardJobId) setWizardJobId(parsed.wizardJobId);
+        if (parsed.pipelineStatus) setPipelineStatus(parsed.pipelineStatus);
+        if (parsed.isBuildingPipeline) setIsBuildingPipeline(true);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  // 2. Save active wizard session to localStorage whenever state changes
+  useEffect(() => {
+    try {
+      const session = {
+        currentStep,
+        videoUrl,
+        styleCode,
+        pacing,
+        resolution,
+        transcriptData,
+        scenesData,
+        wizardJobId,
+        pipelineStatus,
+        isBuildingPipeline,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem('retake_wizard_session', JSON.stringify(session));
+    } catch (e) {
+      console.error(e);
+    }
+  }, [currentStep, videoUrl, styleCode, pacing, resolution, transcriptData, scenesData, wizardJobId, pipelineStatus, isBuildingPipeline]);
+
+  // 3. Real-time VPS Progress & ETA Polling
+  useEffect(() => {
+    let pollInterval: any = null;
+    if (isBuildingPipeline || buildProgress.status === 'building') {
+      pollInterval = setInterval(async () => {
+        try {
+          const res = await fetch(`/api/build/status?t=${Date.now()}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.percentage !== undefined) {
+              setBuildProgress({
+                percentage: data.percentage || 0,
+                current: data.current || 0,
+                total: data.total || 0,
+                message: data.message || '',
+                eta_seconds: data.eta_seconds || 0,
+                status: data.status || 'building',
+              });
+
+              if (data.status === 'complete' && data.percentage === 100) {
+                setIsBuildingPipeline(false);
+                setPipelineStatus(data.message || '✅ Scene generation complete!');
+                // Auto-advance to Studio
+                setTimeout(() => {
+                  router.push(`/studio?t=${Date.now()}&style=${styleCode}`);
+                }, 1200);
+              }
+            }
+          }
+        } catch (e) {
+          // ignore
+        }
+      }, 700);
+    }
+
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+    };
+  }, [isBuildingPipeline, buildProgress.status, styleCode, router]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -671,8 +771,57 @@ export default function WizardPage() {
               </button>
             </div>
 
-            {pipelineStatus && (
-              <div className="text-[11px] font-mono text-slate-300 bg-[#0E1017] border border-white/10 p-3 rounded-xl">
+            {/* Dynamic Real-time Progress Bar & ETA Card */}
+            {(isBuildingPipeline || buildProgress.percentage > 0) && (
+              <div className="p-5 rounded-2xl bg-[#0E1017] border border-orange-500/30 space-y-3.5 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
+
+                {/* Progress Header & ETA */}
+                <div className="flex items-center justify-between text-xs relative z-10">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-orange-400 animate-ping" />
+                    <span className="font-bold text-white tracking-wide">
+                      {buildProgress.current > 0
+                        ? `Generating Scene ${buildProgress.current} of ${buildProgress.total || 7}`
+                        : 'Constructing Scene Metaphors & TSX Code...'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    {buildProgress.eta_seconds > 0 && (
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-950/70 border border-amber-500/40 text-amber-300 font-mono text-[11px] font-semibold">
+                        <Clock className="w-3.5 h-3.5 text-amber-400" />
+                        <span>~{buildProgress.eta_seconds}s left</span>
+                      </div>
+                    )}
+                    <span className="font-mono font-black text-orange-400 text-sm">
+                      {buildProgress.percentage}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Animated Progress Bar */}
+                <div className="w-full bg-[#181B26] rounded-full h-3 border border-white/10 overflow-hidden p-0.5 relative">
+                  <div
+                    className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-emerald-400 rounded-full transition-all duration-500 relative"
+                    style={{ width: `${Math.max(6, buildProgress.percentage)}%` }}
+                  >
+                    <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                  </div>
+                </div>
+
+                {/* Live Activity Line */}
+                <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-0.5">
+                  <span className="truncate">⚡ {buildProgress.message || pipelineStatus || 'Gemini 3.6 Flash constructing scene metaphors...'}</span>
+                  <span className="text-[10px] text-emerald-400/80 font-sans shrink-0 ml-3 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Live VPS Sync
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {pipelineStatus && !isBuildingPipeline && buildProgress.percentage === 0 && (
+              <div className="text-[11px] font-mono text-slate-300 bg-[#0E1017] border border-white/10 p-3.5 rounded-xl">
                 {pipelineStatus}
               </div>
             )}
