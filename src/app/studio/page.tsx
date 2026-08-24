@@ -47,6 +47,8 @@ function StudioContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStage, setGenerationStage] = useState('');
   const [generationError, setGenerationError] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<{ email?: string; id?: string } | null>(null);
+  const [userHistoryJobs, setUserHistoryJobs] = useState<any[]>([]);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [showCompletionNotification, setShowCompletionNotification] = useState(false);
 
@@ -74,13 +76,20 @@ function StudioContent() {
             if (r2Url) {
               setRenderedVideoUrl(r2Url);
               setShowCompletionNotification(true);
-              try {
-                localStorage.setItem('retake_rendered_video', r2Url);
-              } catch (e) {}
             }
             setIsGenerating(false);
             setGenerationProgress(100);
             setGenerationStage('✨ Video rendered & uploaded to Cloudflare R2!');
+
+            // Refresh user history list
+            if (currentUser?.email) {
+              fetch(`/api/v1/console/events?userEmail=${encodeURIComponent(currentUser.email)}`)
+                .then((r) => r.json())
+                .then((d) => {
+                  if (d.jobs) setUserHistoryJobs(d.jobs);
+                })
+                .catch(() => {});
+            }
           } else if (statusData.status === 'failed') {
             clearInterval(pollInterval);
             setGenerationError(statusData.error || 'Rendering job failed');
@@ -114,9 +123,7 @@ function StudioContent() {
           if (finalUrl) {
             clearInterval(pollInterval);
             setRenderedVideoUrl(finalUrl);
-            try {
-              localStorage.setItem('retake_rendered_video', finalUrl);
-            } catch (e) {}
+            setShowCompletionNotification(true);
             setIsGenerating(false);
             setGenerationProgress(100);
             setGenerationStage('✨ Video rendered & uploaded to Cloudflare R2!');
@@ -142,40 +149,43 @@ function StudioContent() {
         router.replace('/login?next=/studio');
       } else {
         setIsAuthenticated(true);
+        setCurrentUser({ email: user.email, id: user.id });
+
+        // 1. Fetch live jobs belonging STRICTLY to this authenticated user
+        fetch(`/api/v1/console/events?userEmail=${encodeURIComponent(user.email || '')}`)
+          .then((res) => res.json())
+          .then((data) => {
+            const jobs = data.jobs || [];
+            setUserHistoryJobs(jobs);
+
+            if (jobs.length > 0) {
+              const activeJob = jobs.find((j: any) => j.status === 'processing' || j.status === 'queued');
+              const latestCompletedJob = jobs.find((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
+
+              if (activeJob) {
+                setActiveJobId(activeJob.jobId);
+                if (activeJob.videoUrl) setVideoInputUrl(activeJob.videoUrl);
+                if (activeJob.styleCode) setSelectedStyleCode(activeJob.styleCode);
+                setIsGenerating(true);
+                if (activeJob.message) setGenerationStage(activeJob.message.replace(/^\[Remotion\]\s*/, '🎬 '));
+                else if (activeJob.stage) setGenerationStage(activeJob.stage);
+                if (typeof activeJob.progress === 'number') setGenerationProgress(activeJob.progress);
+                subscribeToJobStream(activeJob.jobId);
+              } else if (latestCompletedJob) {
+                const finalR2 = latestCompletedJob.videoUrl_r2 || latestCompletedJob.videoUrl;
+                if (finalR2) {
+                  setRenderedVideoUrl(finalR2);
+                  if (latestCompletedJob.videoUrl) setVideoInputUrl(latestCompletedJob.videoUrl);
+                  if (latestCompletedJob.styleCode) setSelectedStyleCode(latestCompletedJob.styleCode);
+                }
+              }
+            }
+          })
+          .catch((err) => {
+            console.warn('Could not restore user jobs:', err);
+          });
       }
     });
-
-    // 1. Fetch live jobs directly from Cloud Worker API for 100% database persistence
-    fetch('/api/v1/console/events')
-      .then((res) => res.json())
-      .then((data) => {
-        const jobs = data.jobs || [];
-        if (jobs.length > 0) {
-          const activeJob = jobs.find((j: any) => j.status === 'processing' || j.status === 'queued');
-          const latestCompletedJob = jobs.find((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
-
-          if (activeJob) {
-            setActiveJobId(activeJob.jobId);
-            if (activeJob.videoUrl) setVideoInputUrl(activeJob.videoUrl);
-            if (activeJob.styleCode) setSelectedStyleCode(activeJob.styleCode);
-            setIsGenerating(true);
-            if (activeJob.message) setGenerationStage(activeJob.message.replace(/^\[Remotion\]\s*/, '🎬 '));
-            else if (activeJob.stage) setGenerationStage(activeJob.stage);
-            if (typeof activeJob.progress === 'number') setGenerationProgress(activeJob.progress);
-            subscribeToJobStream(activeJob.jobId);
-          } else if (latestCompletedJob) {
-            const finalR2 = latestCompletedJob.videoUrl_r2 || latestCompletedJob.videoUrl;
-            if (finalR2) {
-              setRenderedVideoUrl(finalR2);
-              if (latestCompletedJob.videoUrl) setVideoInputUrl(latestCompletedJob.videoUrl);
-              if (latestCompletedJob.styleCode) setSelectedStyleCode(latestCompletedJob.styleCode);
-            }
-          }
-        }
-      })
-      .catch((err) => {
-        console.warn('Could not restore from worker events:', err);
-      });
   }, [router]);
 
   const handleGenerateVideo = async (e: React.FormEvent) => {
@@ -189,16 +199,6 @@ function StudioContent() {
     setGenerationProgress(5);
     setGenerationStage('Dispatching to Oracle Cloud Worker...');
 
-    // Save job state to localStorage immediately for background persistence
-    try {
-      localStorage.setItem('retake_last_job', JSON.stringify({
-        jobId,
-        videoUrl: videoInputUrl.trim(),
-        styleCode: selectedStyleCode,
-        createdAt: Date.now(),
-      }));
-    } catch (e) {}
-
     try {
       const res = await fetch('/api/v1/jobs', {
         method: 'POST',
@@ -208,6 +208,8 @@ function StudioContent() {
           videoUrl: videoInputUrl.trim(),
           styleCode: selectedStyleCode,
           stylePrompt: '',
+          userEmail: currentUser?.email,
+          userId: currentUser?.id,
           webhookUrl: '',
         }),
       });
@@ -420,6 +422,81 @@ function StudioContent() {
                 <Download className="w-3.5 h-3.5" />
                 <span>Download Master Video (.mp4)</span>
               </a>
+            </div>
+          )}
+
+          {/* User Specific Generation History */}
+          {userHistoryJobs.length > 0 && (
+            <div className="pt-4 border-t border-white/10 space-y-3">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                <span className="flex items-center gap-1.5">
+                  <Film className="w-3.5 h-3.5 text-orange-400" />
+                  <span>Your Video History</span>
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  {userHistoryJobs.length} video{userHistoryJobs.length === 1 ? '' : 's'}
+                </span>
+              </div>
+
+              <div className="max-h-48 overflow-y-auto space-y-2 pr-1 scrollbar-thin scrollbar-thumb-white/10">
+                {userHistoryJobs.map((job) => {
+                  const r2 = job.videoUrl_r2 || job.videoUrl;
+                  const isCurrent = r2 && r2 === renderedVideoUrl;
+                  const styleInfo = POPULAR_STYLES.find((s) => s.code === job.styleCode);
+
+                  return (
+                    <div
+                      key={job.jobId}
+                      className={`p-2.5 rounded-xl border text-xs flex items-center justify-between transition-all ${
+                        isCurrent
+                          ? 'bg-orange-950/20 border-orange-500/40 text-orange-200'
+                          : 'bg-white/[0.02] border-white/5 text-slate-300 hover:bg-white/[0.05]'
+                      }`}
+                    >
+                      <div className="space-y-0.5 max-w-[170px] truncate">
+                        <div className="font-bold text-[11px] text-white truncate">
+                          {styleInfo?.name || job.styleCode}
+                        </div>
+                        <div className="text-[10px] text-slate-500 font-mono">
+                          {new Date((job.createdAt || 0) * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        {r2 ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setRenderedVideoUrl(r2)}
+                              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition-all"
+                            >
+                              <Play className="w-2.5 h-2.5 fill-current" />
+                              <span>Play</span>
+                            </button>
+                            <a
+                              href={r2}
+                              target="_blank"
+                              rel="noreferrer"
+                              download
+                              className="p-1 rounded-lg bg-emerald-950/40 text-emerald-400 hover:bg-emerald-900/60 border border-emerald-800/40 cursor-pointer"
+                              title="Download MP4"
+                            >
+                              <Download className="w-3 h-3" />
+                            </a>
+                          </>
+                        ) : job.status === 'processing' || job.status === 'queued' ? (
+                          <span className="px-2 py-0.5 rounded-full bg-orange-950/60 border border-orange-800/40 text-orange-400 text-[10px] font-mono flex items-center gap-1 animate-pulse">
+                            <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+                            Rendering
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-red-400 font-mono">Failed</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

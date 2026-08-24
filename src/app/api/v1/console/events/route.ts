@@ -4,11 +4,18 @@ import path from 'path';
 
 const PIPELINE_WORKER_URL = process.env.PIPELINE_WORKER_URL || 'http://132.145.72.176:8000';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const userEmail = searchParams.get('userEmail') || searchParams.get('user_email');
+
     if (PIPELINE_WORKER_URL) {
       try {
-        const res = await fetch(`${PIPELINE_WORKER_URL}/api/v1/console/events`, {
+        const workerUrl = userEmail 
+          ? `${PIPELINE_WORKER_URL}/api/v1/console/events?userEmail=${encodeURIComponent(userEmail)}`
+          : `${PIPELINE_WORKER_URL}/api/v1/console/events`;
+
+        const res = await fetch(workerUrl, {
           cache: 'no-store',
           signal: AbortSignal.timeout(3500),
         });

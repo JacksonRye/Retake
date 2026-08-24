@@ -19,12 +19,18 @@ export async function POST(request: Request) {
       webhookUrl,
       webhook_url,
       webhookSecret,
+      user_email,
+      userEmail,
+      user_id,
+      userId,
     } = body;
 
     const finalVideoUrl = videoUrl || video_url;
     const finalJobId = jobId || job_id || leadId || lead_id || `job_${Date.now()}`;
     const finalStyle = styleCode || style || 'CHRON_STYLE_100';
     const finalWebhookUrl = webhookUrl || webhook_url;
+    const finalUserEmail = userEmail || user_email;
+    const finalUserId = userId || user_id;
     const finalDuration = Math.min(60, Number(clipDuration || clip_duration) || 60);
 
     if (!finalVideoUrl || typeof finalVideoUrl !== 'string') {
@@ -35,7 +41,7 @@ export async function POST(request: Request) {
     }
 
     if (PIPELINE_WORKER_URL) {
-      console.log(`\n🚀 [POST /api/v1/jobs] Forwarding Job ${finalJobId} to Cloud Worker: ${PIPELINE_WORKER_URL}`);
+      console.log(`\n🚀 [POST /api/v1/jobs] Forwarding Job ${finalJobId} for ${finalUserEmail || 'anonymous'} to Cloud Worker: ${PIPELINE_WORKER_URL}`);
       try {
         const workerRes = await fetch(`${PIPELINE_WORKER_URL}/api/v1/jobs`, {
           method: 'POST',
@@ -51,6 +57,10 @@ export async function POST(request: Request) {
             jobId: finalJobId,
             webhook_url: finalWebhookUrl,
             webhookUrl: finalWebhookUrl,
+            user_email: finalUserEmail,
+            userEmail: finalUserEmail,
+            user_id: finalUserId,
+            userId: finalUserId,
             clip_duration: finalDuration,
             clipDuration: finalDuration,
           }),
