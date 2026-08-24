@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   },
 };
 
+import GlobalNotificationProvider from "@/components/GlobalNotificationProvider";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
@@ -36,7 +38,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/retake_logo.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/logo.jpg" />
       </head>
-      <body className="min-h-full flex flex-col bg-[#0A0B0E] text-[#F3F4F6]">{children}</body>
+      <body className="min-h-full flex flex-col bg-[#0A0B0E] text-[#F3F4F6]">
+        <GlobalNotificationProvider>
+          {children}
+        </GlobalNotificationProvider>
+      </body>
     </html>
   );
 }

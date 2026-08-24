@@ -507,7 +507,7 @@ export default function ConsolePage() {
                       </div>
 
                       <div className="p-3 rounded-2xl bg-[#0E1017] border border-white/5 space-y-1">
-                        <div className="text-[11px] text-slate-500 font-medium">Cloudflare R2 Output:</div>
+                        <div className="text-[11px] text-slate-500 font-medium">Output Delivery / Remotion Studio:</div>
                         {job.videoUrl_r2 ? (
                           <a
                             href={job.videoUrl_r2}
@@ -518,9 +518,22 @@ export default function ConsolePage() {
                             <span className="truncate">{job.videoUrl_r2}</span>
                             <ExternalLink className="w-3 h-3 flex-shrink-0" />
                           </a>
+                        ) : job.status === 'completed' ? (
+                          <div className="flex items-center justify-between">
+                            <span className="text-emerald-400 font-mono text-[11px] flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Ready in Studio
+                            </span>
+                            <Link
+                              href={`/studio?style=${job.styleCode || 'CHRON_STYLE_100'}`}
+                              className="text-orange-400 hover:text-orange-300 font-bold text-[11px] flex items-center gap-0.5 ml-2"
+                            >
+                              <span>Open Studio</span>
+                              <ExternalLink className="w-2.5 h-2.5" />
+                            </Link>
+                          </div>
                         ) : (
                           <span className="text-slate-500 font-mono text-[11px]">
-                            {job.status === 'failed' ? 'Rendering Failed' : 'Pending upload...'}
+                            {job.status === 'failed' ? 'Rendering Failed' : 'Compiling scenes on VPS...'}
                           </span>
                         )}
                       </div>
