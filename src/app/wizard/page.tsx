@@ -24,6 +24,7 @@ import {
   Check, 
   Search, 
   Star, 
+  AlertCircle,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -705,13 +706,20 @@ export default function WizardPage() {
                 />
                 <button
                   onClick={handleDownloadUrl}
-                  disabled={isDownloadingUrl || !videoUrl.trim()}
-                  className="px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-400 disabled:opacity-50 text-xs font-bold text-white transition-all flex items-center gap-1.5 cursor-pointer"
+                  disabled={isDownloadingUrl || !videoUrl.trim() || userCredits <= 0}
+                  className="px-5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-400 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-bold text-white transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   {isDownloadingUrl ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <UploadCloud className="w-3.5 h-3.5" />}
                   <span>Ingest</span>
                 </button>
               </div>
+
+              {userCredits <= 0 && (
+                <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-red-950/40 border border-red-800/40 text-red-300 text-xs font-semibold">
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                  <span>You have 0 video credits remaining. Please add credits to generate new videos.</span>
+                </div>
+              )}
 
               {downloadStatus && (
                 <div className="text-[11px] font-mono text-orange-300 bg-orange-950/30 border border-orange-800/40 p-3 rounded-xl">
@@ -724,7 +732,8 @@ export default function WizardPage() {
             <div className="flex justify-end pt-4 border-t border-white/5">
               <button
                 onClick={() => setCurrentStep(2)}
-                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 text-black text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
+                disabled={userCredits <= 0}
+                className="px-6 py-3 rounded-full bg-white hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed text-black text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
               >
                 <span>Continue to Transcription</span>
                 <ArrowRight className="w-3.5 h-3.5" />

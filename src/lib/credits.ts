@@ -80,13 +80,11 @@ export async function deductCreditIfRequired(user: { id: string; email: string; 
   }
 
   if (!user || !user.id || !user.email) {
-    // In local dev without session, allow pass-through
-    return { success: true, remainingCredits: 999999, message: 'Local dev pass-through' };
-  }
-
-  const email = user.email.toLowerCase();
-  if (ADMIN_EMAILS.includes(email)) {
-    return { success: true, remainingCredits: 999999, message: 'Admin unlimited pass-through' };
+    return {
+      success: false,
+      remainingCredits: 0,
+      message: 'Authentication required. Please log in to use video credits.'
+    };
   }
 
   const supabase = createAdminClient();
@@ -98,11 +96,11 @@ export async function deductCreditIfRequired(user: { id: string; email: string; 
     return {
       success: false,
       remainingCredits: 0,
-      message: 'You have 0 credits remaining. Please upgrade or purchase more credits.'
+      message: 'You have 0 credits remaining. Please purchase or add more credits to generate videos.'
     };
   }
 
-  const newCredits = currentCredits - 1;
+  const newCredits = Math.max(0, currentCredits - 1);
 
   // Atomically update user metadata in Supabase
   const { error } = await supabase.auth.admin.updateUserById(user.id, {

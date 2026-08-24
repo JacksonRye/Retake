@@ -2,12 +2,24 @@ import { NextResponse } from 'next/server';
 import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@/lib/supabase/server';
+import { deductCreditIfRequired } from '@/lib/credits';
 
 const PIPELINE_WORKER_URL = process.env.PIPELINE_WORKER_URL || 'http://132.145.72.176:8000';
 
 export async function POST(request: Request) {
   try {
-    const { url, isDemoMode = true, duration = 60, jobId, styleCode } = await request.json();
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const creditResult = await deductCreditIfRequired(user);
+    if (!creditResult.success) {
+      return NextResponse.json({
+        error: creditResult.message || 'You have 0 credits remaining. Please add credits to generate videos.'
+      }, { status: 402 });
+    }
+
+    const { url, isDemoMode = false, duration = 60, jobId, styleCode } = await request.json();
 
     if (!url || typeof url !== 'string') {
       return NextResponse.json({ error: 'Valid video URL is required.' }, { status: 400 });
