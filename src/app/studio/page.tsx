@@ -87,7 +87,8 @@ function StudioContent() {
               fetch(`/api/v1/console/events?userEmail=${encodeURIComponent(currentUser.email)}`)
                 .then((r) => r.json())
                 .then((d) => {
-                  if (d.jobs) setUserHistoryJobs(d.jobs);
+                  const cJobs = (d.jobs || []).filter((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
+                  setUserHistoryJobs(cJobs);
                 })
                 .catch(() => {});
             }
@@ -157,28 +158,33 @@ function StudioContent() {
           .then((res) => res.json())
           .then((data) => {
             const jobs = data.jobs || [];
-            setUserHistoryJobs(jobs);
 
-            if (jobs.length > 0) {
-              const activeJob = jobs.find((j: any) => j.status === 'processing' || j.status === 'queued');
-              const latestCompletedJob = jobs.find((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
+            // History contains ONLY finished, playable videos
+            const completedJobs = jobs.filter((j: any) => j.status === 'completed' && (j.videoUrl_r2 || j.videoUrl));
+            setUserHistoryJobs(completedJobs);
 
-              if (activeJob) {
-                setActiveJobId(activeJob.jobId);
-                if (activeJob.videoUrl) setVideoInputUrl(activeJob.videoUrl);
-                if (activeJob.styleCode) setSelectedStyleCode(activeJob.styleCode);
-                setIsGenerating(true);
-                if (activeJob.message) setGenerationStage(activeJob.message.replace(/^\[Remotion\]\s*/, '🎬 '));
-                else if (activeJob.stage) setGenerationStage(activeJob.stage);
-                if (typeof activeJob.progress === 'number') setGenerationProgress(activeJob.progress);
-                subscribeToJobStream(activeJob.jobId);
-              } else if (latestCompletedJob) {
-                const finalR2 = latestCompletedJob.videoUrl_r2 || latestCompletedJob.videoUrl;
-                if (finalR2) {
-                  setRenderedVideoUrl(finalR2);
-                  if (latestCompletedJob.videoUrl) setVideoInputUrl(latestCompletedJob.videoUrl);
-                  if (latestCompletedJob.styleCode) setSelectedStyleCode(latestCompletedJob.styleCode);
-                }
+            const activeJob = jobs.find((j: any) => j.status === 'processing' || j.status === 'queued');
+
+            if (activeJob) {
+              // Active job is currently rendering: lock into live progress mode
+              setActiveJobId(activeJob.jobId);
+              if (activeJob.videoUrl) setVideoInputUrl(activeJob.videoUrl);
+              if (activeJob.styleCode) setSelectedStyleCode(activeJob.styleCode);
+              setIsGenerating(true);
+              setRenderedVideoUrl(null);
+              setShowCompletionNotification(false);
+              if (activeJob.message) setGenerationStage(activeJob.message.replace(/^\[Remotion\]\s*/, '🎬 '));
+              else if (activeJob.stage) setGenerationStage(activeJob.stage);
+              if (typeof activeJob.progress === 'number') setGenerationProgress(activeJob.progress);
+              subscribeToJobStream(activeJob.jobId);
+            } else if (completedJobs.length > 0) {
+              // When idle, load latest finished video
+              const latestCompletedJob = completedJobs[0];
+              const finalR2 = latestCompletedJob.videoUrl_r2 || latestCompletedJob.videoUrl;
+              if (finalR2) {
+                setRenderedVideoUrl(finalR2);
+                if (latestCompletedJob.videoUrl) setVideoInputUrl(latestCompletedJob.videoUrl);
+                if (latestCompletedJob.styleCode) setSelectedStyleCode(latestCompletedJob.styleCode);
               }
             }
           })
