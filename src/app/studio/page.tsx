@@ -359,19 +359,34 @@ function StudioContent() {
 
             {isGenerating && (
               <div className="space-y-2.5 bg-[#141722] border border-white/10 rounded-2xl p-4">
-                <div className="flex justify-between items-center text-xs font-mono text-slate-300">
-                  <span className="flex items-center gap-2">
-                    <RefreshCw className="w-3.5 h-3.5 text-orange-400 animate-spin" />
-                    <span>{generationStage}</span>
-                  </span>
-                  <span className="text-orange-400 font-bold">{generationProgress}%</span>
-                </div>
-                <div className="w-full h-1.5 bg-[#1C202E] rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-orange-500 to-amber-400 transition-all duration-300 rounded-full"
-                    style={{ width: `${generationProgress}%` }}
-                  />
-                </div>
+                {(() => {
+                  const remotionInfo = parseRemotionProgress(generationStage);
+                  const displayPercent = remotionInfo?.percent ?? generationProgress;
+                  const displayTimeLeft = remotionInfo?.timeRemaining ? `(${remotionInfo.timeRemaining} left)` : '';
+                  const label = remotionInfo
+                    ? `Rendered ${remotionInfo.frameCurrent} / ${remotionInfo.frameTotal} frames`
+                    : generationStage;
+
+                  return (
+                    <>
+                      <div className="flex justify-between items-center text-xs font-mono text-slate-300">
+                        <span className="flex items-center gap-2 truncate max-w-[230px]">
+                          <RefreshCw className="w-3.5 h-3.5 text-orange-400 animate-spin flex-shrink-0" />
+                          <span className="truncate">{label}</span>
+                        </span>
+                        <span className="text-orange-400 font-bold font-mono text-[11px] whitespace-nowrap">
+                          {displayPercent}% {displayTimeLeft}
+                        </span>
+                      </div>
+                      <div className="w-full h-2 bg-[#1C202E] rounded-full overflow-hidden border border-white/5">
+                        <div
+                          className="h-full bg-gradient-to-r from-orange-500 via-amber-400 to-emerald-400 transition-all duration-300 rounded-full"
+                          style={{ width: `${displayPercent}%` }}
+                        />
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             )}
 
@@ -412,6 +427,21 @@ function StudioContent() {
       </main>
     </div>
   );
+}
+
+function parseRemotionProgress(logText?: string): { frameCurrent?: number; frameTotal?: number; timeRemaining?: string; percent?: number } | null {
+  if (!logText) return null;
+  const match = logText.match(/Rendered\s+(\d+)\/(\d+)(?:,\s*time\s*remaining:\s*([^)]+))?/i);
+  if (!match) return null;
+  const current = parseInt(match[1], 10);
+  const total = parseInt(match[2], 10);
+  const percent = Math.min(100, Math.round((current / total) * 100));
+  return {
+    frameCurrent: current,
+    frameTotal: total,
+    percent,
+    timeRemaining: match[3]?.trim(),
+  };
 }
 
 export default function StudioPage() {
