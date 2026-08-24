@@ -50,6 +50,47 @@ function StudioContent() {
   const [generationProgress, setGenerationProgress] = useState(0);
 
   const subscribeToJobStream = (jobId: string) => {
+    // 1. Instant Real-Time Polling Loop (1.5s interval for 100% dependable UI updates)
+    const pollInterval = setInterval(async () => {
+      try {
+        const statusRes = await fetch(`/api/v1/jobs/${jobId}`);
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+
+          if (typeof statusData.progress === 'number') {
+            setGenerationProgress(statusData.progress);
+          }
+
+          if (statusData.message) {
+            setGenerationStage(statusData.message.replace(/^\[Remotion\]\s*/, '🎬 '));
+          } else if (statusData.stage) {
+            setGenerationStage(statusData.stage);
+          }
+
+          const r2Url = statusData.videoUrl_r2 || statusData.videoUrl || statusData.video_url;
+          if (statusData.status === 'completed' || (r2Url && r2Url.startsWith('http'))) {
+            clearInterval(pollInterval);
+            if (r2Url) {
+              setRenderedVideoUrl(r2Url);
+              try {
+                localStorage.setItem('retake_rendered_video', r2Url);
+              } catch (e) {}
+            }
+            setIsGenerating(false);
+            setGenerationProgress(100);
+            setGenerationStage('✨ Video rendered & uploaded to Cloudflare R2!');
+          } else if (statusData.status === 'failed') {
+            clearInterval(pollInterval);
+            setGenerationError(statusData.error || 'Rendering job failed');
+            setIsGenerating(false);
+          }
+        }
+      } catch (err) {
+        console.error('Job status polling error:', err);
+      }
+    }, 1500);
+
+    // 2. Also attach SSE Stream for immediate chunk events
     try {
       const eventSource = new EventSource(`/api/v1/jobs/${jobId}/stream`);
 
@@ -57,28 +98,26 @@ function StudioContent() {
         try {
           const payload = JSON.parse(event.data);
 
-          if (payload.stage) {
+          if (payload.log) {
+            setGenerationStage(payload.log.replace(/^\[Remotion\]\s*/, '🎬 '));
+          } else if (payload.stage) {
             setGenerationStage(payload.stage);
           }
+
           if (typeof payload.progress === 'number') {
             setGenerationProgress(payload.progress);
           }
 
-          const finalUrl = payload.videoUrl || payload.video_url || (payload.data && payload.data.videoUrl);
+          const finalUrl = payload.videoUrl_r2 || payload.videoUrl || payload.video_url || (payload.data && payload.data.videoUrl);
           if (finalUrl) {
+            clearInterval(pollInterval);
             setRenderedVideoUrl(finalUrl);
-            localStorage.setItem('retake_rendered_video', finalUrl);
+            try {
+              localStorage.setItem('retake_rendered_video', finalUrl);
+            } catch (e) {}
             setIsGenerating(false);
             setGenerationProgress(100);
-            setGenerationStage('✨ Video rendered & uploaded to R2!');
-            eventSource.close();
-          } else if (payload.stage === 'finished' || payload.status === 'completed') {
-            setGenerationProgress(100);
-            setIsGenerating(false);
-            eventSource.close();
-          } else if (payload.status === 'failed' || payload.stage === 'error') {
-            setGenerationError(payload.error || 'Rendering job failed');
-            setIsGenerating(false);
+            setGenerationStage('✨ Video rendered & uploaded to Cloudflare R2!');
             eventSource.close();
           }
         } catch (err) {
@@ -87,27 +126,7 @@ function StudioContent() {
       };
 
       eventSource.onerror = () => {
-        const pollInterval = setInterval(async () => {
-          try {
-            const statusRes = await fetch(`/api/v1/jobs/${jobId}`);
-            const statusData = await statusRes.json();
-            if (statusData.progress) setGenerationProgress(statusData.progress);
-            if (statusData.stage) setGenerationStage(statusData.stage);
-            
-            const r2Url = statusData.videoUrl || statusData.video_url || (statusData.data && statusData.data.videoUrl);
-            if (r2Url || statusData.status === 'completed' || statusData.stage === 'finished') {
-              clearInterval(pollInterval);
-              if (r2Url) {
-                setRenderedVideoUrl(r2Url);
-                localStorage.setItem('retake_rendered_video', r2Url);
-              }
-              setIsGenerating(false);
-              setGenerationProgress(100);
-            }
-          } catch {
-            // ignore
-          }
-        }, 3000);
+        eventSource.close();
       };
     } catch (e) {
       console.error('Subscribe stream error:', e);
