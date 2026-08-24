@@ -156,6 +156,15 @@ export default function Navbar() {
           {user ? (
             /* Logged In State */
             <div className="flex items-center gap-2.5">
+              {/* + Create Video CTA */}
+              <Link
+                href="/studio"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(249,115,22,0.35)] cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>+ Create Video</span>
+              </Link>
+
               {/* Credit Badge */}
               <button
                 onClick={() => setIsWaitlistOpen(true)}

@@ -49,49 +49,8 @@ function StudioContent() {
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generationProgress, setGenerationProgress] = useState(0);
 
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
-        router.replace('/login?next=/studio');
-      } else {
-        setIsAuthenticated(true);
-      }
-    });
-  }, [router]);
-
-  const handleGenerateVideo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!videoInputUrl.trim() || isGenerating) return;
-
-    const jobId = `studio_lead_${Date.now()}`;
-    setActiveJobId(jobId);
-    setIsGenerating(true);
-    setGenerationError(null);
-    setGenerationProgress(5);
-    setGenerationStage('Dispatching to Oracle Cloud Worker...');
-
+  const subscribeToJobStream = (jobId: string) => {
     try {
-      const res = await fetch('/api/v1/jobs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jobId,
-          videoUrl: videoInputUrl.trim(),
-          styleCode: selectedStyleCode,
-          stylePrompt: '',
-          webhookUrl: '',
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || data.error) {
-        throw new Error(data.error || 'Failed to dispatch rendering job');
-      }
-
-      setGenerationProgress(15);
-      setGenerationStage('Job queued on Oracle Worker...');
-
       const eventSource = new EventSource(`/api/v1/jobs/${jobId}/stream`);
 
       eventSource.onmessage = (event) => {
@@ -108,6 +67,7 @@ function StudioContent() {
           const finalUrl = payload.videoUrl || payload.video_url || (payload.data && payload.data.videoUrl);
           if (finalUrl) {
             setRenderedVideoUrl(finalUrl);
+            localStorage.setItem('retake_rendered_video', finalUrl);
             setIsGenerating(false);
             setGenerationProgress(100);
             setGenerationStage('✨ Video rendered & uploaded to R2!');
@@ -137,7 +97,10 @@ function StudioContent() {
             const r2Url = statusData.videoUrl || statusData.video_url || (statusData.data && statusData.data.videoUrl);
             if (r2Url || statusData.status === 'completed' || statusData.stage === 'finished') {
               clearInterval(pollInterval);
-              if (r2Url) setRenderedVideoUrl(r2Url);
+              if (r2Url) {
+                setRenderedVideoUrl(r2Url);
+                localStorage.setItem('retake_rendered_video', r2Url);
+              }
               setIsGenerating(false);
               setGenerationProgress(100);
             }
@@ -146,6 +109,102 @@ function StudioContent() {
           }
         }, 3000);
       };
+    } catch (e) {
+      console.error('Subscribe stream error:', e);
+    }
+  };
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.replace('/login?next=/studio');
+      } else {
+        setIsAuthenticated(true);
+      }
+    });
+
+    // 1. Restore persistent rendered video across refresh
+    try {
+      const savedVideo = localStorage.getItem('retake_rendered_video');
+      if (savedVideo) {
+        setRenderedVideoUrl(savedVideo);
+      }
+
+      // 2. Check for active background render job across refresh
+      const savedJobRaw = localStorage.getItem('retake_last_job');
+      if (savedJobRaw) {
+        const savedJob = JSON.parse(savedJobRaw);
+        if (savedJob && savedJob.jobId) {
+          setActiveJobId(savedJob.jobId);
+          if (savedJob.videoUrl) setVideoInputUrl(savedJob.videoUrl);
+          if (savedJob.styleCode) setSelectedStyleCode(savedJob.styleCode);
+
+          fetch(`/api/v1/jobs/${savedJob.jobId}`)
+            .then((r) => r.json())
+            .then((statusData) => {
+              const r2 = statusData.videoUrl || statusData.video_url;
+              if (statusData.status === 'completed' && r2) {
+                setRenderedVideoUrl(r2);
+                localStorage.setItem('retake_rendered_video', r2);
+              } else if (statusData.status === 'processing' || statusData.status === 'queued') {
+                setIsGenerating(true);
+                if (statusData.stage) setGenerationStage(statusData.stage);
+                if (statusData.progress) setGenerationProgress(statusData.progress);
+                subscribeToJobStream(savedJob.jobId);
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    } catch (err) {
+      console.error('Persistent state restoration error:', err);
+    }
+  }, [router]);
+
+  const handleGenerateVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!videoInputUrl.trim() || isGenerating) return;
+
+    const jobId = `studio_lead_${Date.now()}`;
+    setActiveJobId(jobId);
+    setIsGenerating(true);
+    setGenerationError(null);
+    setGenerationProgress(5);
+    setGenerationStage('Dispatching to Oracle Cloud Worker...');
+
+    // Save job state to localStorage immediately for background persistence
+    try {
+      localStorage.setItem('retake_last_job', JSON.stringify({
+        jobId,
+        videoUrl: videoInputUrl.trim(),
+        styleCode: selectedStyleCode,
+        createdAt: Date.now(),
+      }));
+    } catch (e) {}
+
+    try {
+      const res = await fetch('/api/v1/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jobId,
+          videoUrl: videoInputUrl.trim(),
+          styleCode: selectedStyleCode,
+          stylePrompt: '',
+          webhookUrl: '',
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Failed to dispatch rendering job');
+      }
+
+      setGenerationProgress(15);
+      setGenerationStage('Job queued on Oracle Worker...');
+
+      subscribeToJobStream(jobId);
 
     } catch (err: any) {
       setGenerationError(err.message || 'Generation failed');
