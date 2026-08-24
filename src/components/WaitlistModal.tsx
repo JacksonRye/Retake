@@ -126,7 +126,7 @@ export default function WaitlistModal({
                   onChange={(e) => setSelectedPlan(e.target.value)}
                   className="w-full bg-[#0E1017] border border-white/10 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-white/30 transition-all cursor-pointer"
                 >
-                  <option value="Starter: 20 Videos ($49)">Starter: 20 Videos ($49)</option>
+                  <option value="Starter: 10 Videos ($49)">Starter: 10 Videos ($49)</option>
                   <option value="Pro: 60 Videos / mo ($97)">Pro: 60 Videos / mo ($97)</option>
                   <option value="Agency: 200 Videos / mo ($297)">Agency: 200 Videos / mo ($297)</option>
                   <option value="Custom Batch / Enterprise API">Custom Batch / Enterprise API</option>

@@ -243,7 +243,7 @@ export default function Navbar() {
                 href="/signup"
                 className="bg-white hover:bg-slate-200 text-black text-xs font-bold px-4 py-2 rounded-full transition-all shadow-sm flex items-center gap-1.5"
               >
-                <span>Get 20 Videos ($49)</span>
+                <span>Get 10 Videos ($49)</span>
                 <ArrowRight className="w-3 h-3" />
               </Link>
             </div>

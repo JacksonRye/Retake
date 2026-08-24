@@ -44,7 +44,7 @@ export default function CleanDarkMinimalLandingPage() {
         {/* Simple Badge */}
         <div className="inline-flex items-center gap-2 bg-orange-950/40 border border-orange-700/40 rounded-full px-3.5 py-1 mb-8 shadow-xs">
           <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-          <span className="text-xs font-semibold text-orange-300">20 Videos for $49 • Instant AI Revisions</span>
+          <span className="text-xs font-semibold text-orange-300">10 Videos for $49 • Instant AI Revisions</span>
         </div>
 
         {/* Grade-1 Direct Headline */}
@@ -56,7 +56,7 @@ export default function CleanDarkMinimalLandingPage() {
         {/* Dead Simple Copy */}
         <p className="text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto font-normal leading-relaxed mb-10">
           No headaches. No delays. No missed deadlines. <br className="hidden sm:block" />
-          Our AI crafts high-retention videos like the ones going viral on our pages—<strong>20 videos for just $49</strong>.
+          Our AI crafts high-retention videos like the ones going viral on our pages—<strong>10 videos for just $49</strong>.
         </p>
 
         {/* Primary Action Button */}
@@ -65,7 +65,7 @@ export default function CleanDarkMinimalLandingPage() {
             href="#pricing"
             className="w-full sm:w-auto px-8 py-4 rounded-full bg-white hover:bg-slate-200 text-black font-bold text-sm shadow-xl shadow-white/10 transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5"
           >
-            <span>Claim 20 Videos for $49</span>
+            <span>Claim 10 Videos for $49</span>
             <ArrowRight className="w-4 h-4" />
           </a>
           <a
@@ -144,7 +144,7 @@ export default function CleanDarkMinimalLandingPage() {
             <div className="space-y-3 text-sm text-slate-200">
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                <span><strong>20 Videos for $49</strong> (just $2.45 per video)</span>
+                <span><strong>10 Videos for $49</strong> (just $4.90 per video)</span>
               </div>
               <div className="flex items-start gap-2.5">
                 <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
@@ -212,7 +212,7 @@ export default function CleanDarkMinimalLandingPage() {
               <div className="space-y-3 py-6 border-t border-white/5 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                  <span><strong>20 AI Videos / month</strong></span>
+                  <span><strong>10 AI Videos / month</strong></span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
@@ -230,7 +230,7 @@ export default function CleanDarkMinimalLandingPage() {
             </div>
 
             <button 
-              onClick={() => handleOpenWaitlist('Starter: 20 Videos ($49)')}
+              onClick={() => handleOpenWaitlist('Starter: 10 Videos ($49)')}
               className="w-full py-3 rounded-full bg-[#1E2230] hover:bg-[#282D40] text-xs font-bold text-white transition-all cursor-pointer"
             >
               Get Started ($49)
