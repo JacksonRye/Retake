@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Sparkles, CheckCircle2, ExternalLink, X, Video, Download } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 interface CompletedJobNotification {
   id: string;
@@ -61,7 +62,9 @@ function playCompletionChime() {
 
 export default function GlobalNotificationProvider({ children }: { children: React.ReactNode }) {
   const [notifications, setNotifications] = useState<CompletedJobNotification[]>([]);
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const knownCompletedRef = useRef<Set<string>>(new Set());
+  const isSeededRef = useRef<boolean>(false);
 
   // Initialize known completed IDs from sessionStorage
   useEffect(() => {
@@ -79,6 +82,34 @@ export default function GlobalNotificationProvider({ children }: { children: Rea
     if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission().catch(() => {});
     }
+  }, []);
+
+  // Track Supabase Auth state: ONLY enable notifications for authenticated users
+  useEffect(() => {
+    const supabase = createClient();
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        setCurrentUserEmail(user.email);
+      } else {
+        setCurrentUserEmail(null);
+        setNotifications([]); // Clear any toasts if logged out
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user?.email) {
+        setCurrentUserEmail(session.user.email);
+      } else {
+        setCurrentUserEmail(null);
+        setNotifications([]);
+        isSeededRef.current = false;
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const addNotification = (job: { jobId: string; styleCode?: string; videoUrl_r2?: string | null }) => {
@@ -119,29 +150,58 @@ export default function GlobalNotificationProvider({ children }: { children: Rea
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  // Poll for background events across all pages
+  // Poll for background events ONLY when an authenticated user is active
   useEffect(() => {
+    if (!currentUserEmail) {
+      return;
+    }
+
     let isMounted = true;
 
     const checkJobCompletions = async () => {
+      if (!currentUserEmail) return;
+
       try {
-        const res = await fetch('/api/v1/console/events?limit=15', { cache: 'no-store' });
-        if (res.ok) {
+        const res = await fetch(
+          `/api/v1/console/events?userEmail=${encodeURIComponent(currentUserEmail)}&limit=15`,
+          { cache: 'no-store' }
+        );
+        if (res.ok && isMounted) {
           const data = await res.json();
           const jobs = data.jobs || [];
+
+          // On first fetch after login/mount, seed existing completed jobs so we don't spam old history
+          if (!isSeededRef.current) {
+            jobs.forEach((j: any) => {
+              if (j.status === 'completed') {
+                knownCompletedRef.current.add(j.jobId);
+              }
+            });
+            try {
+              sessionStorage.setItem(
+                'retake_known_completed_jobs',
+                JSON.stringify(Array.from(knownCompletedRef.current))
+              );
+            } catch (e) {}
+            isSeededRef.current = true;
+            return;
+          }
+
+          // On subsequent polls, ONLY trigger toasts for newly finished jobs belonging to this user
           jobs.forEach((j: any) => {
-            if (j.status === 'completed' && !knownCompletedRef.current.has(j.jobId)) {
+            const isUserJob = !j.userEmail || j.userEmail.toLowerCase() === currentUserEmail.toLowerCase();
+            if (isUserJob && j.status === 'completed' && !knownCompletedRef.current.has(j.jobId)) {
               addNotification(j);
             }
           });
         }
       } catch (e) {
-        // ignore
+        // ignore network error
       }
     };
 
-    // First check after mount
-    const initialTimer = setTimeout(checkJobCompletions, 1500);
+    // Initial seed check
+    const initialTimer = setTimeout(checkJobCompletions, 800);
     const interval = setInterval(checkJobCompletions, 3500);
 
     return () => {
@@ -149,7 +209,7 @@ export default function GlobalNotificationProvider({ children }: { children: Rea
       clearTimeout(initialTimer);
       clearInterval(interval);
     };
-  }, []);
+  }, [currentUserEmail]);
 
   return (
     <NotificationContext.Provider value={{ notifications, dismiss }}>
